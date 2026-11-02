@@ -1,7 +1,7 @@
-package Main;
-import Design.*;
+import javax.swing.*;
 
 public class Main {
+<<<<<<< Updated upstream
 
     static SignUp su = new SignUp();
 
@@ -23,5 +23,18 @@ public class Main {
         
         su.setContentPane(su.panel1);
         su.setVisible(true);
+=======
+    public static void main(String[] args) {
+
+        JFrame f = new JFrame("StoneCraft Sign Up");
+
+        SignUp su = new SignUp();
+
+        f.add(su);
+        f.setSize(920, 600);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setLocationRelativeTo(null);
+        f.setVisible(true);
+>>>>>>> Stashed changes
     }
 }
