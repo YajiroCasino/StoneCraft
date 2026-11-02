@@ -6,6 +6,7 @@ public class Main {
     static SignUp su = new SignUp();
 
     public static void main(String[] args){
+<<<<<<< HEAD
 
         su.productButton.addActionListener(e ->{
             su.contentPane.removeAll();
@@ -36,5 +37,8 @@ public class Main {
         f.setLocationRelativeTo(null);
         f.setVisible(true);
 >>>>>>> Stashed changes
+=======
+        CustomerMain  cm = new CustomerMain();
+>>>>>>> origin/main
     }
 }

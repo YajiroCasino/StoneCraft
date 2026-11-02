@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 import javax.swing.*;
 <<<<<<< Updated upstream
 
@@ -145,4 +146,7 @@ public class SignUp extends JPanel {
         // LeftPanel.add(Tagline);
     }
 >>>>>>> Stashed changes
+=======
+public class SignUp extends MainDesign{
+>>>>>>> origin/main
 }
