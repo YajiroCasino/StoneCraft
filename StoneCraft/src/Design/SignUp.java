@@ -1,7 +1,6 @@
-
-<<<<<<< HEAD
+package Design;
 import javax.swing.*;
-<<<<<<< Updated upstream
+import java.awt.*;
 
 public class SignUp extends  MainDesign{
     public JPanel panel1;
@@ -11,11 +10,6 @@ public class SignUp extends  MainDesign{
     public JPanel messageCard;
     public JPanel contentPane;
 
-
-=======
-import java.awt.*;
-
-public class SignUp extends JPanel {
 
     JPanel LeftPanel, RightPanel;
 
@@ -141,12 +135,9 @@ public class SignUp extends JPanel {
         add(LeftPanel);
         add(RightPanel);
 
+        setVisible(true);
         // LOGO AND TAGLINE WILL BE ADDED bukassss
         // LeftPanel.add(Logo);
         // LeftPanel.add(Tagline);
     }
->>>>>>> Stashed changes
-=======
-public class SignUp extends MainDesign{
->>>>>>> origin/main
 }
