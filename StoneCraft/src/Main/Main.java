@@ -1,4 +1,5 @@
 package Main;
+<<<<<<< Updated upstream
 import Design.*;
 
 public class Main {
@@ -23,5 +24,15 @@ public class Main {
         
         su.setContentPane(su.panel1);
         su.setVisible(true);
+=======
+import Design.CustomerMain;
+import Design.Login;
+
+public class Main {
+
+    public static void main(String[] args) {
+        new Login();
+
+>>>>>>> Stashed changes
     }
 }
