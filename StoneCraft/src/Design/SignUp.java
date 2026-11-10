@@ -11,14 +11,14 @@ public class SignUp extends  MainDesign{
     public JPanel contentPane;
 
 
-    JPanel LeftPanel, RightPanel;
+    JPanel leftPanel, rightPanel;
 
-    JLabel Title, FullName, Email, Contact, Password, ConfirmPassword, Login;
+    JLabel title, fullName, email, contact, password, confirmPassword, login;
 
-    JTextField NameField, EmailField, ContactField;
-    JPasswordField PasswordField, ConfirmField;
+    public JTextField nameField, emailField, contactField;
+    public JPasswordField passwordField, confirmField;
 
-    JButton CreateAccount;
+    public JButton createAccount;
 
     // JLabel Logo;
     // JLabel Tagline;
@@ -30,71 +30,70 @@ public class SignUp extends  MainDesign{
         setBackground(Color.WHITE);
 
         // LEFT PANEL
-        LeftPanel = new JPanel();
-        LeftPanel.setLayout(null);
-        LeftPanel.setBounds(0, 0, 418, 560);
-        LeftPanel.setBackground(new Color(43, 42, 40));
+        leftPanel = new JPanel();
+        leftPanel.setLayout(null);
+        leftPanel.setBounds(0, 0, 418, 560);
+        leftPanel.setBackground(new Color(43, 42, 40));
 
         // Logo = new JLabel("StoneCraft");
         // Tagline = new JLabel("Business Management System");
 
         // RIGHT PANEL
-        RightPanel = new JPanel();
-        RightPanel.setLayout(null);
-        RightPanel.setBounds(418, 0, 502, 560);
-        RightPanel.setBackground(Color.WHITE);
+        rightPanel = new JPanel();
+        rightPanel.setLayout(null);
+        rightPanel.setBounds(418, 0, 502, 560);
+        rightPanel.setBackground(Color.WHITE);
 
-        Title = new JLabel("Create an Account");
-        Title.setFont(new Font("Arial", Font.BOLD, 25));
-        Title.setForeground(new Color(31, 30, 28));
-        Title.setBounds(52, 25, 398, 40);
+        title = new JLabel("Create an Account");
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+        title.setForeground(new Color(31, 30, 28));
+        title.setBounds(52, 25, 398, 40);
 
-        FullName = new JLabel("Full Name");
-        FullName.setBounds(52, 85, 398, 20);
+        fullName = new JLabel("Full Name");
+        fullName.setBounds(52, 85, 398, 20);
 
-        NameField = new JTextField();
-        NameField.setBounds(52, 110, 398, 38);
+        nameField = new JTextField();
+        nameField.setBounds(52, 110, 398, 38);
 
-        Email = new JLabel("Email Address");
-        Email.setBounds(52, 160, 398, 20);
+        email = new JLabel("Email Address");
+        email.setBounds(52, 160, 398, 20);
 
-        EmailField = new JTextField();
-        EmailField.setBounds(52, 185, 398, 38);
+        emailField = new JTextField();
+        emailField.setBounds(52, 185, 398, 38);
 
-        Contact = new JLabel("Contact Number");
-        Contact.setBounds(52, 235, 398, 20);
+        contact = new JLabel("Contact Number");
+        contact.setBounds(52, 235, 398, 20);
 
-        ContactField = new JTextField();
-        ContactField.setBounds(52, 260, 398, 38);
+        contactField = new JTextField();
+        contactField.setBounds(52, 260, 398, 38);
+        password = new JLabel("Password");
+        password.setBounds(52, 310, 398, 20);
 
-        Password = new JLabel("Password");
-        Password.setBounds(52, 310, 398, 20);
+        passwordField = new JPasswordField();
+        passwordField.setBounds(52, 335, 398, 38);
 
-        PasswordField = new JPasswordField();
-        PasswordField.setBounds(52, 335, 398, 38);
+        confirmPassword = new JLabel("Confirm Password");
+        confirmPassword.setBounds(52, 385, 398, 20);
 
-        ConfirmPassword = new JLabel("Confirm Password");
-        ConfirmPassword.setBounds(52, 385, 398, 20);
+        confirmField = new JPasswordField();
+        confirmField.setBounds(52, 410, 398, 38);
 
-        ConfirmField = new JPasswordField();
-        ConfirmField.setBounds(52, 410, 398, 38);
+        createAccount = new JButton("Create Account");
+        createAccount.setBounds(52, 465, 398, 42);
+        createAccount.setBackground(new Color(181, 101, 29));
+        createAccount.setForeground(Color.WHITE);
+        createAccount.setFocusPainted(false);
+        createAccount.setBorderPainted(false);
+        createAccount.setOpaque(true);
 
-        CreateAccount = new JButton("Create Account");
-        CreateAccount.setBounds(52, 465, 398, 42);
-        CreateAccount.setBackground(new Color(181, 101, 29));
-        CreateAccount.setForeground(Color.WHITE);
-        CreateAccount.setFocusPainted(false);
-        CreateAccount.setBorderPainted(false);
-        CreateAccount.setOpaque(true);
-
-        Login = new JLabel("Already have an account? Log in");
-        Login.setBounds(52, 515, 398, 25);
-        Login.setHorizontalAlignment(SwingConstants.CENTER);
-        Login.setForeground(new Color(181, 101, 29));
+        login = new JLabel("Already have an account? Log in");
+        login.setBounds(52, 515, 398, 25);
+        login.setHorizontalAlignment(SwingConstants.CENTER);
+        login.setForeground(new Color(181, 101, 29));
 
         // LABEL COLORS
         JLabel[] labels = {
-                FullName, Email, Contact, Password, ConfirmPassword
+                fullName, email, contact, password, confirmPassword
         };
 
         for (JLabel label : labels) {
@@ -104,8 +103,8 @@ public class SignUp extends  MainDesign{
 
         // TEXT FIELD COLORS AND BORDERS
         JTextField[] fields = {
-                NameField, EmailField, ContactField,
-                PasswordField, ConfirmField
+                nameField, emailField, contactField,
+                passwordField, confirmField
         };
 
         for (JTextField field : fields) {
@@ -117,27 +116,29 @@ public class SignUp extends  MainDesign{
         }
 
         // ADD COMPONENTS TO RIGHT PANEL
-        RightPanel.add(Title);
-        RightPanel.add(FullName);
-        RightPanel.add(NameField);
-        RightPanel.add(Email);
-        RightPanel.add(EmailField);
-        RightPanel.add(Contact);
-        RightPanel.add(ContactField);
-        RightPanel.add(Password);
-        RightPanel.add(PasswordField);
-        RightPanel.add(ConfirmPassword);
-        RightPanel.add(ConfirmField);
-        RightPanel.add(CreateAccount);
-        RightPanel.add(Login);
+        rightPanel.add(title);
+        rightPanel.add(fullName);
+        rightPanel.add(nameField);
+        rightPanel.add(email);
+        rightPanel.add(emailField);
+        rightPanel.add(contact);
+        rightPanel.add(contactField);
+        rightPanel.add(password);
+        rightPanel.add(passwordField);
+        rightPanel.add(confirmPassword);
+        rightPanel.add(confirmField);
+        rightPanel.add(createAccount);
+        rightPanel.add(login);
 
         // ADD PANELS
-        add(LeftPanel);
-        add(RightPanel);
+        add(leftPanel);
+        add(rightPanel);
 
         setVisible(true);
         // LOGO AND TAGLINE WILL BE ADDED bukassss
         // LeftPanel.add(Logo);
         // LeftPanel.add(Tagline);
     }
+
+
 }
