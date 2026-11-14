@@ -1,4 +1,3 @@
-
 package Design;
 
 import javax.swing.*;
@@ -7,11 +6,6 @@ import java.awt.event.*;
 
 public class SignUp extends MainDesign {
 
-<<<<<<< Updated upstream
-public class SignUp extends MainDesign {
-
-=======
->>>>>>> Stashed changes
     public JPanel panel1;
     public JButton productButton;
     public JButton messageButton;
@@ -19,45 +13,30 @@ public class SignUp extends MainDesign {
     public JPanel messageCard;
     public JPanel contentPane;
 
-<<<<<<< Updated upstream
     JPanel LeftPanel, RightPanel;
 
     JLabel Title, FullName, Email, Contact, Password, ConfirmPassword, Login;
-
     JLabel Quote1, Quote2;
     JLabel Description1, Description2;
     JLabel Copyright;
-=======
-    public JPanel LeftPanel, RightPanel;
+
     public JPanel PasswordPanel, ConfirmPanel;
-
-    public JLabel Title, FullName, Email, Contact;
-    public JLabel Password, ConfirmPassword, Login;
-
-    public JLabel Quote1, Quote2;
-    public JLabel Description1, Description2;
-    public JLabel Copyright;
 
     public JLabel Logo;
     public JLabel Tagline;
->>>>>>> Stashed changes
 
-    JTextField NameField, EmailField, ContactField;
-    JPasswordField PasswordField, ConfirmField;
+    public JTextField nameField, emailField, contactField;
+    public JPasswordField passwordField, confirmField;
 
-<<<<<<< Updated upstream
-    JButton CreateAccount;
-
-    // JLabel Logo;
-    // JLabel Tagline;
-=======
     public JButton createAccount;
     public JButton showPassword, showConfirm;
->>>>>>> Stashed changes
+
 
     public SignUp() {
 
+        // =========================
         // MAIN WINDOW
+        // =========================
         setTitle("StoneCraft");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -75,19 +54,7 @@ public class SignUp extends MainDesign {
 
         // =========================
         // LEFT PANEL
-<<<<<<< Updated upstream
-        LeftPanel = new JPanel();
-        LeftPanel.setLayout(null);
-        LeftPanel.setBounds(0, 0, 418, 560);
-        LeftPanel.setBackground(new Color(43, 42, 40));
-
-        // LOGO AND TAGLINE
-        // Logo = new JLabel("StoneCraft");
-        // Tagline = new JLabel("Business Management System");
-
-=======
         // =========================
-
         LeftPanel = new JPanel();
         LeftPanel.setLayout(null);
         LeftPanel.setBounds(0, 0, 418, 560);
@@ -102,7 +69,6 @@ public class SignUp extends MainDesign {
         logoLetter.setFont(new Font("Arial", Font.BOLD, 27));
         logoLetter.setForeground(Color.WHITE);
         logoLetter.setHorizontalAlignment(SwingConstants.CENTER);
-
         logoIcon.add(logoLetter, BorderLayout.CENTER);
 
         // STONECRAFT
@@ -117,7 +83,6 @@ public class SignUp extends MainDesign {
         Tagline.setForeground(new Color(185, 179, 168));
         Tagline.setBounds(108, 80, 260, 25);
 
->>>>>>> Stashed changes
         // QUOTE
         Quote1 = new JLabel("Naturally strong.");
         Quote1.setFont(new Font("Arial", Font.BOLD, 30));
@@ -146,50 +111,10 @@ public class SignUp extends MainDesign {
         Copyright.setForeground(new Color(138, 133, 123));
         Copyright.setBounds(45, 510, 300, 25);
 
-<<<<<<< Updated upstream
-        // RIGHT PANEL
-        RightPanel = new JPanel();
-        RightPanel.setLayout(null);
-        RightPanel.setBounds(418, 0, 502, 560);
-        RightPanel.setBackground(Color.WHITE);
-
-        Title = new JLabel("Create an Account");
-        Title.setFont(new Font("Arial", Font.BOLD, 25));
-        Title.setForeground(new Color(31, 30, 28));
-        Title.setBounds(52, 25, 398, 40);
-
-        FullName = new JLabel("Full Name");
-        FullName.setBounds(52, 85, 398, 20);
-
-        NameField = new JTextField();
-        NameField.setBounds(52, 110, 398, 38);
-
-        Email = new JLabel("Email Address");
-        Email.setBounds(52, 160, 398, 20);
-
-        EmailField = new JTextField();
-        EmailField.setBounds(52, 185, 398, 38);
-
-        Contact = new JLabel("Contact Number");
-        Contact.setBounds(52, 235, 398, 20);
-
-        ContactField = new JTextField();
-        ContactField.setBounds(52, 260, 398, 38);
-
-        Password = new JLabel("Password");
-        Password.setBounds(52, 310, 398, 20);
-
-        PasswordField = new JPasswordField();
-        PasswordField.setBounds(52, 335, 398, 38);
-
-        ConfirmPassword = new JLabel("Confirm Password");
-        ConfirmPassword.setBounds(52, 385, 398, 20);
-=======
 
         // =========================
         // RIGHT PANEL
         // =========================
-
         RightPanel = new JPanel();
         RightPanel.setLayout(null);
         RightPanel.setBounds(418, 0, 502, 560);
@@ -229,7 +154,6 @@ public class SignUp extends MainDesign {
         // =========================
         // PASSWORD
         // =========================
-
         Password = new JLabel("Password");
         Password.setBounds(52, 310, 398, 20);
 
@@ -269,7 +193,6 @@ public class SignUp extends MainDesign {
         // =========================
         // CONFIRM PASSWORD
         // =========================
-
         ConfirmPassword = new JLabel("Confirm Password");
         ConfirmPassword.setBounds(52, 385, 398, 20);
 
@@ -309,36 +232,22 @@ public class SignUp extends MainDesign {
         // =========================
         // CREATE ACCOUNT
         // =========================
->>>>>>> Stashed changes
+        createAccount = new JButton("Create Account");
+        createAccount.setBounds(52, 465, 398, 42);
+        createAccount.setBackground(new Color(181, 101, 29));
+        createAccount.setForeground(Color.WHITE);
+        createAccount.setFocusPainted(false);
+        createAccount.setBorderPainted(false);
+        createAccount.setOpaque(true);
 
-        ConfirmField = new JPasswordField();
-        ConfirmField.setBounds(52, 410, 398, 38);
-
-<<<<<<< Updated upstream
-        CreateAccount = new JButton("Create Account");
-        CreateAccount.setBounds(52, 465, 398, 42);
-        CreateAccount.setBackground(new Color(181, 101, 29));
-        CreateAccount.setForeground(Color.WHITE);
-        CreateAccount.setFocusPainted(false);
-        CreateAccount.setBorderPainted(false);
-        CreateAccount.setOpaque(true);
-
-        Login = new JLabel("Already have an account? Log in");
-        Login.setBounds(52, 515, 398, 25);
-        Login.setHorizontalAlignment(SwingConstants.CENTER);
-        Login.setForeground(new Color(181, 101, 29));
-=======
->>>>>>> Stashed changes
 
         // =========================
         // LOGIN
         // =========================
-
         Login = new JLabel(
                 "<html><font color='#78746D'>Already have an account? </font>"
                         + "<font color='#B5651D'>Log in</font></html>"
         );
-
         Login.setBounds(52, 515, 398, 25);
         Login.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -346,7 +255,6 @@ public class SignUp extends MainDesign {
         // =========================
         // LABEL COLORS
         // =========================
-
         JLabel[] labels = {
                 FullName, Email, Contact, Password, ConfirmPassword
         };
@@ -358,16 +266,10 @@ public class SignUp extends MainDesign {
 
 
         // =========================
-        // TEXT FIELD COLORS
+        // TEXT FIELD STYLE
         // =========================
-
         JTextField[] fields = {
-<<<<<<< Updated upstream
-                NameField, EmailField, ContactField,
-                PasswordField, ConfirmField
-=======
                 nameField, emailField, contactField
->>>>>>> Stashed changes
         };
 
         for (JTextField field : fields) {
@@ -379,42 +281,10 @@ public class SignUp extends MainDesign {
             field.setFont(new Font("Arial", Font.PLAIN, 14));
         }
 
-<<<<<<< Updated upstream
-        // ADD COMPONENTS TO LEFT PANEL
-        LeftPanel.add(Quote1);
-        LeftPanel.add(Quote2);
-        LeftPanel.add(Description1);
-        LeftPanel.add(Description2);
-        LeftPanel.add(Copyright);
-
-        // ADD COMPONENTS TO RIGHT PANEL
-        RightPanel.add(Title);
-        RightPanel.add(FullName);
-        RightPanel.add(NameField);
-        RightPanel.add(Email);
-        RightPanel.add(EmailField);
-        RightPanel.add(Contact);
-        RightPanel.add(ContactField);
-        RightPanel.add(Password);
-        RightPanel.add(PasswordField);
-        RightPanel.add(ConfirmPassword);
-        RightPanel.add(ConfirmField);
-        RightPanel.add(CreateAccount);
-        RightPanel.add(Login);
-
-        // ADD PANELS
-        add(LeftPanel);
-        add(RightPanel);
-
-        setVisible(true);
-
-    }
-=======
 
         // =========================
         // ADD COMPONENTS TO PANELS
         // =========================
-
         LeftPanel.add(logoIcon);
         LeftPanel.add(Logo);
         LeftPanel.add(Tagline);
@@ -450,7 +320,6 @@ public class SignUp extends MainDesign {
         // =========================
         // ADD TO SIGNUP CONTAINER
         // =========================
-
         contentPane.add(LeftPanel);
         contentPane.add(RightPanel);
 
@@ -464,7 +333,6 @@ public class SignUp extends MainDesign {
     // =========================
     // PLACEHOLDER METHOD
     // =========================
-
     public void addPlaceholder(JTextField field, String placeholder) {
 
         field.setText(placeholder);
@@ -489,5 +357,5 @@ public class SignUp extends MainDesign {
             }
         });
     }
->>>>>>> Stashed changes
+
 }

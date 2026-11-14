@@ -10,9 +10,12 @@ public class Main {
     public static DataAccessObject productDao = new DataAccessObject();
 
     public static void main(String[] args){
+
+        /*
         DataBaseConnection.createDatabase();
         new BusinessMain();
-
+         */
+        new SignUp();
 
     }
 
