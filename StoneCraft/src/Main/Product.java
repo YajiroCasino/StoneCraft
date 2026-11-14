@@ -1,13 +1,13 @@
 package Main;
 
 public class Product {
-    private String productId;
+    private int productId;
     private String productName;
     private String productCategory;
     private double productPrice;
     private int productQuantity;
 
-    public Product(String productId, String productName, String productCategory, double productPrice, int productQuantity){
+    public Product(int productId, String productName, String productCategory, double productPrice, int productQuantity){
         this.productId = productId;
         this.productName = productName;
         this.productCategory = productCategory;
@@ -15,11 +15,11 @@ public class Product {
         this.productQuantity = productQuantity;
     }
 
-    public String getProductId(){
+    public int getProductId(){
         return productId;
     }
 
-    public void getProductId(String productId){
+    public void getProductId(int productId){
         this.productId = productId;
     }
 

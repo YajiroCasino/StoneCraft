@@ -1,18 +1,18 @@
 package Main;
-import DataBaseManagementConnection.DataBaseConnection;
 import Design.*;
+import DataBaseManagementConnection.*;
 import javax.swing.*;
-import java.util.ArrayList;
+import java.util.List;
+
 
 public class Main {
 
-    static BusinessMain bs;
-    static SignUp ca;
-    static ArrayList <Product> kitchenCategory = new ArrayList<>();
+    public static DataAccessObject productDao = new DataAccessObject();
 
     public static void main(String[] args){
-
+        DataBaseConnection.createDatabase();
         new BusinessMain();
+
 
     }
 
@@ -39,30 +39,5 @@ public class Main {
         });
 
     }
-
-    //===================================
-    //for product add
-    //===================================
-
-    public static void productAdd(String productId, String productName, String productPrice, String productQuantity,String productCategory){
-
-        double pPrice = Double.parseDouble(productPrice);
-        int pCategory = Integer.parseInt(productQuantity);
-
-        kitchenCategory.add(new Product(productId, productName, productCategory, pPrice, pCategory));
-
-        for(Product pr: kitchenCategory){
-            System.out.println(pr.getProductId());
-            System.out.println(pr.getProductName());
-            System.out.println(pr.getProductCategory());
-            System.out.println(pr.getProductPrice());
-            System.out.println(pr.getProductCategory());
-            System.out.println("===========================");
-        }
-
-    }
-
-    //yung sa id ng product need ko yun i modify to forloop para magsunod sunod without entering the value
-    //yung sa productId siguro soon na yun heheh
-    //gagawin ko pa is yung iuupdate ko yung inventory
+    //may error sa dashboard and yung sa inventory di ko pa nalalagay pero okay naman na sa part ng product
 }

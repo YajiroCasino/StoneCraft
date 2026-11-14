@@ -1,5 +1,17 @@
 package Design;
-import  Main.*;
+import DataBaseManagementConnection.DataAccessObject;
+import Main.*;
+
+
+import Design.BusinessMainFile.Dashboard;
+import Design.BusinessMainFile.SaleAnalytics;
+import Design.BusinessMainFile.CustomOrder;
+import Design.BusinessMainFile.Inventory;
+import Design.BusinessMainFile.Logout;
+import Design.BusinessMainFile.Message;
+import Design.BusinessMainFile.MyProduct;
+import Design.BusinessMainFile.Order;
+import Design.BusinessMainFile.ShopProfile;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -7,91 +19,94 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
+import java.util.List;
 
 public class BusinessMain extends MainDesign {
+    Main main;
 
     //=============================================================
     //color ko to para di kayo mahirapan pa magintindi
     //==============================================================
-    static final Color SIDE = new Color(0x2B2A28);
-    static final Color ACCENT = new Color(0xB5651D);
-    static final Color LINE = new Color(0xE6E1DA);
-    static final Color SURFACE = new Color(0xFAF8F5);
-    static final Color SELECT = new Color(0xF3E4D4);
-    static final Color MUTE = new Color(0x7A736B);
-    static final Color TEXT = new Color(0x1F1D1B);
-    static final Color OK = new Color(0x3F7D4E);
-    static final Color WARN = new Color(0xB7791F);
-    static final Color BAD = new Color(0xA63A2B);
-    static final Color INFO = new Color(0x3B6EA5);
+    public static final Color SIDE = new Color(0x2B2A28);
+    public static final Color ACCENT = new Color(0xB5651D);
+    public static final Color LINE = new Color(0xE6E1DA);
+    public static final Color SURFACE = new Color(0xFAF8F5);
+    public static final Color SELECT = new Color(0xF3E4D4);
+    public static final Color MUTE = new Color(0x7A736B);
+    public static final Color TEXT = new Color(0x1F1D1B);
+    public static final Color OK = new Color(0x3F7D4E);
+    public static final Color WARN = new Color(0xB7791F);
+    public static final Color BAD = new Color(0xA63A2B);
+    public static final Color INFO = new Color(0x3B6EA5);
 
     //===============================================================
     //Ito fonts ko
     //===============================================================
 
-    static final Font BASE = new Font("Segoe UI", Font.PLAIN, 14);
-    static final Font BOLD = new Font("Segoe UI", Font.BOLD, 14);
-    static final Font SMALL = new Font("Segoe UI", Font.PLAIN, 12);
-    static final String PESO = "\u20B1";
+    public static final Font BASE = new Font("Segoe UI", Font.PLAIN, 14);
+    public static final Font BOLD = new Font("Segoe UI", Font.BOLD, 14);
+    public static final Font SMALL = new Font("Segoe UI", Font.PLAIN, 12);
+    public static final String PESO = "\u20B1";
 
-    JPanel businessMainPanel = new JPanel();
-    JPanel content = new JPanel(new CardLayout());
+    public JPanel businessMainPanel = new JPanel();
+    public JPanel content = new JPanel(new CardLayout());
 
     String[] pageNames = {"dashboard", "analytics", "products", "orders", "custom",
-            "inventory", "payouts", "messages", "shop", "logout"};
+            "inventory", "messages", "shop", "logout"};
 
     //=======================================
     //nav button lang yan wag ioverthink
     //=========================================
-    NavButton[] buttons = {
+    public NavButton[] buttons = {
             new NavButton("Dashboard", null),
             new NavButton("Sales Analytics", null),
             new NavButton("My Products", null),
-            new NavButton("Orders", "4"),
-            new NavButton("Custom Requests", "3"),
+            new NavButton("Orders", null),
+            new NavButton("Custom Requests", null),
             new NavButton("Inventory", null),
-            new NavButton("Payments & Payouts", null),
-            new NavButton("Messages", "2"),
+            new NavButton("Messages", null),
             new NavButton("Shop Profile", null),
             new NavButton("Logout", null)
     };
 
     // ---------- sample data ----------
-    String[] orderCols = {"Order", "Buyer", "Item", "Total", "Status"};
-    String[] statuses = {"New", "Preparing", "Shipped", "Delivered", "Cancelled"};
-    Object[][] orderData = {
+    public String[] orderCols = {"Order", "Buyer", "Item", "Total", "Status"};
+    public String[] statuses = {"New", "Preparing", "Shipped", "Delivered", "Cancelled"};
+    public Object[][] orderData = {
             {"#1042", "Maria D.", "Carved Stone Lamp", PESO + "3,200", "New"},
             {"#1041", "Paolo R.", "Marble Coaster Set", PESO + "1,800", "New"},
             {"#1040", "Ana L.", "Stone Bird Bath", PESO + "4,100", "Preparing"},
             {"#1039", "Ken S.", "Granite Mortar & Pestle", PESO + "1,250", "Shipped"},
             {"#1038", "Liza M.", "River Stone Planter", PESO + "2,400", "Delivered"}
     };
-    Main main;
 
-
-    Object[][] productData = {
-
-    };
 
     Color[] swatches = {
             new Color(0x8C8A82), new Color(0xA9A296), new Color(0x6E7B68), new Color(0xA88A68),
             new Color(0x4A4D55), new Color(0x9C6A4E), new Color(0x7B8A90), new Color(0xC9B99B)
     };
 
-    DefaultTableModel ordersModel, dashModel;
-    JWindow toastWin;
-    Timer toastTimer;
+    public DefaultTableModel ordersModel, dashModel;
+    public DefaultTableModel productsModel, inventoryModel;
+    public JWindow toastWin;
+    public Timer toastTimer;
 
-    java.util.Map<String, Chat> chats = buildChats();
-    JPanel threadPage;
-    JTextField threadInput;
-    JScrollPane threadScroll;
+    public JPanel threadPage;
+    public JTextField threadInput;
+    public JScrollPane threadScroll;
 
     public BusinessMain() {
+
+        ordersModel    = makeModel(orderCols, new Object[0][5], 4);
+        dashModel      = makeModel(orderCols, new Object[0][5], -1);
+        productsModel  = makeModel(new String[]{"", "Product", "ID", "Category", "Price", "Stock", ""}, new Object[0][7], -1);
+        inventoryModel = makeModel(new String[]{"", "Product", "ID", "Category", "In stock", ""}, new Object[0][6], -1);
+
         JPanel sideBar = new JPanel();
         JPanel right = new JPanel(new BorderLayout());
+
         content.setBackground(Color.WHITE);
+
         right.add(topBar(), BorderLayout.NORTH);
         right.add(content, BorderLayout.CENTER);
 
@@ -101,46 +116,38 @@ public class BusinessMain extends MainDesign {
 
         buildSideBar(sideBar);
 
-        content.add(dashboardPanelContent(), pageNames[0]);
-        content.add(saleAnalyticPanelContent(), pageNames[1]);
-        content.add(myProductsPanelContent(), pageNames[2]);
-        content.add(ordersPanelContent(), pageNames[3]);
-        content.add(customRequestPanelContent(), pageNames[4]);
-        content.add(inventoryPanelContent(), pageNames[5]);
-        content.add(payoutsPanelContent(), pageNames[6]);
-        content.add(messagesPanelContent(), pageNames[7]);
-        content.add(shopPanelContent(), pageNames[8]);
-        content.add(logoutPanelContent(), pageNames[9]);
+        //==================================================
+        //content add ko to
+        //==================================================
 
-        // keep dashboard table + Orders badge in sync with the Orders page
-        ordersModel.addTableModelListener(e -> syncOrders());
-        syncOrders();
+        content.add(new Dashboard(this), pageNames[0]);
+        content.add(new SaleAnalytics(this), pageNames[1]);
+        content.add(new MyProduct(this), pageNames[2]);
+        content.add(new Order(this), pageNames[3]);
+        content.add(new CustomOrder(this), pageNames[4]);
+        content.add(new Inventory(this), pageNames[5]);
+        content.add(new Message(this), pageNames[6]);
+        content.add(new ShopProfile(this), pageNames[7]);
+        content.add(new Logout(this), pageNames[8]);
+
+        // keep dashboard table + Orders badge in sync with the Orders pag
         showPage(0);
 
         add(businessMainPanel);
         setVisible(true);
     }
 
-    void showPage(int index) {
+    public void showPage(int index) {
         ((CardLayout) content.getLayout()).show(content, pageNames[index]);
         for (int i = 0; i < buttons.length; i++) buttons[i].setActive(i == index);
     }
 
-    void syncOrders() {
-        int n = 0;
-        for (int r = 0; r < ordersModel.getRowCount(); r++) {
-            if ("New".equals(ordersModel.getValueAt(r, 4))) n++;
-            if (r < dashModel.getRowCount())
-                for (int c = 0; c < 5; c++) dashModel.setValueAt(ordersModel.getValueAt(r, c), r, c);
-        }
-        buttons[3].setBadge(String.valueOf(n));
-    }
 
     // =====================================================
     //  SIDEBAR + TOP BAR
     // =====================================================
 
-    void buildSideBar(JPanel sideBar) {
+    public void buildSideBar(JPanel sideBar) {
         sideBar.setBackground(SIDE);
         sideBar.setPreferredSize(new Dimension(232, 0));
         sideBar.setLayout(new BoxLayout(sideBar, BoxLayout.Y_AXIS));
@@ -169,7 +176,7 @@ public class BusinessMain extends MainDesign {
         sideBar.add(logo);
 
         for (int i = 0; i < buttons.length; i++) {
-            String section = i == 0 ? "OVERVIEW" : i == 2 ? "MANAGE" : i == 6 ? "MONEY" : i == 7 ? "ACCOUNT" : null;
+            String section = i == 0 ? "OVERVIEW" : i == 2 ? "MANAGE" : i == 6 ? "ACCOUNT" : null;
             if (section != null) {
                 JLabel l = new JLabel(section);
                 l.setFont(new Font("Segoe UI", Font.PLAIN, 11));
@@ -189,7 +196,7 @@ public class BusinessMain extends MainDesign {
         }
     }
 
-    JPanel topBar() {
+    public JPanel topBar() {
         JPanel bar = new JPanel(new BorderLayout(16, 0));
         bar.setBackground(Color.WHITE);
         bar.setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0, LINE), new EmptyBorder(12, 28, 12, 28)));
@@ -215,526 +222,11 @@ public class BusinessMain extends MainDesign {
         return bar;
     }
 
-    // =====================================================
-    //  PAGES
-    // =====================================================
-
-    public JPanel dashboardPanelContent() {
-
-        JPanel page = page("Kumusta, Juan", "Ito ang takbo ng shop mo ngayong linggo.");
-
-        JPanel stats = new JPanel(new GridLayout(1, 4, 14, 0));
-        stats.setOpaque(false);
-        stats.add(statCard("Sales this week", PESO + "48,350", "+12% vs last week"));
-        stats.add(statCard("New orders", "4", "2 need shipping today"));
-        stats.add(statCard("Custom requests", "3", "1 waiting for your quote"));
-        stats.add(statCard("Shop rating", "4.7", "from 212 reviews"));
-
-        JPanel chart = card("Daily sales", null, -1);
-        chart.add(new BarChart(new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
-                new int[]{45, 62, 38, 92, 70, 80, 30}), BorderLayout.CENTER);
-
-        JPanel low = card("Low stock", "Restock", 5);
-        JPanel lowList = vbox();
-        for (Object[] p : productData)
-            if ((Integer) p[4] < 4) lowList.add(lowRow(p[0].toString(), p[4] + " left", BAD));
-        low.add(lowList, BorderLayout.CENTER);
-
-        dashModel = makeModel(orderCols, firstRows(orderData, 4), -1);
-        JTable dashTable = new JTable(dashModel);
-        styleTable(dashTable, 60, 90, 160, 70, 100);
-        dashTable.getColumnModel().getColumn(4).setCellRenderer(new PillRenderer());
-        JPanel recent = card("Recent orders", "View all", 3);
-        JPanel tp = new JPanel(new BorderLayout());
-        tp.setOpaque(false);
-        tp.add(dashTable.getTableHeader(), BorderLayout.NORTH);
-        tp.add(dashTable, BorderLayout.CENTER);
-        recent.add(tp, BorderLayout.CENTER);
-
-        JPanel reqs = card("Custom requests", "View all", 4);
-        JPanel reqList = vbox();
-        reqList.add(replyRow("Maria D.", null, 7));
-        reqList.add(replyRow("Paolo R.", null, 7));
-        reqs.add(reqList, BorderLayout.CENTER);
-
-        page.add(stackScroll(stats, twoCols(chart, low), twoCols(recent, reqs)), BorderLayout.CENTER);
-        return page;
-    }
-
-    public JPanel saleAnalyticPanelContent() {
-        JPanel page = page("Sales Analytics", "Best sellers this month.");
-        JPanel c = card(null, null, -1);
-        JPanel list = vbox();
-        list.add(lowRow("Stone Bird Bath", "18 sold \u00B7 " + PESO + "73,800", TEXT));
-        list.add(lowRow("Carved Stone Lamp", "14 sold \u00B7 " + PESO + "44,800", TEXT));
-        list.add(lowRow("River Stone Planter", "11 sold \u00B7 " + PESO + "26,400", TEXT));
-        c.add(list, BorderLayout.CENTER);
-        page.add(stackScroll(c), BorderLayout.CENTER);
-        return page;
-    }
-
-    public JPanel myProductsPanelContent() {
-        JPanel page = page("My Products","Your current products.");
-
-        //===================================================
-        //searchbar to
-        //===================================================
-
-        JTextField search = new JTextField() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                if (getText().isEmpty()) {
-                    Graphics2D g2 = aa(g);
-                    g2.setColor(MUTE);
-                    g2.setFont(BASE);
-                    g2.drawString("Search products...", getInsets().left,
-                            (getHeight() + g2.getFontMetrics().getAscent() - g2.getFontMetrics().getDescent()) / 2);
-                }
-            }
-        };
-        search.setFont(BASE);
-        search.setBackground(SURFACE);
-        search.setBorder(new RoundBorder(8, 8, 12, 8, 12));
-        search.setPreferredSize(new Dimension(320, 38));
-
-        //================================================================
-        // rows and column ng product
-        //================================================================
-
-        Object[][] rows = new Object[productData.length][6];
-        for (int i = 0; i < productData.length; i++) {
-            System.arraycopy(productData[i], 0, rows[i], 0, 5);
-            rows[i][5] = "";
-        }
-        DefaultTableModel model = makeModel(new String[]{"Product", "id", "Category", "Price", "Stock", ""}, rows, -1);
-        JTable table = new JTable(model);
-        styleTable(table, 260, 70, 120, 100, 80, 70);
-
-        // product name with color thumbnail
-        table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
-                super.getTableCellRendererComponent(t, v, s, f, r, c);
-                setIcon(new Swatch(swatchFor(String.valueOf(v))));
-                setIconTextGap(10);
-                setBorder(new EmptyBorder(0, 10, 0, 10));
-                return this;
-            }
-        });
-        actionColumn(table, 5, "Edit", r -> toast("Editing " + model.getValueAt(r, 0)));
-
-
-        //========================================================
-        //add products button
-        //========================================================
-        JButton add = pillButton("+ Add product", true);
-        add.addActionListener(e -> showAddProductDialog(model));
-
-        //=======================================================
-        //para sa searchBar to
-        //=======================================================
-
-        JButton searchButton = pillButton("Search ", true);
-        searchButton.addActionListener(e ->{
-
-        });
-
-
-        //==========================================================
-        //for top left andito yung search bar tapos addproduct
-        //==========================================================
-
-        JPanel tools = new JPanel(new BorderLayout());
-        tools.setOpaque(false);
-        tools.setBorder(new EmptyBorder(0, 0, 14, 0));
-
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        searchPanel.setOpaque(false);
-        searchPanel.add(search);
-        searchPanel.add(searchButton);
-
-        tools.add(searchPanel, BorderLayout.WEST);
-        tools.add(add, BorderLayout.EAST);
-
-        //===================================================
-        //body ng my product
-        //====================================================
-
-        JPanel body = new JPanel(new BorderLayout());
-        body.setOpaque(false);
-        body.add(tools, BorderLayout.NORTH);
-        body.add(tableCard(table), BorderLayout.CENTER);
-        page.add(body, BorderLayout.CENTER);
-        return page;
-    }
-
-
-    //====================================================================
-    // sa orderpanel panel to
-    //====================================================================
-    public JPanel ordersPanelContent() {
-        JPanel page = page("Orders", "I-update ang status para makita ng buyer sa Track Order.");
-        ordersModel = makeModel(orderCols, orderData, 4);
-        JTable table = new JTable(ordersModel);
-        styleTable(table, 80, 120, 220, 90, 140);
-        table.getColumnModel().getColumn(4).setCellRenderer(new PillRenderer());
-        table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(new JComboBox<>(statuses)));
-        page.add(tableCard(table), BorderLayout.CENTER);
-        return page;
-    }
-
-
-    //========================================================================
-    //sa custom request panel to
-    //========================================================================
-
-    public JPanel customRequestPanelContent() {
-        JPanel page = page("Custom Requests", "Mga order na gawa ayon sa gusto ng buyer.");
-        JPanel c = card(null, null, -1);
-        JPanel list = vbox();
-        list.add(replyRow("Maria D.", null, 7));
-        list.add(replyRow("Paolo R.", null, 7));
-        list.add(replyRow("Ana L.", null, 7));
-        c.add(list, BorderLayout.CENTER);
-        page.add(stackScroll(c), BorderLayout.CENTER);
-        return page;
-    }
-
-    //=======================================================================
-    // inventory panel to
-    //=======================================================================
-
-    public JPanel inventoryPanelContent() {
-        JPanel page = page("Inventory", "I-update ang stock bago maubos.");
-        Object[][] rows = new Object[productData.length][3];
-        for (int i = 0; i < productData.length; i++) {
-            rows[i][0] = productData[i][0];
-            rows[i][1] = productData[i][4];
-            rows[i][2] = "";
-        }
-        DefaultTableModel model = makeModel(new String[]{"Product", "In stock", "Update"}, rows, -1);
-        JTable table = new JTable(model);
-        styleTable(table, 320, 100, 140);
-
-        table.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
-            @Override
-            public Component getTableCellRendererComponent(JTable t, Object v, boolean s, boolean f, int r, int c) {
-                super.getTableCellRendererComponent(t, v, s, f, r, c);
-                boolean lowStock = (Integer) v < 4;
-                setForeground(lowStock ? BAD : TEXT);
-                setFont(lowStock ? BOLD : BASE);
-                setBorder(new EmptyBorder(0, 10, 0, 10));
-                return this;
-            }
-        });
-        actionColumn(table, 2, "+ Add stock", r -> showAddStockDialog(model, r));
-        page.add(tableCard(table), BorderLayout.CENTER);
-        return page;
-    }
-
-    //=============================================================
-    //sa payment panel to
-    //=============================================================
-
-    public JPanel payoutsPanelContent() {
-        JPanel page = page("Payments & Payouts", "Available balance: " + PESO + "31,200. Next payout on Nov 10 via GCash.");
-        JButton b = pillButton("Request payout", true);
-        b.addActionListener(e -> toast("Payout requested"));
-        page.add(toolRow(b), BorderLayout.CENTER);
-        return page;
-    }
-
-    //============================================================
-    //sa message panel to
-    //============================================================
-
-    public JPanel messagesPanelContent() {
-        JPanel page = page("Messages", "2 unread messages from buyers.");
-        JPanel c = card(null, null, -1);
-        JPanel list = vbox();
-        list.add(replyRow("Maria D.", null, 7));
-        list.add(replyRow("Paolo R.", null, 7));
-        c.add(list, BorderLayout.CENTER);
-        page.add(stackScroll(c), BorderLayout.CENTER);
-        return page;
-    }
-
-    //=============================================
-    //for shop profie to
-    //=============================================
-
-    public JPanel shopPanelContent() {
-        JPanel page = page("Shop Profile", "StoneCraft \u00B7 Cebu City \u00B7 Handmade stone goods since 2019.");
-        JButton b = pillButton("Save changes", true);
-        b.addActionListener(e -> toast("Profile saved"));
-        page.add(toolRow(b), BorderLayout.CENTER);
-        return page;
-    }
-
-    //=============================================
-    //sa logout panel
-    //=============================================
-    public JPanel logoutPanelContent() {
-
-        return page("Logged out", "Close and reopen the app to sign in again.");
-    }
-
-
-    //=================================================
-    //for product jpanel to
-    //=================================================
-
-
-    //variable for textField ayoko na kasing ilagay pa sa taas since ang layo na
-
-
-
-    void showAddProductDialog(DefaultTableModel model) {
-        JDialog dlg = new JDialog(this, "Add product", true);
-
-
-        //====================================================================
-        //variable ko for JForm Field so bala ka jan
-        //====================================================================
-
-        JTextField nameProduct = formField();
-        JTextField priceProduct = formField();
-        JTextField stockProduct = formField();
-        JComboBox<String> categoryProduct;
-
-        categoryProduct = new JComboBox<>(new String[]{"Kitchen", "Decor", "Garden", "Lighting"});
-        categoryProduct.setFont(BASE);
-        categoryProduct.setBackground(SURFACE);
-        categoryProduct.setForeground(TEXT);
-        categoryProduct.setAlignmentX(Component.LEFT_ALIGNMENT);
-        categoryProduct.setPreferredSize(new Dimension(300, 38));
-        categoryProduct.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
-
-        JPanel form = vbox();
-        form.add(formRow("Product name", nameProduct));
-        form.add(formRow("Category", categoryProduct));
-        JPanel priceStock = new JPanel(new GridLayout(1, 2, 12, 0));
-        priceStock.setOpaque(false);
-        priceStock.setAlignmentX(Component.LEFT_ALIGNMENT);
-        priceStock.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
-        priceStock.add(formRow("Price (" + PESO + ")", priceProduct));
-        priceStock.add(formRow("Stock", stockProduct));
-        form.add(priceStock);
-
-        JLabel error = errorLabel();
-        form.add(error);
-
-        JButton cancel = pillButton("Cancel", false);
-        JButton save = pillButton("Save product", true);
-        cancel.addActionListener(e -> dlg.dispose());
-        save.addActionListener(e -> {
-
-            //yun trim() tinatagal nun yung space sa hulihan at unahan linagay ko na dito baka atakihin ng short term memory eh
-            String productName = nameProduct.getText().trim();
-            String productPrice = priceProduct.getText().trim();
-            String productStock = stockProduct.getText().trim();
-            String productCategory = categoryProduct.getSelectedItem().toString().trim();
-
-            if (productName.isEmpty()) {
-                error.setText("Invalid name of product!");
-                return;
-            }
-
-            double pPrice;
-            int pStock;
-            try {
-                //same lang sa putting a value pero since dito ko lang naman gagamitin dito ko nalang linagay
-                pPrice = Double.parseDouble(priceProduct.getText().trim());
-                pStock = Integer.parseInt(stockProduct.getText().trim());
-
-                if (pPrice < 0 || pStock < 0) throw new NumberFormatException();
-            } catch (NumberFormatException ex) {
-                error.setText("Price and Stock need to be a valid number!");
-                return;
-            }
-
-            //for loop para sa id: hanapin ang pinakamataas na id sa table tapos dagdagan ng 1
-            int maxId = 0;
-            for (int i = 0; i < model.getRowCount(); i++) {
-                String existing = String.valueOf(model.getValueAt(i, 1));
-                String digits = existing.replaceAll("\\D", "");
-                if (!digits.isEmpty()) maxId = Math.max(maxId, Integer.parseInt(digits));
-            }
-            String productId = String.format("P%03d", maxId + 1);           // P001, P002, P003...
-
-
-
-
-            //====================================================================================
-            //imomodify koto depende sa situation pwedeng directed sa main orsa product na gagawing
-            //pero mas gusto ko main para magawa sya arraylist
-            //=====================================================================================
-
-            Main.productAdd(productId, productName, productPrice, productStock, productCategory);
-
-            model.addRow(new Object[]{productName, productId, productCategory, pPrice, pStock, ""});
-            dlg.dispose();
-        });
-        openDialog(dlg, "Add product", "Fill in the details of your new product.", form, cancel, save);
-    }
-
-    //=================================================
-    //add stock jpanel to
-    //=================================================
-
-    void showAddStockDialog(DefaultTableModel model, int row) {
-        JDialog dlg = new JDialog(this, "Add stock", true);
-        int current = (Integer) model.getValueAt(row, 1);
-
-        JTextField qtyF = formField();
-        qtyF.setText("10");
-
-        JPanel form = vbox();
-        form.add(formRow("Quantity to add", qtyF));
-        JLabel error = errorLabel();
-        form.add(error);
-
-        JButton cancel = pillButton("Cancel", false);
-        JButton save = pillButton("Add stock", true);
-        cancel.addActionListener(e -> dlg.dispose());
-        save.addActionListener(e -> {
-            int qty;
-            try {
-                qty = Integer.parseInt(qtyF.getText().trim());
-                if (qty <= 0) throw new NumberFormatException();
-            } catch (NumberFormatException ex) {
-                error.setText("Ilagay ang valid na number (higit sa 0).");
-                return;
-            }
-            model.setValueAt(current + qty, row, 1);
-            dlg.dispose();
-            toast("Stock updated: +" + qty);
-        });
-
-        openDialog(dlg, "Add stock", model.getValueAt(row, 0) + " \u00B7 currently " + current + " in stock", form, cancel, save);
-    }
-
-    //=================================================
-    //reply -> bagong panel na may request at conversation
-    //=================================================
-    void showThread(Chat chat, int backPage) {
-        if (threadPage != null) content.remove(threadPage);
-        threadPage = threadPanel(chat, backPage);
-        content.add(threadPage, "thread");
-        content.revalidate();
-        content.repaint();
-        ((CardLayout) content.getLayout()).show(content, "thread");
-        for (int i = 0; i < buttons.length; i++) buttons[i].setActive(i == backPage);
-        SwingUtilities.invokeLater(() -> {
-            JScrollBar bar = threadScroll.getVerticalScrollBar();
-            bar.setValue(bar.getMaximum());
-            threadInput.requestFocusInWindow();
-        });
-    }
-
-
-    JPanel threadPanel(Chat chat, int backPage) {
-        String sub = chat.request == null ? "Buyer conversation" : "Custom request \u00B7 " + chat.request;
-        JPanel page = page(chat.buyer, sub);
-
-        JButton back = pillButton("\u2190 Back", false);
-        back.addActionListener(e -> showPage(backPage));
-        JPanel backRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        backRow.setOpaque(false);
-        backRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-        backRow.add(back);
-
-        JPanel top = vbox();
-        top.add(backRow);
-        if (chat.request != null) {
-            top.add(Box.createVerticalStrut(12));
-            JPanel details = card("Request details", null, -1);
-            JPanel rows = vbox();
-            rows.add(lowRow("Request", chat.request, TEXT));
-            rows.add(lowRow("Budget", chat.budget, TEXT));
-            rows.add(lowRow("Needed by", chat.needed, TEXT));
-            rows.add(lowRow("Status", chat.status, WARN));
-            details.add(rows, BorderLayout.CENTER);
-            details.setAlignmentX(Component.LEFT_ALIGNMENT);
-            top.add(details);
-        }
-
-        JPanel thread = vbox();
-        for (String[] m : chat.msgs) thread.add(bubbleRow("me".equals(m[0]), m[1], m[2]));
-        Wrap wrap = new Wrap();
-        wrap.add(thread, BorderLayout.NORTH);
-        JScrollPane sp = new JScrollPane(wrap);
-        sp.setBorder(null);
-        sp.getViewport().setBackground(Color.WHITE);
-        sp.getVerticalScrollBar().setUnitIncrement(16);
-        threadScroll = sp;
-        JPanel convo = card("Conversation", null, -1);
-        convo.add(sp, BorderLayout.CENTER);
-
-        JTextField input = new JTextField();
-        input.setFont(BASE);
-        input.setForeground(TEXT);
-        input.setBackground(SURFACE);
-        input.setBorder(new RoundBorder(8, 8, 12, 8, 12));
-        input.setPreferredSize(new Dimension(300, 38));
-        threadInput = input;
-        JButton send = pillButton("Send reply", true);
-        Runnable doSend = () -> {
-            String text = input.getText().trim();
-            if (text.isEmpty()) return;
-            chat.say(true, text, "Just now");
-            toast("Reply sent to " + chat.buyer);
-            showThread(chat, backPage);
-        };
-        send.addActionListener(e -> doSend.run());
-        input.addActionListener(e -> doSend.run());
-        JPanel composer = new JPanel(new BorderLayout(8, 0));
-        composer.setOpaque(false);
-        composer.add(input, BorderLayout.CENTER);
-        composer.add(send, BorderLayout.EAST);
-
-        JPanel body = new JPanel(new BorderLayout(0, 14));
-        body.setOpaque(false);
-        body.add(top, BorderLayout.NORTH);
-        body.add(convo, BorderLayout.CENTER);
-        body.add(composer, BorderLayout.SOUTH);
-        page.add(body, BorderLayout.CENTER);
-        return page;
-    }
-
-    JPanel bubbleRow(boolean mine, String text, String time) {
-        Bubble b = new Bubble(text, mine);
-        JLabel t = new JLabel(time);
-        t.setFont(SMALL);
-        t.setForeground(MUTE);
-        float ax = mine ? Component.RIGHT_ALIGNMENT : Component.LEFT_ALIGNMENT;
-        b.setAlignmentX(ax);
-        t.setAlignmentX(ax);
-        JPanel col = vbox();
-        col.add(b);
-        col.add(Box.createVerticalStrut(2));
-        col.add(t);
-        Row r = new Row(new BorderLayout());
-        r.setBorder(new EmptyBorder(6, 0, 6, 0));
-        r.add(col, mine ? BorderLayout.EAST : BorderLayout.WEST);
-        return r;
-    }
-
-    java.util.Map<String, Chat> buildChats() {
-        java.util.Map<String, Chat> m = new java.util.LinkedHashMap<>();
-        m.put("Maria D.", new Chat("Maria D.", "Stone sign, \"Dela Cruz Home\"", PESO + "3,500", "Nov 28", "Waiting for your quote")
-                .say(false, "Hello po! Gusto ko po sana ng stone sign na may nakasulat na \"Dela Cruz Home\".", "Nov 6 \u00B7 9:12 AM")
-                .say(false, "Pwede po ba gawing mas maliit yung sign?", "Nov 8 \u00B7 2:40 PM"));
-        m.put("Paolo R.", new Chat("Paolo R.", "Pair of granite bookends", PESO + "2,000", "Dec 5", "New request")
-                .say(false, "Hi! Interested po ako sa pair of granite bookends.", "Nov 7 \u00B7 4:05 PM")
-                .say(false, "Magkano po shipping papuntang Davao?", "Nov 8 \u00B7 6:30 PM"));
-        m.put("Ana L.", new Chat("Ana L.", "Marble serving tray, 40 cm", PESO + "4,200", "Dec 12", "New request")
-                .say(false, "Hello po, pwede po ba 40 cm na marble serving tray?", "Nov 9 \u00B7 8:15 AM"));
-        return m;
-    }
-
-    void openDialog(JDialog dlg, String title, String subtitle, JComponent center, JButton cancel, JButton primary) {
+    //=================================
+    // for pop-up dialog
+    //=================================
+
+    public static void openDialog(JDialog dlg, String title, String subtitle, JComponent center, JButton cancel, JButton primary) {
         JPanel root = new JPanel(new BorderLayout(0, 16));
         root.setBackground(Color.WHITE);
         root.setBorder(new EmptyBorder(22, 24, 20, 24));
@@ -765,11 +257,11 @@ public class BusinessMain extends MainDesign {
         dlg.setResizable(false);
         dlg.pack();
         dlg.setSize(420, dlg.getHeight());
-        dlg.setLocationRelativeTo(this);
+        dlg.setLocationRelativeTo(dlg.getOwner());
         dlg.setVisible(true);
     }
 
-    JLabel errorLabel() {
+    public JLabel errorLabel() {
         JLabel error = new JLabel(" ");
         error.setFont(SMALL);
         error.setForeground(BAD);
@@ -777,7 +269,7 @@ public class BusinessMain extends MainDesign {
         return error;
     }
 
-    JTextField formField() {
+    public JTextField formField() {
         JTextField f = new JTextField();
         f.setFont(BASE);
         f.setForeground(TEXT);
@@ -789,7 +281,7 @@ public class BusinessMain extends MainDesign {
         return f;
     }
 
-    JPanel formRow(String label, JComponent field) {
+    public JPanel formRow(String label, JComponent field) {
         JPanel p = vbox();
         p.setAlignmentX(Component.LEFT_ALIGNMENT);
         JLabel l = new JLabel(label);
@@ -807,14 +299,14 @@ public class BusinessMain extends MainDesign {
     //  HELPERS
     // =====================================================
 
-    static Graphics2D aa(Graphics g) {
+    public static Graphics2D aa(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         return g2;
     }
 
-    static Color statusColor(String s) {
+    public static Color statusColor(String s) {
         switch (s) {
             case "New": return INFO;
             case "Preparing": return WARN;
@@ -824,19 +316,18 @@ public class BusinessMain extends MainDesign {
         }
     }
 
-    Color swatchFor(String name) {
-        for (int i = 0; i < productData.length; i++)
-            if (productData[i][0].equals(name)) return swatches[i];
-        return LINE;
+    public Color swatchFor(String name) {
+        if (name == null) return LINE;
+        return swatches[Math.floorMod(name.hashCode(), swatches.length)];
     }
 
-    Object[][] firstRows(Object[][] src, int n) {
+    public Object[][] firstRows(Object[][] src, int n) {
         Object[][] out = new Object[n][];
         for (int i = 0; i < n; i++) out[i] = src[i].clone();
         return out;
     }
 
-    DefaultTableModel makeModel(String[] cols, Object[][] data, int editableCol) {
+    public DefaultTableModel makeModel(String[] cols, Object[][] data, int editableCol) {
         Object[][] copy = new Object[data.length][];
         for (int i = 0; i < data.length; i++) copy[i] = data[i].clone();
         return new DefaultTableModel(copy, cols) {
@@ -845,7 +336,9 @@ public class BusinessMain extends MainDesign {
         };
     }
 
-    JPanel page(String title, String subtitle) {
+    //=========================================================
+    //page
+    public JPanel page(String title, String subtitle) {
         JPanel p = new JPanel(new BorderLayout(0, 20));
         p.setBackground(Color.WHITE);
         p.setBorder(new EmptyBorder(26, 28, 20, 28));
@@ -865,14 +358,14 @@ public class BusinessMain extends MainDesign {
         return p;
     }
 
-    JPanel vbox() {
+    public static JPanel vbox() {
         JPanel p = new JPanel();
         p.setOpaque(false);
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         return p;
     }
 
-    JPanel toolRow(JComponent... comps) {
+    public JPanel toolRow(JComponent... comps) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         p.setOpaque(false);
         for (JComponent c : comps) p.add(c);
@@ -883,7 +376,7 @@ public class BusinessMain extends MainDesign {
     }
 
     // white card with optional title and optional link on the right (jumps to a page)
-    JPanel card(String title, String link, int goPage) {
+    public JPanel card(String title, String link, int goPage) {
         JPanel c = new JPanel(new BorderLayout(0, 12));
         c.setBackground(Color.WHITE);
         c.setBorder(new RoundBorder(12, 14, 16, 14, 16));
@@ -909,7 +402,7 @@ public class BusinessMain extends MainDesign {
         return c;
     }
 
-    JPanel statCard(String label, String value, String note) {
+    public JPanel statCard(String label, String value, String note) {
         JPanel c = vbox();
         c.setBackground(Color.WHITE);
         c.setOpaque(true);
@@ -930,7 +423,7 @@ public class BusinessMain extends MainDesign {
         return c;
     }
 
-    JPanel tableCard(JTable table) {
+    public  JPanel tableCard(JTable table) {
         JPanel c = card(null, null, -1);
         JScrollPane sp = new JScrollPane(table);
         sp.setBorder(null);
@@ -940,7 +433,7 @@ public class BusinessMain extends MainDesign {
     }
 
     // left : right = 1.6 : 1
-    JPanel twoCols(JComponent left, JComponent right) {
+    public JPanel twoCols(JComponent left, JComponent right) {
         JPanel p = new JPanel(null) {
             @Override
             public void doLayout() {
@@ -960,7 +453,7 @@ public class BusinessMain extends MainDesign {
         return p;
     }
 
-    JScrollPane stackScroll(JComponent... comps) {
+    public JScrollPane stackScroll(JComponent... comps) {
         JPanel box = vbox();
         for (int i = 0; i < comps.length; i++) {
             comps[i].setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -977,7 +470,7 @@ public class BusinessMain extends MainDesign {
     }
 
     // "Name ........ right text" row with bottom line
-    JPanel lowRow(String left, String right, Color rightColor) {
+    public JPanel lowRow(String left, String right, Color rightColor) {
         Row r = new Row(new BorderLayout());
         r.setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0, LINE), new EmptyBorder(9, 0, 9, 0)));
         JLabel l = new JLabel(left);
@@ -990,7 +483,7 @@ public class BusinessMain extends MainDesign {
         return r;
     }
 
-    JPanel replyRow(String buyer, String message, int fromPage) {
+    public JPanel replyRow(String buyer, String message) {
         Row r = new Row(new BorderLayout(12, 0));
         r.setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0, LINE), new EmptyBorder(10, 0, 10, 0)));
 
@@ -1009,7 +502,7 @@ public class BusinessMain extends MainDesign {
         }
 
         JButton reply = pillButton("Reply", true);
-        reply.addActionListener(e -> showThread(chats.get(buyer), fromPage));
+        reply.addActionListener(e -> toast("Reply to " + buyer));
         JPanel right = new JPanel(new GridBagLayout());
         right.setOpaque(false);
         right.add(reply);
@@ -1019,7 +512,8 @@ public class BusinessMain extends MainDesign {
         return r;
     }
 
-    JButton pillButton(String text, boolean primary) {
+    //fot button accept or not ba
+    public JButton pillButton(String text, boolean primary) {
         JButton b = new JButton(text);
         b.setFont(new Font("Segoe UI", Font.BOLD, 13));
         b.setFocusPainted(false);
@@ -1032,7 +526,7 @@ public class BusinessMain extends MainDesign {
         return b;
     }
 
-    void styleTable(JTable t, int... widths) {
+    public void styleTable(JTable t, int... widths) {
         t.setRowHeight(38);
         t.setFont(BASE);
         t.setGridColor(LINE);
@@ -1074,7 +568,7 @@ public class BusinessMain extends MainDesign {
     }
 
     // clickable text column (like "Edit" / "+ Add stock")
-    void actionColumn(JTable t, int col, String text, Consumer<Integer> onClick) {
+    public void actionColumn(JTable t, int col, String text, Consumer<Integer> onClick) {
         t.getColumnModel().getColumn(col).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable tb, Object v, boolean s, boolean f, int r, int c) {
@@ -1094,7 +588,21 @@ public class BusinessMain extends MainDesign {
         });
     }
 
-    void toast(String msg) {
+    // image-only column (kulay na swatch base sa pangalan sa column 1)
+    public void imageColumn(JTable t, int col) {
+        t.getColumnModel().getColumn(col).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable tb, Object v, boolean s, boolean f, int r, int c) {
+                super.getTableCellRendererComponent(tb, "", s, f, r, c);
+                setIcon(new Swatch(swatchFor(String.valueOf(tb.getValueAt(r, 1)))));
+                setHorizontalAlignment(SwingConstants.LEFT);
+                setBorder(new EmptyBorder(0, 10, 0, 10));
+                return this;
+            }
+        });
+    }
+
+    public void toast(String msg) {
         if (toastWin != null) toastWin.dispose();
         JLabel l = new JLabel(msg);
         l.setFont(BASE);
@@ -1119,11 +627,11 @@ public class BusinessMain extends MainDesign {
     // =====================================================
 
     // sidebar item with hover, active color and badge
-    static class NavButton extends JButton {
+    public static class NavButton extends JButton {
         String label, badge;
         boolean active, hover;
 
-        NavButton(String label, String badge) {
+        public NavButton(String label, String badge) {
             this.label = label;
             this.badge = badge;
             setContentAreaFilled(false);
@@ -1140,9 +648,9 @@ public class BusinessMain extends MainDesign {
             });
         }
 
-        void setActive(boolean a) { active = a; repaint(); }
+        public void setActive(boolean a) { active = a; repaint(); }
 
-        void setBadge(String b) { badge = b; repaint(); }
+        public void setBadge(String b) { badge = b; repaint(); }
 
         @Override
         protected void paintComponent(Graphics g) {
@@ -1172,11 +680,11 @@ public class BusinessMain extends MainDesign {
     }
 
     // rounded 1px border
-    static class RoundBorder extends AbstractBorder {
+    public static class RoundBorder extends AbstractBorder {
         int radius;
         Insets insets;
 
-        RoundBorder(int radius, int top, int left, int bottom, int right) {
+        public RoundBorder(int radius, int top, int left, int bottom, int right) {
             this.radius = radius;
             this.insets = new Insets(top, left, bottom, right);
         }
@@ -1193,8 +701,8 @@ public class BusinessMain extends MainDesign {
     }
 
     // status pill (Preparing, Shipped, ...)
-    static class Pill extends JLabel {
-        Pill(String text) {
+    public static class Pill extends JLabel {
+        public Pill(String text) {
             super(text);
             setFont(new Font("Segoe UI", Font.BOLD, 12));
             setForeground(statusColor(text));
@@ -1212,7 +720,7 @@ public class BusinessMain extends MainDesign {
         }
     }
 
-    static class PillRenderer implements TableCellRenderer {
+    public static class PillRenderer implements TableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable t, Object v, boolean sel, boolean f, int r, int c) {
             JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 7));
@@ -1222,10 +730,10 @@ public class BusinessMain extends MainDesign {
         }
     }
 
-    static class Swatch implements Icon {
+    public static class Swatch implements Icon {
         Color color;
 
-        Swatch(Color color) { this.color = color; }
+        public Swatch(Color color) { this.color = color; }
 
         public int getIconWidth() { return 28; }
 
@@ -1239,8 +747,8 @@ public class BusinessMain extends MainDesign {
     }
 
     // panel that keeps its own height inside a BoxLayout
-    static class Row extends JPanel {
-        Row(LayoutManager lm) {
+    public static class Row extends JPanel {
+        public Row(LayoutManager lm) {
             super(lm);
             setOpaque(false);
             setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -1253,8 +761,8 @@ public class BusinessMain extends MainDesign {
     }
 
     // scroll content that follows the viewport width (no horizontal scrollbar)
-    static class Wrap extends JPanel implements Scrollable {
-        Wrap() {
+    public static class Wrap extends JPanel implements Scrollable {
+        public Wrap() {
             super(new BorderLayout());
             setOpaque(false);
         }
@@ -1270,11 +778,15 @@ public class BusinessMain extends MainDesign {
         public boolean getScrollableTracksViewportHeight() { return false; }
     }
 
-    static class Chat {
-        String buyer, request, budget, needed, status;
-        java.util.List<String[]> msgs = new java.util.ArrayList<>();
+    public static class Chat {
+        public String buyer;
+        public String request;
+        public String budget;
+        public String needed;
+        public String status;
+        public java.util.List<String[]> msgs = new java.util.ArrayList<>();
 
-        Chat(String buyer, String request, String budget, String needed, String status) {
+        public Chat(String buyer, String request, String budget, String needed, String status) {
             this.buyer = buyer;
             this.request = request;
             this.budget = budget;
@@ -1282,16 +794,16 @@ public class BusinessMain extends MainDesign {
             this.status = status;
         }
 
-        Chat say(boolean mine, String text, String time) {
+        public Chat say(boolean mine, String text, String time) {
             msgs.add(new String[]{mine ? "me" : "buyer", text, time});
             return this;
         }
     }
 
-    static class Bubble extends JPanel {
+    public static class Bubble extends JPanel {
         boolean mine;
 
-        Bubble(String text, boolean mine) {
+        public Bubble(String text, boolean mine) {
             super(new BorderLayout());
             this.mine = mine;
             setOpaque(false);
@@ -1327,36 +839,71 @@ public class BusinessMain extends MainDesign {
         public Dimension getMaximumSize() { return getPreferredSize(); }
     }
 
-    // weekly bar chart, highest day uses the accent color
-    static class BarChart extends JPanel {
-        String[] labels;
-        int[] values;
-
-        BarChart(String[] labels, int[] values) {
-            this.labels = labels;
-            this.values = values;
-            setOpaque(false);
-            setPreferredSize(new Dimension(300, 170));
+    public static String capitalizeFirstLetter(String word){
+        if(word == null) {
+            return "";
         }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            Graphics2D g2 = aa(g);
-            int w = getWidth(), h = getHeight() - 24;
-            int max = 0, top = 0;
-            for (int i = 0; i < values.length; i++) if (values[i] > max) { max = values[i]; top = i; }
-            int slot = w / values.length, barW = slot - 16;
-            g2.setFont(SMALL);
-            FontMetrics fm = g2.getFontMetrics();
-            for (int i = 0; i < values.length; i++) {
-                int barH = (int) (values[i] / (double) max * (h - 6));
-                int x = i * slot + 8;
-                g2.setColor(i == top ? ACCENT : LINE);
-                g2.fillRoundRect(x, h - barH, barW, barH, 8, 8);
-                g2.fillRect(x, h - Math.min(barH, 8), barW, Math.min(barH, 8)); // flat bottom
-                g2.setColor(MUTE);
-                g2.drawString(labels[i], x + (barW - fm.stringWidth(labels[i])) / 2, h + 17);
-            }
+        word = word.trim();
+        if(word.isEmpty()){
+            return word;
         }
+        return Character.toUpperCase(word.charAt(0)) + word.substring(1);
+    }
+
+    public static String capitalizeWords(String text) {
+        if (text == null) {
+            return "";
+        }
+        String[] words = text.trim().split("\\s+");
+        StringBuilder sb = new StringBuilder();
+
+        for (String w : words) {
+            if (w.isEmpty()) continue;
+            sb.append(Character.toUpperCase(w.charAt(0)))
+                    .append(w.substring(1))
+                    .append(" ");
+        }
+        return sb.toString().trim();
+    }
+
+    public void loadTable(DefaultTableModel model) {
+        model.setRowCount(0);
+
+        List<Product> products = DataAccessObject.getAllProduct();
+
+        for (Product p : products) {
+            model.addRow(new Object[]{
+                    "",
+                    p.getProductName(),
+                    String.format("P%03d", p.getProductId()),
+                    p.getProductCategory(),
+                    p.getProductPrice(),
+                    p.getProductQuantity(),
+                    ""
+            });
+        }
+    }
+
+    public void loadInventory(DefaultTableModel model) {
+        model.setRowCount(0);
+
+        List<Product> products = DataAccessObject.getAllProduct();
+
+        for (Product p : products) {
+            model.addRow(new Object[]{
+                    "",
+                    p.getProductName(),
+                    String.format("P%03d", p.getProductId()),
+                    p.getProductCategory(),
+                    p.getProductQuantity(),
+                    ""
+            });
+        }
+    }
+
+
+    public void refreshTables() {
+        if (productsModel != null) loadTable(productsModel);
+        if (inventoryModel != null) loadInventory(inventoryModel);
     }
 }

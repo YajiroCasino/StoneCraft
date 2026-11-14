@@ -1,31 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6fcb331d-5eb1-4cea-b3d2-45f5574d7fd6" name="Changes" comment="" />
+    <list default="true" id="62ff6950-b82d-4378-bf50-dc12a88ae668" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/DataBaseManagementConnection/DataAccessObject.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/BarChart.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/CustomOrder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/Dashboard.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/Inventory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/Logout.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/Message.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/MyProduct.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/Order.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/SaleAnalytics.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/ShopProfile.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StoneCraft/src/DataBaseManagementConnection/DataBaseConnection.java" beforeDir="false" afterPath="$PROJECT_DIR$/StoneCraft/src/DataBaseManagementConnection/DataBaseConnection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/StoneCraft/src/Design/BusinessMain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StoneCraft/src/Main/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/StoneCraft/src/Main/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/StoneCraft/src/Main/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/StoneCraft/src/Main/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Data/Product_1.jfif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/DataBaseManagementConnection/DataBaseConnection.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/DataBaseManagementConnection/DataBaseConnection.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$10.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$10.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$11.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$12.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$5.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$5.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$6.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$6.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$7.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$7.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$8.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$8.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$9.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$9.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$BarChart.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Bubble.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Bubble.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Chat.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Chat.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$NavButton$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$NavButton$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$NavButton.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$NavButton.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Pill.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Pill.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$PillRenderer.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$PillRenderer.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$RoundBorder.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$RoundBorder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Row.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Row.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Swatch.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Swatch.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Wrap.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain$Wrap.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Design/BusinessMain.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Design/Login.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Main/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Main/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Main/Product.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Main/Product.class" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5,
+  "fromUser": false
+}]]></component>
+  <component name="ProjectId" id="3M0UelQUpYy29riRkHTiXqCyS3j" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.Main.executor": "Run",
-    "git-widget-placeholder": "main"
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "node.js.detected.package.jshint": "true",
+    "node.js.selected.package.jshint": "",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2"
   }
 }]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-a203e0a19954-intellij.indexing.shared.core-IU-262.10968.63" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-IU-262.10968.63" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="62ff6950-b82d-4378-bf50-dc12a88ae668" name="Changes" comment="" />
+      <created>1794487095370</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1794487095370</updated>
+    </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/StoneCraft/src/Design/BusinessMain.java</url>
-          <line>3</line>
+          <line>15</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/StoneCraft/src/Design/BusinessMainFile/Inventory.java</url>
+          <line>20</line>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
