@@ -1,217 +1,1837 @@
+
 package Design;
+
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
-public class CustomerMain extends MainDesign{
+public class CustomerMain extends MainDesign {
 
-    //sa image
-    ImageIcon[] productImg ={
-            new ImageIcon(getClass().getResource("../Data/product_1.jfif")),
-            new ImageIcon(getClass().getResource("../Data/product_2.jfif")),
-            new ImageIcon(getClass().getResource("../Data/product_3.jfif")),
-            new ImageIcon(getClass().getResource("../Data/product_4.jfif")),
-            new ImageIcon(getClass().getResource("../Data/product_5.jfif")),
-            new ImageIcon(getClass().getResource("../Data/product_6.jfif")),
-            new ImageIcon(getClass().getResource("../Data/product_7.jfif")),
-            new ImageIcon(getClass().getResource("../Data/product_8.jfif"))
+    // COLORS
+    private final Color darkColor = new Color(43, 42, 40);
+    private final Color copperColor = new Color(181, 101, 29);
+    private final Color hoverColor = new Color(151, 83, 15);
+    private final Color mainTextColor = new Color(31, 30, 28);
+    private final Color labelColor = new Color(120, 116, 109);
+    private final Color fieldColor = new Color(250, 249, 247);
+    private final Color borderColor = new Color(222, 218, 211);
+    private final Color backgroundColor = new Color(247, 245, 241);
 
-    };
-    JLabel[] product = new JLabel[productImg.length];
+    private final Font mainFont = new Font("Arial", Font.PLAIN, 13);
+    private final Font boldFont = new Font("Arial", Font.BOLD, 13);
 
-    //panel main
-    JPanel customerMainPanel = new JPanel();
-    JPanel sideBar = new JPanel();
+    // MAIN PANELS
+    private JPanel dashboardPanel;
+    private JPanel headerPanel;
+    private JPanel sidebarPanel;
+    private JPanel contentPanel;
+    private JPanel productGrid;
 
-    //card panel
-    CardLayout cardLayout = new CardLayout();
-    JPanel content = new JPanel(cardLayout);
+    // HEADER COMPONENTS
+    private JTextField searchField;
+    private JComboBox<String> sortComboBox;
+    private JButton cartButton;
+    private JButton profileButton;
 
-    JLabel logoName = new JLabel("StoneCraft");
+    // PRODUCT AND CART DATA
+    private ArrayList<Product> products;
+    private ArrayList<CartItem> cartItems;
 
-    // panel sa card
-    JPanel homePanel = new JPanel();
-    JPanel productPanel = new JPanel();
-    JPanel customerOrderRequest = new JPanel();
+    // CUSTOM REQUEST AND MESSAGE DATA
+    private ArrayList<CustomRequest> customRequests;
+    private ArrayList<ChatMessage> chatMessages;
 
-    //buttons sa cards
-    JButton[] buttons ={
-            new JButton("Home"),
-            new JButton("Products"),
-            new JButton("Orders"),
-            new JButton("Custom Order Request")
-    };
+    private String selectedCategory = "All Products";
+    private String selectedImagePath = "";
 
+    // CART FRAME
+    private JFrame cartFrame;
+    private JPanel cartContentPanel;
+    private JLabel subtotalLabel;
 
-    public CustomerMain(){
+    // MESSAGE FRAME
+    private JFrame messageFrame;
+    private JPanel chatPanel;
+    private JTextField messageField;
 
-        //Main layout
-        customerMainPanel.setLayout(new BorderLayout());
+    public CustomerMain() {
 
-        customerMainPanel.add(sideBar, BorderLayout.WEST);
-        customerMainPanel.add(content, BorderLayout.CENTER);
+        setTitle("StoneCraft - Customer Main");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        //sidebar
-        sideBar.setLayout(new BoxLayout(sideBar, BoxLayout.Y_AXIS));
-        sideBar.setBackground(Color.BLACK);
-        sideBar.setPreferredSize(new Dimension(230, 0));
-        sideBar.add(logoName);
+        setSize(1100, 700);
+        setLocationRelativeTo(null);
+        setResizable(true);
 
-        //button loop para sararuan
-        for(int i = 0; i < buttons.length; i++){
-            JPanel buttonBox = new JPanel(new BorderLayout());
+        // MAXIMIZED WINDOW
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-            buttonBox.setBackground(Color.BLACK);
+        products = new ArrayList<>();
+        cartItems = new ArrayList<>();
+        customRequests = new ArrayList<>();
+        chatMessages = new ArrayList<>();
 
-            buttonBox.setBorder(
-                    BorderFactory.createEmptyBorder(5, 10, 5, 10)
-            );
+        addSampleProducts();
 
-            buttonBox.setLayout(new BoxLayout(buttonBox, BoxLayout.Y_AXIS));
-            buttonBox.add(buttons[i]);
-            sideBar.add(buttonBox);
+        createHeader();
+        createSidebar();
+        createProductContent();
 
-            buttons[i].setMaximumSize(new Dimension(200, 50));
-            buttons[i].setBackground(Color.BLACK);
-            buttons[i].setForeground(Color.WHITE);
-            buttons[i].setBorderPainted(false);
-            buttons[i].setFocusPainted(false);
-        }
+        dashboardPanel = new JPanel(new BorderLayout());
+        dashboardPanel.setBackground(Color.WHITE);
 
-        //card
-        content.add(homePanel, "Home");
-        content.add(productPanel, "Products");
-        content.add(customerOrderRequest, "CostumerOrderRequest");
+        JPanel bodyPanel = new JPanel(new BorderLayout());
+        bodyPanel.setBackground(Color.WHITE);
 
-        // img and boxes
-        for(int i = 0; i < product.length; i++){
-            Image img = productImg[i].getImage().getScaledInstance(50,50,Image.SCALE_SMOOTH);
-            product[i] = new JLabel(new ImageIcon(img));
-        }
+        bodyPanel.add(sidebarPanel, BorderLayout.WEST);
+        bodyPanel.add(contentPanel, BorderLayout.CENTER);
 
-        //listener lang
-        buttons[0].addActionListener(e -> homePanelContent());
-        buttons[1].addActionListener(e -> productPanelContent());
-        buttons[2].addActionListener(e -> customerOrderRequestContent());
+        dashboardPanel.add(headerPanel, BorderLayout.NORTH);
+        dashboardPanel.add(bodyPanel, BorderLayout.CENTER);
 
-        add(customerMainPanel);
+        setContentPane(dashboardPanel);
         setVisible(true);
-
     }
 
-    public void homePanelContent(){
+    // =================================
+    // SAMPLE PRODUCTS
+    // =================================
 
-        //Button Colors
-        buttons[0].setBackground(new Color(139, 69, 19));
-        buttons[1].setBackground(Color.BLACK);
-        buttons[2].setBackground(Color.BLACK);
+    private void addSampleProducts() {
 
-        //panel layout
-        homePanel.setLayout(new BorderLayout());
+        // HOME DECOR
+        products.add(new Product("Stone Vase", "Home Decor", 850.00));
+        products.add(new Product("Stone Candle Holder", "Home Decor", 450.00));
+        products.add(new Product("Decorative Stone Bowl", "Home Decor", 650.00));
+        products.add(new Product("Stone Table Centerpiece", "Home Decor", 1100.00));
+        products.add(new Product("Mini Stone Figurine", "Home Decor", 550.00));
+        products.add(new Product("Stone Wall Decor", "Home Decor", 1350.00));
 
-        //Panel for Content
-        JPanel upperContentPanel = new JPanel(),
-                centerContentPanel = new JPanel(),
-                lowerContentPanel = new JPanel();
+        // GARDEN
+        products.add(new Product("Garden Planter", "Garden", 1200.00));
+        products.add(new Product("Garden Ornament", "Garden", 980.00));
+        products.add(new Product("Stone Garden Pot", "Garden", 750.00));
+        products.add(new Product("Decorative Garden Rock", "Garden", 500.00));
+        products.add(new Product("Stone Bird Bath", "Garden", 1800.00));
+        products.add(new Product("Outdoor Stone Bench", "Garden", 3500.00));
 
-        // center content layer panel
-        JPanel[] centerContentPanelLayer = new JPanel[4];
+        // KITCHEN
+        products.add(new Product("Carved Bowl", "Kitchen", 650.00));
+        products.add(new Product("Stone Serving Plate", "Kitchen", 900.00));
+        products.add(new Product("Stone Mortar and Pestle", "Kitchen", 750.00));
+        products.add(new Product("Stone Coaster Set", "Kitchen", 350.00));
+        products.add(new Product("Stone Fruit Tray", "Kitchen", 1050.00));
+        products.add(new Product("Decorative Stone Tray", "Kitchen", 800.00));
 
-        //card ng product
-        JPanel[] centerpanelLayerCard = new JPanel[5];
+        // SCULPTURES
+        products.add(new Product("Stone Sculpture", "Sculptures", 2500.00));
+        products.add(new Product("Abstract Stone Figure", "Sculptures", 3200.00));
+        products.add(new Product("Animal Stone Sculpture", "Sculptures", 1800.00));
+        products.add(new Product("Mini Stone Statue", "Sculptures", 950.00));
+        products.add(new Product("Traditional Stone Carving", "Sculptures", 4200.00));
+        products.add(new Product("Decorative Stone Art", "Sculptures", 2800.00));
+    }
 
-        //center content panel for card
-        JPanel productCardBg = new JPanel();
+    // =================================
+    // HEADER
+    // =================================
 
-        upperContentPanel.setBackground(Color.WHITE);
-        upperContentPanel.setLayout(new BorderLayout());
-        upperContentPanel.setBorder( BorderFactory.createEmptyBorder(30,30,30,30));
-        upperContentPanel.setPreferredSize(new Dimension(0, 100));
+    private void createHeader() {
 
-        centerContentPanel.setBackground(Color.WHITE);
-        centerContentPanel.setLayout(new GridLayout(5,0));
-        centerContentPanel.setBorder( BorderFactory.createMatteBorder(1,0,0,0, Color.GRAY));
+        headerPanel = new JPanel(new BorderLayout(20, 0));
+        headerPanel.setPreferredSize(new Dimension(0, 80));
+        headerPanel.setBackground(darkColor);
 
+        headerPanel.setBorder(
+                BorderFactory.createEmptyBorder(10, 25, 10, 25)
+        );
 
-        lowerContentPanel.setBackground(Color.GREEN);
+        // LOGO
+        JPanel logoPanel = new JPanel(
+                new FlowLayout(FlowLayout.LEFT, 10, 5)
+        );
 
+        logoPanel.setOpaque(false);
 
-        //Search Bar
+        JLabel logoIcon = new JLabel("S");
+        logoIcon.setFont(new Font("Arial", Font.BOLD, 24));
+        logoIcon.setForeground(Color.WHITE);
+        logoIcon.setHorizontalAlignment(SwingConstants.CENTER);
+        logoIcon.setOpaque(true);
+        logoIcon.setBackground(copperColor);
+        logoIcon.setPreferredSize(new Dimension(40, 40));
 
-        JTextField searchBar = new JTextField("Search Product");
-        searchBar.setPreferredSize(new Dimension(300, 1));
+        JPanel logoTextPanel = new JPanel();
+        logoTextPanel.setLayout(new BoxLayout(
+                logoTextPanel, BoxLayout.Y_AXIS
+        ));
+        logoTextPanel.setOpaque(false);
 
-        //Content
-        cardLayout.show(content, "Home");
-        homePanel.removeAll();
+        JLabel logoName = new JLabel("StoneCraft");
+        logoName.setFont(new Font("Arial", Font.BOLD, 21));
+        logoName.setForeground(Color.WHITE);
 
+        JLabel logoTagline = new JLabel("Business Management System");
+        logoTagline.setFont(new Font("Arial", Font.PLAIN, 11));
+        logoTagline.setForeground(new Color(185, 179, 168));
 
+        logoTextPanel.add(logoName);
+        logoTextPanel.add(logoTagline);
 
-        for(int i = 0; i < product.length; i++){
+        logoPanel.add(logoIcon);
+        logoPanel.add(logoTextPanel);
 
+        // SEARCH BAR
+        JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
+        searchPanel.setOpaque(false);
+        searchPanel.setPreferredSize(new Dimension(320, 36));
 
+        searchField = new JTextField();
+        searchField.setFont(mainFont);
+        searchField.setBackground(fieldColor);
 
-            productCardBg.setLayout(
-                    new BoxLayout(productCardBg, BoxLayout.X_AXIS)
-            );
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(borderColor),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
 
-            productCardBg.setBackground(Color.BLUE);
-            productCardBg.setPreferredSize(new Dimension(200, 200));
+        searchField.setToolTipText("Search products");
 
-            productCardBg.add(product[i]);
+        JButton searchButton = new JButton("Search");
+        styleButton(searchButton, copperColor, Color.WHITE);
 
+        searchButton.addActionListener(e -> searchProducts());
+        searchField.addActionListener(e -> searchProducts());
+
+        searchPanel.add(searchField, BorderLayout.CENTER);
+        searchPanel.add(searchButton, BorderLayout.EAST);
+
+        JPanel searchHolder = new JPanel(
+                new FlowLayout(FlowLayout.CENTER, 0, 7)
+        );
+
+        searchHolder.setOpaque(false);
+        searchHolder.add(searchPanel);
+
+        // CART AND PROFILE
+        JPanel accountPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 8, 5)
+        );
+
+        accountPanel.setOpaque(false);
+
+        cartButton = new JButton("Cart (0)");
+        styleButton(cartButton, copperColor, Color.WHITE);
+        cartButton.addActionListener(e -> openCartFrame());
+
+        profileButton = new JButton("Profile");
+        styleButton(profileButton, Color.WHITE, darkColor);
+        profileButton.setBorder(
+                BorderFactory.createLineBorder(Color.WHITE)
+        );
+
+        profileButton.addActionListener(e -> showProfile());
+
+        accountPanel.add(cartButton);
+        accountPanel.add(profileButton);
+
+        headerPanel.add(logoPanel, BorderLayout.WEST);
+        headerPanel.add(searchHolder, BorderLayout.CENTER);
+        headerPanel.add(accountPanel, BorderLayout.EAST);
+    }
+
+    // =================================
+    // SIDEBAR
+    // =================================
+
+    private void createSidebar() {
+
+        sidebarPanel = new JPanel();
+        sidebarPanel.setLayout(new BoxLayout(
+                sidebarPanel, BoxLayout.Y_AXIS
+        ));
+
+        sidebarPanel.setPreferredSize(new Dimension(210, 0));
+        sidebarPanel.setBackground(backgroundColor);
+
+        sidebarPanel.setBorder(
+                BorderFactory.createEmptyBorder(25, 15, 20, 15)
+        );
+
+        JLabel menuTitle = new JLabel("MENU");
+        menuTitle.setFont(boldFont);
+        menuTitle.setForeground(labelColor);
+
+        JLabel categoryTitle = new JLabel("CATEGORIES");
+        categoryTitle.setFont(boldFont);
+        categoryTitle.setForeground(labelColor);
+
+        categoryTitle.setBorder(
+                BorderFactory.createEmptyBorder(20, 0, 10, 0)
+        );
+
+        sidebarPanel.add(menuTitle);
+        sidebarPanel.add(Box.createVerticalStrut(15));
+
+        addMenuButton("Dashboard", "All Products");
+        addMenuButton("All Products", "All Products");
+
+        sidebarPanel.add(Box.createVerticalStrut(15));
+        sidebarPanel.add(categoryTitle);
+
+        addMenuButton("Home Decor", "Home Decor");
+        addMenuButton("Garden", "Garden");
+        addMenuButton("Kitchen", "Kitchen");
+        addMenuButton("Sculptures", "Sculptures");
+
+        // CUSTOM SCULPTURE SECTION
+        JLabel customTitle = new JLabel("CUSTOMER SERVICES");
+        customTitle.setFont(boldFont);
+        customTitle.setForeground(labelColor);
+        customTitle.setBorder(
+                BorderFactory.createEmptyBorder(20, 0, 10, 0)
+        );
+
+        sidebarPanel.add(customTitle);
+
+        addActionMenuButton(
+                "Request Custom Sculpture",
+                e -> openCustomRequestForm()
+        );
+
+        addActionMenuButton(
+                "My Custom Requests",
+                e -> openCustomRequestsFrame()
+        );
+
+        addActionMenuButton(
+                "Messages",
+                e -> openMessageFrame()
+        );
+
+        sidebarPanel.add(Box.createVerticalGlue());
+
+        JLabel helpLabel = new JLabel("Need help?");
+        helpLabel.setFont(boldFont);
+        helpLabel.setForeground(mainTextColor);
+
+        JLabel helpDescription = new JLabel("Contact StoneCraft");
+        helpDescription.setFont(mainFont);
+        helpDescription.setForeground(labelColor);
+
+        sidebarPanel.add(helpLabel);
+        sidebarPanel.add(Box.createVerticalStrut(5));
+        sidebarPanel.add(helpDescription);
+    }
+
+    private void addMenuButton(String buttonText, String category) {
+
+        JButton menuButton = new JButton(buttonText);
+
+        menuButton.setFont(mainFont);
+        menuButton.setForeground(mainTextColor);
+        menuButton.setBackground(backgroundColor);
+        menuButton.setHorizontalAlignment(SwingConstants.LEFT);
+
+        menuButton.setMaximumSize(new Dimension(180, 38));
+        menuButton.setBorder(
+                BorderFactory.createEmptyBorder(8, 10, 8, 5)
+        );
+
+        menuButton.setFocusPainted(false);
+        menuButton.setOpaque(true);
+        menuButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        menuButton.addActionListener(e -> {
+            selectedCategory = category;
+            displayProducts(selectedCategory, searchField.getText());
+        });
+
+        sidebarPanel.add(menuButton);
+    }
+
+    private void addActionMenuButton(
+            String buttonText,
+            java.awt.event.ActionListener action
+    ) {
+
+        JButton menuButton = new JButton(buttonText);
+
+        menuButton.setFont(mainFont);
+        menuButton.setForeground(mainTextColor);
+        menuButton.setBackground(backgroundColor);
+        menuButton.setHorizontalAlignment(SwingConstants.LEFT);
+
+        menuButton.setMaximumSize(new Dimension(180, 42));
+        menuButton.setBorder(
+                BorderFactory.createEmptyBorder(8, 10, 8, 5)
+        );
+
+        menuButton.setFocusPainted(false);
+        menuButton.setOpaque(true);
+        menuButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        menuButton.addActionListener(action);
+
+        sidebarPanel.add(menuButton);
+    }
+
+    // =================================
+    // PRODUCT CONTENT
+    // =================================
+
+    private void createProductContent() {
+
+        contentPanel = new JPanel(new BorderLayout(15, 15));
+        contentPanel.setBackground(Color.WHITE);
+
+        contentPanel.setBorder(
+                BorderFactory.createEmptyBorder(25, 25, 20, 25)
+        );
+
+        JPanel titlePanel = new JPanel();
+        titlePanel.setLayout(new BoxLayout(
+                titlePanel, BoxLayout.Y_AXIS
+        ));
+
+        titlePanel.setBackground(Color.WHITE);
+
+        JLabel pageTitle = new JLabel("Discover Products");
+        pageTitle.setFont(new Font("Arial", Font.BOLD, 25));
+        pageTitle.setForeground(mainTextColor);
+
+        JLabel pageDescription = new JLabel(
+                "Find beautifully crafted stone products."
+        );
+
+        pageDescription.setFont(
+                new Font("Arial", Font.PLAIN, 13)
+        );
+        pageDescription.setForeground(labelColor);
+
+        titlePanel.add(pageTitle);
+        titlePanel.add(Box.createVerticalStrut(5));
+        titlePanel.add(pageDescription);
+
+        // FILTER SECTION
+        JPanel filterPanel = new JPanel(new BorderLayout());
+        filterPanel.setBackground(Color.WHITE);
+
+        JLabel productCount = new JLabel("Available Products");
+        productCount.setFont(boldFont);
+        productCount.setForeground(mainTextColor);
+
+        sortComboBox = new JComboBox<>(new String[]{
+                "Featured",
+                "Price: Low to High",
+                "Price: High to Low"
+        });
+
+        sortComboBox.setFont(mainFont);
+        sortComboBox.setBackground(Color.WHITE);
+
+        sortComboBox.addActionListener(e ->
+                displayProducts(selectedCategory, searchField.getText())
+        );
+
+        filterPanel.add(productCount, BorderLayout.WEST);
+        filterPanel.add(sortComboBox, BorderLayout.EAST);
+
+        // PRODUCT GRID
+        productGrid = new JPanel(
+                new GridLayout(0, 3, 15, 15)
+        );
+        productGrid.setBackground(Color.WHITE);
+
+        JScrollPane scrollPane = new JScrollPane(productGrid);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        JPanel topContent = new JPanel(new BorderLayout(10, 15));
+        topContent.setBackground(Color.WHITE);
+
+        topContent.add(titlePanel, BorderLayout.NORTH);
+        topContent.add(filterPanel, BorderLayout.SOUTH);
+
+        contentPanel.add(topContent, BorderLayout.NORTH);
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+
+        displayProducts("All Products", "");
+    }
+
+    // =================================
+    // DISPLAY PRODUCTS
+    // =================================
+
+    private void displayProducts(String category, String keyword) {
+
+        productGrid.removeAll();
+
+        ArrayList<Product> filteredProducts = new ArrayList<>();
+
+        for (Product product : products) {
+
+            boolean categoryMatch =
+                    category.equals("All Products")
+                            || product.category.equals(category);
+
+            boolean searchMatch =
+                    product.name.toLowerCase().contains(
+                            keyword.toLowerCase().trim()
+                    );
+
+            if (categoryMatch && searchMatch) {
+                filteredProducts.add(product);
+            }
         }
-        homePanel.add(upperContentPanel, BorderLayout.NORTH);
-        homePanel.add(centerContentPanel, BorderLayout.CENTER);
-        homePanel.add(lowerContentPanel, BorderLayout.SOUTH);
 
-        //upperPanel content
-        upperContentPanel.add(searchBar, BorderLayout.WEST);
+        // PRICE SORTING
+        if (sortComboBox != null) {
 
-        //centerPanel content
+            String selectedSort =
+                    (String) sortComboBox.getSelectedItem();
 
-        for(int i = 0; i < centerContentPanelLayer.length; i++){
-            centerContentPanelLayer[i] = new JPanel();
-            switch(i)
-            {
-                case 0:
-                    for(int j = 0; j < centerContentPanelLayer.length; j++) {
-                        centerContentPanelLayer[i].add(new JLabel("hello"));
-                    }
-                    break;
-                case 1:
-                    for(int k = 0; k < centerContentPanelLayer.length; k++){
-                        centerContentPanelLayer[i].add(new JLabel("bye"));
-                }
+            if ("Price: Low to High".equals(selectedSort)) {
 
+                Collections.sort(
+                        filteredProducts,
+                        Comparator.comparingDouble(p -> p.price)
+                );
+
+            } else if ("Price: High to Low".equals(selectedSort)) {
+
+                Collections.sort(
+                        filteredProducts,
+                        (p1, p2) -> Double.compare(p2.price, p1.price)
+                );
+            }
+        }
+
+        if (filteredProducts.isEmpty()) {
+
+            JLabel noProducts = new JLabel("No products found.");
+            noProducts.setFont(mainFont);
+            noProducts.setForeground(labelColor);
+
+            productGrid.add(noProducts);
+
+        } else {
+
+            for (Product product : filteredProducts) {
+                productGrid.add(createProductCard(product));
+            }
+        }
+
+        productGrid.revalidate();
+        productGrid.repaint();
+    }
+
+    // =================================
+    // PRODUCT CARD
+    // =================================
+
+    private JPanel createProductCard(Product product) {
+
+        JPanel card = new JPanel(new BorderLayout(0, 8));
+        card.setBackground(Color.WHITE);
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(10, 10, 10, 10)
+                )
+        );
+
+        // PRODUCT IMAGE PLACEHOLDER
+        // Add your actual product image here.
+        // Example:
+        // ImageIcon image = new ImageIcon("images/stone-vase.jpg");
+        // JLabel imageLabel = new JLabel(image);
+
+        JPanel imagePanel = new JPanel(new BorderLayout());
+        imagePanel.setPreferredSize(new Dimension(200, 150));
+        imagePanel.setBackground(fieldColor);
+
+        JLabel imageLabel = new JLabel("PRODUCT PHOTO");
+        imageLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        imageLabel.setForeground(labelColor);
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        imagePanel.add(imageLabel, BorderLayout.CENTER);
+
+        // PRODUCT DETAILS
+        JPanel informationPanel = new JPanel();
+        informationPanel.setLayout(new BoxLayout(
+                informationPanel, BoxLayout.Y_AXIS
+        ));
+
+        informationPanel.setBackground(Color.WHITE);
+
+        JLabel productName = new JLabel(product.name);
+        productName.setFont(new Font("Arial", Font.BOLD, 15));
+        productName.setForeground(mainTextColor);
+
+        JLabel productCategory = new JLabel(product.category);
+        productCategory.setFont(mainFont);
+        productCategory.setForeground(labelColor);
+
+        JLabel productPrice = new JLabel(
+                "₱" + String.format("%.2f", product.price)
+        );
+
+        productPrice.setFont(new Font("Arial", Font.BOLD, 16));
+        productPrice.setForeground(copperColor);
+
+        informationPanel.add(productName);
+        informationPanel.add(Box.createVerticalStrut(4));
+        informationPanel.add(productCategory);
+        informationPanel.add(Box.createVerticalStrut(7));
+        informationPanel.add(productPrice);
+
+        // ADD TO CART
+        JButton addButton = new JButton("Add to Cart");
+        styleButton(addButton, copperColor, Color.WHITE);
+
+        addButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        addButton.addActionListener(e -> addToCart(product));
+
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.add(addButton, BorderLayout.CENTER);
+
+        card.add(imagePanel, BorderLayout.NORTH);
+        card.add(informationPanel, BorderLayout.CENTER);
+        card.add(buttonPanel, BorderLayout.SOUTH);
+
+        return card;
+    }
+
+    // =================================
+    // SEARCH
+    // =================================
+
+    private void searchProducts() {
+
+        displayProducts(
+                selectedCategory,
+                searchField.getText()
+        );
+    }
+
+    // =================================
+    // ADD TO CART
+    // =================================
+
+    private void addToCart(Product product) {
+
+        boolean alreadyAdded = false;
+
+        for (CartItem item : cartItems) {
+
+            if (item.product == product) {
+                item.quantity++;
+                alreadyAdded = true;
+                break;
+            }
+        }
+
+        if (!alreadyAdded) {
+            cartItems.add(new CartItem(product, 1));
+        }
+
+        updateCartButton();
+
+        JOptionPane.showMessageDialog(
+                this,
+                product.name + " added to cart!",
+                "StoneCraft",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    private void updateCartButton() {
+
+        int totalQuantity = 0;
+
+        for (CartItem item : cartItems) {
+            totalQuantity += item.quantity;
+        }
+
+        cartButton.setText("Cart (" + totalQuantity + ")");
+    }
+
+    // =================================
+    // CART FRAME
+    // =================================
+
+    private void openCartFrame() {
+
+        if (cartFrame != null && cartFrame.isDisplayable()) {
+            cartFrame.dispose();
+        }
+
+        cartFrame = new JFrame("StoneCraft - My Cart");
+        cartFrame.setSize(650, 550);
+        cartFrame.setLocationRelativeTo(this);
+        cartFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        cartFrame.setLayout(new BorderLayout());
+        cartFrame.getContentPane().setBackground(Color.WHITE);
+
+        JPanel cartHeader = new JPanel(new BorderLayout());
+        cartHeader.setBackground(darkColor);
+
+        cartHeader.setBorder(
+                BorderFactory.createEmptyBorder(18, 20, 18, 20)
+        );
+
+        JLabel cartTitle = new JLabel("My Cart");
+        cartTitle.setFont(new Font("Arial", Font.BOLD, 21));
+        cartTitle.setForeground(Color.WHITE);
+
+        cartHeader.add(cartTitle, BorderLayout.WEST);
+
+        cartContentPanel = new JPanel();
+        cartContentPanel.setLayout(new BoxLayout(
+                cartContentPanel, BoxLayout.Y_AXIS
+        ));
+        cartContentPanel.setBackground(Color.WHITE);
+
+        cartContentPanel.setBorder(
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        );
+
+        JScrollPane cartScrollPane = new JScrollPane(cartContentPanel);
+        cartScrollPane.setBorder(null);
+        cartScrollPane.getVerticalScrollBar().setUnitIncrement(16);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout(0, 12));
+        bottomPanel.setBackground(backgroundColor);
+
+        bottomPanel.setBorder(
+                BorderFactory.createEmptyBorder(15, 20, 15, 20)
+        );
+
+        subtotalLabel = new JLabel("Subtotal: ₱0.00");
+        subtotalLabel.setFont(new Font("Arial", Font.BOLD, 17));
+        subtotalLabel.setForeground(mainTextColor);
+
+        JButton checkoutButton = new JButton("Proceed to Checkout");
+        styleButton(checkoutButton, copperColor, Color.WHITE);
+
+        checkoutButton.addActionListener(e -> {
+
+            if (cartItems.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        cartFrame,
+                        "Your cart is empty.",
+                        "StoneCraft",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        cartFrame,
+                        "Checkout feature will be connected soon.",
+                        "StoneCraft",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+        });
+
+        bottomPanel.add(subtotalLabel, BorderLayout.NORTH);
+        bottomPanel.add(checkoutButton, BorderLayout.SOUTH);
+
+        cartFrame.add(cartHeader, BorderLayout.NORTH);
+        cartFrame.add(cartScrollPane, BorderLayout.CENTER);
+        cartFrame.add(bottomPanel, BorderLayout.SOUTH);
+
+        refreshCart();
+
+        cartFrame.setVisible(true);
+    }
+
+    // =================================
+    // REFRESH CART
+    // =================================
+
+    private void refreshCart() {
+
+        if (cartContentPanel == null) {
+            return;
+        }
+
+        cartContentPanel.removeAll();
+
+        if (cartItems.isEmpty()) {
+
+            JLabel emptyLabel = new JLabel("Your cart is currently empty.");
+            emptyLabel.setFont(mainFont);
+            emptyLabel.setForeground(labelColor);
+            emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            cartContentPanel.add(Box.createVerticalStrut(30));
+            cartContentPanel.add(emptyLabel);
+
+        } else {
+
+            for (CartItem item : cartItems) {
+
+                cartContentPanel.add(createCartItemPanel(item));
+                cartContentPanel.add(Box.createVerticalStrut(10));
+            }
+        }
+
+        updateSubtotal();
+
+        cartContentPanel.revalidate();
+        cartContentPanel.repaint();
+    }
+
+    // =================================
+    // CART ITEM PANEL
+    // =================================
+
+    private JPanel createCartItemPanel(CartItem item) {
+
+        JPanel itemPanel = new JPanel(new BorderLayout(10, 5));
+        itemPanel.setBackground(Color.WHITE);
+
+        itemPanel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(12, 12, 12, 12)
+                )
+        );
+
+        JPanel detailsPanel = new JPanel();
+        detailsPanel.setLayout(new BoxLayout(
+                detailsPanel, BoxLayout.Y_AXIS
+        ));
+        detailsPanel.setBackground(Color.WHITE);
+
+        JLabel nameLabel = new JLabel(item.product.name);
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        nameLabel.setForeground(mainTextColor);
+
+        JLabel priceLabel = new JLabel(
+                "₱" + String.format("%.2f", item.product.price)
+        );
+
+        priceLabel.setFont(mainFont);
+        priceLabel.setForeground(labelColor);
+
+        detailsPanel.add(nameLabel);
+        detailsPanel.add(Box.createVerticalStrut(5));
+        detailsPanel.add(priceLabel);
+
+        JPanel quantityPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 5, 5)
+        );
+        quantityPanel.setBackground(Color.WHITE);
+
+        JButton minusButton = new JButton("-");
+        JButton plusButton = new JButton("+");
+        JButton removeButton = new JButton("Remove");
+
+        styleSmallButton(minusButton);
+        styleSmallButton(plusButton);
+
+        removeButton.setFont(new Font("Arial", Font.PLAIN, 11));
+        removeButton.setForeground(copperColor);
+        removeButton.setBackground(Color.WHITE);
+        removeButton.setBorderPainted(false);
+        removeButton.setFocusPainted(false);
+
+        JLabel quantityLabel = new JLabel(
+                String.valueOf(item.quantity)
+        );
+
+        quantityLabel.setFont(boldFont);
+        quantityLabel.setForeground(mainTextColor);
+
+        minusButton.addActionListener(e -> {
+
+            if (item.quantity > 1) {
+                item.quantity--;
             }
 
-            centerContentPanel.add(centerContentPanelLayer[i]);
+            refreshCart();
+            updateCartButton();
+        });
+
+        plusButton.addActionListener(e -> {
+
+            item.quantity++;
+
+            refreshCart();
+            updateCartButton();
+        });
+
+        removeButton.addActionListener(e -> {
+
+            cartItems.remove(item);
+
+            refreshCart();
+            updateCartButton();
+        });
+
+        quantityPanel.add(minusButton);
+        quantityPanel.add(quantityLabel);
+        quantityPanel.add(plusButton);
+        quantityPanel.add(removeButton);
+
+        itemPanel.add(detailsPanel, BorderLayout.CENTER);
+        itemPanel.add(quantityPanel, BorderLayout.EAST);
+
+        itemPanel.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, 90)
+        );
+
+        return itemPanel;
+    }
+
+    private void styleSmallButton(JButton button) {
+
+        button.setFont(new Font("Arial", Font.BOLD, 12));
+        button.setForeground(mainTextColor);
+        button.setBackground(fieldColor);
+        button.setFocusPainted(false);
+
+        button.setBorder(
+                BorderFactory.createLineBorder(borderColor)
+        );
+
+        button.setPreferredSize(new Dimension(30, 28));
+    }
+
+    // =================================
+    // UPDATE SUBTOTAL
+    // =================================
+
+    private void updateSubtotal() {
+
+        double subtotal = 0;
+
+        for (CartItem item : cartItems) {
+            subtotal += item.product.price * item.quantity;
         }
 
-
-        homePanel.revalidate();
-        homePanel.repaint();
+        subtotalLabel.setText(
+                "Subtotal: ₱" + String.format("%.2f", subtotal)
+        );
     }
 
+    // =================================
+    // CUSTOM SCULPTURE REQUEST FORM
+    // =================================
 
-    public void productPanelContent(){
-        buttons[0].setBackground(Color.BLACK);
-        buttons[1].setBackground(new Color(139, 69, 19));
-        buttons[2].setBackground(Color.BLACK);
-        cardLayout.show(content, "Products");
+    private void openCustomRequestForm() {
 
+        JFrame requestFrame = new JFrame(
+                "StoneCraft - Custom Sculpture Request"
+        );
+
+        requestFrame.setSize(650, 700);
+        requestFrame.setLocationRelativeTo(this);
+        requestFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(20, 25, 20, 25)
+        );
+
+        // FORM HEADER
+        JPanel titlePanel = new JPanel();
+        titlePanel.setLayout(new BoxLayout(
+                titlePanel, BoxLayout.Y_AXIS
+        ));
+        titlePanel.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel("Request Custom Sculpture");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 23));
+        titleLabel.setForeground(mainTextColor);
+
+        JLabel descriptionLabel = new JLabel(
+                "Tell us about the stone sculpture you want."
+        );
+        descriptionLabel.setFont(mainFont);
+        descriptionLabel.setForeground(labelColor);
+
+        titlePanel.add(titleLabel);
+        titlePanel.add(Box.createVerticalStrut(5));
+        titlePanel.add(descriptionLabel);
+
+        // FORM FIELDS
+        JPanel formPanel = new JPanel();
+        formPanel.setLayout(new BoxLayout(
+                formPanel, BoxLayout.Y_AXIS
+        ));
+        formPanel.setBackground(Color.WHITE);
+
+        JTextField sculptureNameField = createFormField();
+        JTextArea descriptionArea = new JTextArea(4, 20);
+        descriptionArea.setFont(mainFont);
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+        descriptionArea.setBackground(fieldColor);
+        descriptionArea.setBorder(
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)
+        );
+
+        JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
+        descriptionScroll.setBorder(
+                BorderFactory.createLineBorder(borderColor)
+        );
+
+        JComboBox<String> sizeComboBox = new JComboBox<>(
+                new String[]{
+                        "Small",
+                        "Medium",
+                        "Large",
+                        "Extra Large",
+                        "Custom Size"
+                }
+        );
+
+        styleComboBox(sizeComboBox);
+
+        JTextField customSizeField = createFormField();
+        customSizeField.setToolTipText(
+                "Enter your preferred measurements"
+        );
+
+        JTextField designField = createFormField();
+        JTextField budgetField = createFormField();
+
+        addFormSection(formPanel, "Sculpture Name", sculptureNameField);
+        addFormSection(formPanel, "Description / Details", descriptionScroll);
+        addFormSection(formPanel, "Preferred Size", sizeComboBox);
+        addFormSection(formPanel, "Custom Measurements (Optional)", customSizeField);
+        addFormSection(formPanel, "Preferred Design / Style", designField);
+        addFormSection(formPanel, "Estimated Budget (₱)", budgetField);
+
+        // IMAGE ATTACHMENT
+        JPanel imageSection = new JPanel(new BorderLayout(10, 5));
+        imageSection.setBackground(Color.WHITE);
+
+        JLabel imageTitle = new JLabel("Design Reference Image");
+        imageTitle.setFont(boldFont);
+        imageTitle.setForeground(mainTextColor);
+
+        JLabel imageNameLabel = new JLabel("No image selected");
+        imageNameLabel.setFont(mainFont);
+        imageNameLabel.setForeground(labelColor);
+
+        JButton attachButton = new JButton("Choose Image");
+        styleButton(attachButton, darkColor, Color.WHITE);
+
+        attachButton.addActionListener(e -> {
+
+            JFileChooser fileChooser = new JFileChooser();
+
+            fileChooser.setDialogTitle("Select Design Reference");
+
+            fileChooser.setFileFilter(
+                    new javax.swing.filechooser.FileNameExtensionFilter(
+                            "Image Files",
+                            "jpg", "jpeg", "png"
+                    )
+            );
+
+            int result = fileChooser.showOpenDialog(requestFrame);
+
+            if (result == JFileChooser.APPROVE_OPTION) {
+
+                File selectedFile = fileChooser.getSelectedFile();
+
+                selectedImagePath = selectedFile.getAbsolutePath();
+
+                imageNameLabel.setText(selectedFile.getName());
+            }
+        });
+
+        imageSection.add(imageTitle, BorderLayout.NORTH);
+        imageSection.add(imageNameLabel, BorderLayout.CENTER);
+        imageSection.add(attachButton, BorderLayout.EAST);
+
+        formPanel.add(Box.createVerticalStrut(5));
+        formPanel.add(imageSection);
+
+        JScrollPane formScrollPane = new JScrollPane(formPanel);
+        formScrollPane.setBorder(null);
+        formScrollPane.getVerticalScrollBar().setUnitIncrement(14);
+
+        // BUTTONS
+        JPanel buttonPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 10, 0)
+        );
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton cancelButton = new JButton("Cancel");
+        styleButton(cancelButton, fieldColor, mainTextColor);
+        cancelButton.setBorder(
+                BorderFactory.createLineBorder(borderColor)
+        );
+
+        JButton submitButton = new JButton("Submit Request");
+        styleButton(submitButton, copperColor, Color.WHITE);
+
+        cancelButton.addActionListener(e -> requestFrame.dispose());
+
+        submitButton.addActionListener(e -> {
+
+            String sculptureName = sculptureNameField.getText().trim();
+            String description = descriptionArea.getText().trim();
+            String size = (String) sizeComboBox.getSelectedItem();
+            String customSize = customSizeField.getText().trim();
+            String design = designField.getText().trim();
+            String budgetText = budgetField.getText().trim();
+
+            if (sculptureName.isEmpty()
+                    || description.isEmpty()
+                    || design.isEmpty()
+                    || budgetText.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        requestFrame,
+                        "Please complete all required fields.",
+                        "Incomplete Form",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            double budget;
+
+            try {
+                budget = Double.parseDouble(budgetText);
+
+                if (budget <= 0) {
+                    JOptionPane.showMessageDialog(
+                            requestFrame,
+                            "Please enter a valid budget.",
+                            "Invalid Budget",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                    return;
+                }
+
+            } catch (NumberFormatException ex) {
+
+                JOptionPane.showMessageDialog(
+                        requestFrame,
+                        "Please enter a valid number for your budget.",
+                        "Invalid Budget",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            if ("Custom Size".equals(size) && customSize.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        requestFrame,
+                        "Please enter your preferred measurements.",
+                        "Missing Measurements",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            String finalSize = size;
+
+            if ("Custom Size".equals(size)) {
+                finalSize = customSize;
+            }
+
+            CustomRequest customRequest = new CustomRequest(
+                    sculptureName,
+                    description,
+                    finalSize,
+                    design,
+                    budget,
+                    selectedImagePath
+            );
+
+            customRequests.add(customRequest);
+
+            JOptionPane.showMessageDialog(
+                    requestFrame,
+                    "Your custom sculpture request has been submitted!",
+                    "Request Submitted",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            // RESET SELECTED IMAGE
+            selectedImagePath = "";
+
+            requestFrame.dispose();
+        });
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(submitButton);
+
+        mainPanel.add(titlePanel, BorderLayout.NORTH);
+        mainPanel.add(formScrollPane, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        requestFrame.add(mainPanel);
+        requestFrame.setVisible(true);
     }
-    public void customerOrderRequestContent(){
-        buttons[0].setBackground(Color.BLACK);
-        buttons[1].setBackground(Color.BLACK);
-        buttons[2].setBackground(new Color(139, 69, 19));
-        cardLayout.show(content, "CostumerOrderRequest");
 
+    // =================================
+    // FORM DESIGN HELPERS
+    // =================================
 
+    private JTextField createFormField() {
+
+        JTextField textField = new JTextField();
+        textField.setFont(mainFont);
+        textField.setBackground(fieldColor);
+
+        textField.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(8, 10, 8, 10)
+                )
+        );
+
+        textField.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, 38)
+        );
+
+        return textField;
     }
 
+    private void addFormSection(
+            JPanel formPanel,
+            String labelText,
+            JComponent component
+    ) {
 
-    /*Yung sa content maglagay na ng card na nag lalaman sya ng picture, price, name, tapos button na okay na*/
+        JLabel sectionLabel = new JLabel(labelText);
+        sectionLabel.setFont(boldFont);
+        sectionLabel.setForeground(mainTextColor);
+        sectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        component.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        if (component instanceof JTextField
+                || component instanceof JComboBox) {
+
+            component.setMaximumSize(
+                    new Dimension(Integer.MAX_VALUE, 38)
+            );
+        }
+
+        if (component instanceof JScrollPane) {
+            component.setPreferredSize(new Dimension(500, 95));
+        }
+
+        formPanel.add(sectionLabel);
+        formPanel.add(Box.createVerticalStrut(6));
+        formPanel.add(component);
+        formPanel.add(Box.createVerticalStrut(15));
+    }
+
+    private void styleComboBox(JComboBox<String> comboBox) {
+
+        comboBox.setFont(mainFont);
+        comboBox.setBackground(Color.WHITE);
+        comboBox.setForeground(mainTextColor);
+    }
+
+    // =================================
+    // MY CUSTOM REQUESTS
+    // =================================
+
+    private void openCustomRequestsFrame() {
+
+        JFrame requestListFrame = new JFrame(
+                "StoneCraft - My Custom Requests"
+        );
+
+        requestListFrame.setSize(750, 550);
+        requestListFrame.setLocationRelativeTo(this);
+        requestListFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        requestListFrame.setLayout(new BorderLayout());
+
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(darkColor);
+        headerPanel.setBorder(
+                BorderFactory.createEmptyBorder(18, 20, 18, 20)
+        );
+
+        JLabel titleLabel = new JLabel("My Custom Requests");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 21));
+        titleLabel.setForeground(Color.WHITE);
+
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+
+        JPanel requestListPanel = new JPanel();
+        requestListPanel.setLayout(new BoxLayout(
+                requestListPanel, BoxLayout.Y_AXIS
+        ));
+        requestListPanel.setBackground(Color.WHITE);
+        requestListPanel.setBorder(
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        );
+
+        if (customRequests.isEmpty()) {
+
+            JLabel emptyLabel = new JLabel(
+                    "You haven't submitted any custom requests yet."
+            );
+
+            emptyLabel.setFont(mainFont);
+            emptyLabel.setForeground(labelColor);
+            emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            requestListPanel.add(Box.createVerticalStrut(40));
+            requestListPanel.add(emptyLabel);
+
+        } else {
+
+            for (CustomRequest customRequest : customRequests) {
+
+                requestListPanel.add(
+                        createCustomRequestCard(customRequest)
+                );
+
+                requestListPanel.add(Box.createVerticalStrut(12));
+            }
+        }
+
+        JScrollPane scrollPane = new JScrollPane(requestListPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(15);
+
+        requestListFrame.add(headerPanel, BorderLayout.NORTH);
+        requestListFrame.add(scrollPane, BorderLayout.CENTER);
+
+        requestListFrame.setVisible(true);
+    }
+
+    // =================================
+    // CUSTOM REQUEST CARD
+    // =================================
+
+    private JPanel createCustomRequestCard(CustomRequest customRequest) {
+
+        JPanel card = new JPanel(new BorderLayout(10, 10));
+        card.setBackground(Color.WHITE);
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(15, 15, 15, 15)
+                )
+        );
+
+        JPanel detailsPanel = new JPanel();
+        detailsPanel.setLayout(new BoxLayout(
+                detailsPanel, BoxLayout.Y_AXIS
+        ));
+        detailsPanel.setBackground(Color.WHITE);
+
+        JLabel nameLabel = new JLabel(customRequest.sculptureName);
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        nameLabel.setForeground(mainTextColor);
+
+        JLabel sizeLabel = new JLabel(
+                "Preferred Size: " + customRequest.size
+        );
+        sizeLabel.setFont(mainFont);
+        sizeLabel.setForeground(labelColor);
+
+        JLabel designLabel = new JLabel(
+                "Design: " + customRequest.design
+        );
+        designLabel.setFont(mainFont);
+        designLabel.setForeground(labelColor);
+
+        JLabel budgetLabel = new JLabel(
+                "Budget: ₱" + String.format("%.2f", customRequest.budget)
+        );
+        budgetLabel.setFont(mainFont);
+        budgetLabel.setForeground(copperColor);
+
+        JLabel statusLabel = new JLabel(
+                "Status: " + customRequest.status
+        );
+        statusLabel.setFont(boldFont);
+        statusLabel.setForeground(copperColor);
+
+        detailsPanel.add(nameLabel);
+        detailsPanel.add(Box.createVerticalStrut(7));
+        detailsPanel.add(sizeLabel);
+        detailsPanel.add(designLabel);
+        detailsPanel.add(budgetLabel);
+        detailsPanel.add(Box.createVerticalStrut(7));
+        detailsPanel.add(statusLabel);
+
+        JButton viewButton = new JButton("View Details");
+        styleButton(viewButton, darkColor, Color.WHITE);
+
+        viewButton.addActionListener(e ->
+                showCustomRequestDetails(customRequest)
+        );
+
+        card.add(detailsPanel, BorderLayout.CENTER);
+        card.add(viewButton, BorderLayout.EAST);
+
+        card.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, 160)
+        );
+
+        return card;
+    }
+
+    // =================================
+    // CUSTOM REQUEST DETAILS
+    // =================================
+
+    private void showCustomRequestDetails(CustomRequest customRequest) {
+
+        String details =
+                "Sculpture Name: " + customRequest.sculptureName
+                        + "\n\nDescription: " + customRequest.description
+                        + "\n\nPreferred Size: " + customRequest.size
+                        + "\n\nDesign: " + customRequest.design
+                        + "\n\nBudget: ₱" + String.format("%.2f", customRequest.budget)
+                        + "\n\nStatus: " + customRequest.status
+                        + "\n\nReference Image: "
+                        + (customRequest.imagePath.isEmpty()
+                        ? "No image attached"
+                        : new File(customRequest.imagePath).getName());
+
+        JOptionPane.showMessageDialog(
+                this,
+                details,
+                "Custom Request Details",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    // =================================
+    // MESSAGES / CHAT FRAME
+    // =================================
+
+    private void openMessageFrame() {
+
+        if (messageFrame != null && messageFrame.isDisplayable()) {
+            messageFrame.toFront();
+            return;
+        }
+
+        messageFrame = new JFrame("StoneCraft - Messages");
+        messageFrame.setSize(750, 600);
+        messageFrame.setLocationRelativeTo(this);
+        messageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        messageFrame.setLayout(new BorderLayout());
+
+        // CHAT HEADER
+        JPanel chatHeader = new JPanel(new BorderLayout());
+        chatHeader.setBackground(darkColor);
+        chatHeader.setBorder(
+                BorderFactory.createEmptyBorder(18, 20, 18, 20)
+        );
+
+        JPanel sellerInfoPanel = new JPanel();
+        sellerInfoPanel.setLayout(new BoxLayout(
+                sellerInfoPanel, BoxLayout.Y_AXIS
+        ));
+        sellerInfoPanel.setOpaque(false);
+
+        JLabel sellerName = new JLabel("StoneCraft Seller");
+        sellerName.setFont(new Font("Arial", Font.BOLD, 18));
+        sellerName.setForeground(Color.WHITE);
+
+        JLabel sellerStatus = new JLabel("Customer Support");
+        sellerStatus.setFont(mainFont);
+        sellerStatus.setForeground(new Color(185, 179, 168));
+
+        sellerInfoPanel.add(sellerName);
+        sellerInfoPanel.add(Box.createVerticalStrut(4));
+        sellerInfoPanel.add(sellerStatus);
+
+        chatHeader.add(sellerInfoPanel, BorderLayout.WEST);
+
+        // CHAT AREA
+        chatPanel = new JPanel();
+        chatPanel.setLayout(new BoxLayout(
+                chatPanel, BoxLayout.Y_AXIS
+        ));
+        chatPanel.setBackground(backgroundColor);
+        chatPanel.setBorder(
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        );
+
+        JScrollPane chatScrollPane = new JScrollPane(chatPanel);
+        chatScrollPane.setBorder(null);
+        chatScrollPane.getVerticalScrollBar().setUnitIncrement(15);
+
+        // MESSAGE INPUT
+        JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
+        inputPanel.setBackground(Color.WHITE);
+        inputPanel.setBorder(
+                BorderFactory.createEmptyBorder(12, 15, 12, 15)
+        );
+
+        messageField = new JTextField();
+        messageField.setFont(mainFont);
+        messageField.setBackground(fieldColor);
+
+        messageField.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(8, 10, 8, 10)
+                )
+        );
+
+        JButton sendButton = new JButton("Send");
+        styleButton(sendButton, copperColor, Color.WHITE);
+
+        sendButton.addActionListener(e -> sendMessage());
+        messageField.addActionListener(e -> sendMessage());
+
+        inputPanel.add(messageField, BorderLayout.CENTER);
+        inputPanel.add(sendButton, BorderLayout.EAST);
+
+        messageFrame.add(chatHeader, BorderLayout.NORTH);
+        messageFrame.add(chatScrollPane, BorderLayout.CENTER);
+        messageFrame.add(inputPanel, BorderLayout.SOUTH);
+
+        refreshChatMessages();
+
+        messageFrame.setVisible(true);
+    }
+
+    // =================================
+    // SEND MESSAGE
+    // =================================
+
+    private void sendMessage() {
+
+        if (messageField == null) {
+            return;
+        }
+
+        String message = messageField.getText().trim();
+
+        if (message.isEmpty()) {
+            return;
+        }
+
+        // SAVE CUSTOMER MESSAGE LOCALLY
+        chatMessages.add(new ChatMessage(message, "Customer"));
+
+        messageField.setText("");
+
+        refreshChatMessages();
+    }
+
+    // =================================
+    // REFRESH CHAT MESSAGES
+    // =================================
+
+    private void refreshChatMessages() {
+
+        if (chatPanel == null) {
+            return;
+        }
+
+        chatPanel.removeAll();
+
+        if (chatMessages.isEmpty()) {
+
+            JLabel welcomeLabel = new JLabel(
+                    "Start a conversation with the StoneCraft seller."
+            );
+
+            welcomeLabel.setFont(mainFont);
+            welcomeLabel.setForeground(labelColor);
+            welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            chatPanel.add(Box.createVerticalStrut(30));
+            chatPanel.add(welcomeLabel);
+
+        } else {
+
+            for (ChatMessage chatMessage : chatMessages) {
+
+                chatPanel.add(createMessageBubble(chatMessage));
+                chatPanel.add(Box.createVerticalStrut(10));
+            }
+        }
+
+        chatPanel.revalidate();
+        chatPanel.repaint();
+
+        SwingUtilities.invokeLater(() -> {
+
+            JScrollBar verticalBar =
+                    ((JScrollPane) chatPanel.getParent().getParent())
+                            .getVerticalScrollBar();
+
+            verticalBar.setValue(verticalBar.getMaximum());
+        });
+    }
+
+    // =================================
+    // MESSAGE BUBBLE
+    // =================================
+
+    private JPanel createMessageBubble(ChatMessage chatMessage) {
+
+        JPanel rowPanel = new JPanel(new BorderLayout());
+        rowPanel.setOpaque(false);
+
+        JPanel bubblePanel = new JPanel();
+        bubblePanel.setLayout(new BoxLayout(
+                bubblePanel, BoxLayout.Y_AXIS
+        ));
+
+        bubblePanel.setBorder(
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)
+        );
+
+        JLabel senderLabel = new JLabel(chatMessage.sender);
+        senderLabel.setFont(new Font("Arial", Font.BOLD, 11));
+
+        JLabel messageLabel = new JLabel(
+                "<html><div style='width:250px;'>"
+                        + escapeHtml(chatMessage.message)
+                        + "</div></html>"
+        );
+
+        messageLabel.setFont(mainFont);
+
+        if ("Customer".equals(chatMessage.sender)) {
+
+            bubblePanel.setBackground(new Color(246, 228, 210));
+            senderLabel.setForeground(copperColor);
+            messageLabel.setForeground(mainTextColor);
+
+            bubblePanel.add(senderLabel);
+            bubblePanel.add(Box.createVerticalStrut(5));
+            bubblePanel.add(messageLabel);
+
+            rowPanel.add(bubblePanel, BorderLayout.EAST);
+
+        } else {
+
+            bubblePanel.setBackground(Color.WHITE);
+            senderLabel.setForeground(darkColor);
+            messageLabel.setForeground(mainTextColor);
+
+            bubblePanel.add(senderLabel);
+            bubblePanel.add(Box.createVerticalStrut(5));
+            bubblePanel.add(messageLabel);
+
+            rowPanel.add(bubblePanel, BorderLayout.WEST);
+        }
+
+        return rowPanel;
+    }
+
+    private String escapeHtml(String text) {
+
+        return text.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\n", "<br>");
+    }
+
+    // =================================
+    // PROFILE MENU
+    // =================================
+
+    private void showProfile() {
+
+        JPopupMenu profileMenu = new JPopupMenu();
+
+        JMenuItem accountItem = new JMenuItem("My Account");
+        JMenuItem ordersItem = new JMenuItem("My Orders");
+        JMenuItem logoutItem = new JMenuItem("Log Out");
+
+        accountItem.addActionListener(e ->
+                JOptionPane.showMessageDialog(
+                        this,
+                        "My Account",
+                        "StoneCraft",
+                        JOptionPane.INFORMATION_MESSAGE
+                )
+        );
+
+        ordersItem.addActionListener(e ->
+                JOptionPane.showMessageDialog(
+                        this,
+                        "My Orders",
+                        "StoneCraft",
+                        JOptionPane.INFORMATION_MESSAGE
+                )
+        );
+
+        logoutItem.addActionListener(e -> {
+
+            int choice = JOptionPane.showConfirmDialog(
+                    this,
+                    "Are you sure you want to log out?",
+                    "Log Out",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (choice == JOptionPane.YES_OPTION) {
+                dispose();
+            }
+        });
+
+        profileMenu.add(accountItem);
+        profileMenu.add(ordersItem);
+        profileMenu.addSeparator();
+        profileMenu.add(logoutItem);
+
+        profileMenu.show(
+                profileButton,
+                0,
+                profileButton.getHeight()
+        );
+    }
+
+    // =================================
+    // BUTTON DESIGN
+    // =================================
+
+    private void styleButton(
+            JButton button,
+            Color background,
+            Color foreground
+    ) {
+
+        button.setFont(new Font("Arial", Font.BOLD, 12));
+        button.setBackground(background);
+        button.setForeground(foreground);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                new Cursor(Cursor.HAND_CURSOR)
+        );
+
+        button.setBorder(
+                BorderFactory.createEmptyBorder(9, 15, 9, 15)
+        );
+
+        button.setOpaque(true);
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+
+                if (background == copperColor) {
+                    button.setBackground(hoverColor);
+                }
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+
+                button.setBackground(background);
+            }
+        });
+    }
+
+    // =================================
+    // PRODUCT CLASS
+    // =================================
+
+    private static class Product {
+
+        String name;
+        String category;
+        double price;
+
+        Product(String name, String category, double price) {
+
+            this.name = name;
+            this.category = category;
+            this.price = price;
+        }
+    }
+
+    // =================================
+    // CART ITEM CLASS
+    // =================================
+
+    private static class CartItem {
+
+        Product product;
+        int quantity;
+
+        CartItem(Product product, int quantity) {
+
+            this.product = product;
+            this.quantity = quantity;
+        }
+    }
+
+    // =================================
+    // CUSTOM REQUEST CLASS
+    // =================================
+
+    private static class CustomRequest {
+
+        String sculptureName;
+        String description;
+        String size;
+        String design;
+        double budget;
+        String imagePath;
+        String status;
+
+        CustomRequest(
+                String sculptureName,
+                String description,
+                String size,
+                String design,
+                double budget,
+                String imagePath
+        ) {
+
+            this.sculptureName = sculptureName;
+            this.description = description;
+            this.size = size;
+            this.design = design;
+            this.budget = budget;
+            this.imagePath = imagePath;
+            this.status = "Pending";
+        }
+    }
+
+    // =================================
+    // CHAT MESSAGE CLASS
+    // =================================
+
+    private static class ChatMessage {
+
+        String message;
+        String sender;
+
+        ChatMessage(String message, String sender) {
+
+            this.message = message;
+            this.sender = sender;
+        }
+    }
 }

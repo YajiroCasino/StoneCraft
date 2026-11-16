@@ -15,7 +15,7 @@ public class Main {
         DataBaseConnection.createDatabase();
         new BusinessMain();
          */
-        new SignUp();
+        new CustomerMain();
 
     }
 

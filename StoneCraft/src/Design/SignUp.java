@@ -13,17 +13,17 @@ public class SignUp extends MainDesign {
     public JPanel messageCard;
     public JPanel contentPane;
 
-    JPanel LeftPanel, RightPanel;
+    JPanel leftPanel, rightPanel;
 
-    JLabel Title, FullName, Email, Contact, Password, ConfirmPassword, Login;
-    JLabel Quote1, Quote2;
-    JLabel Description1, Description2;
-    JLabel Copyright;
+    JLabel title, fullName, email, contact, password, confirmPassword, login;
+    JLabel quote1, quote2;
+    JLabel description1, description2;
+    JLabel copyright;
 
-    public JPanel PasswordPanel, ConfirmPanel;
+    public JPanel passwordPanel, confirmPanel;
 
-    public JLabel Logo;
-    public JLabel Tagline;
+    public JLabel logo;
+    public JLabel tagline;
 
     public JTextField nameField, emailField, contactField;
     public JPasswordField passwordField, confirmField;
@@ -55,10 +55,10 @@ public class SignUp extends MainDesign {
         // =========================
         // LEFT PANEL
         // =========================
-        LeftPanel = new JPanel();
-        LeftPanel.setLayout(null);
-        LeftPanel.setBounds(0, 0, 418, 560);
-        LeftPanel.setBackground(new Color(43, 42, 40));
+        leftPanel = new JPanel();
+        leftPanel.setLayout(null);
+        leftPanel.setBounds(0, 0, 418, 560);
+        leftPanel.setBackground(new Color(43, 42, 40));
 
         // LOGO ICON
         JPanel logoIcon = new JPanel(new BorderLayout());
@@ -72,79 +72,79 @@ public class SignUp extends MainDesign {
         logoIcon.add(logoLetter, BorderLayout.CENTER);
 
         // STONECRAFT
-        Logo = new JLabel("StoneCraft");
-        Logo.setFont(new Font("Arial", Font.BOLD, 27));
-        Logo.setForeground(new Color(244, 241, 236));
-        Logo.setBounds(107, 48, 260, 35);
+        logo = new JLabel("StoneCraft");
+        logo.setFont(new Font("Arial", Font.BOLD, 27));
+        logo.setForeground(new Color(244, 241, 236));
+        logo.setBounds(107, 48, 260, 35);
 
         // TAGLINE
-        Tagline = new JLabel("Business Management System");
-        Tagline.setFont(new Font("Arial", Font.PLAIN, 14));
-        Tagline.setForeground(new Color(185, 179, 168));
-        Tagline.setBounds(108, 80, 260, 25);
+        tagline = new JLabel("Business Management System");
+        tagline.setFont(new Font("Arial", Font.PLAIN, 14));
+        tagline.setForeground(new Color(185, 179, 168));
+        tagline.setBounds(108, 80, 260, 25);
 
         // QUOTE
-        Quote1 = new JLabel("Naturally strong.");
-        Quote1.setFont(new Font("Arial", Font.BOLD, 30));
-        Quote1.setForeground(new Color(244, 241, 236));
-        Quote1.setBounds(45, 290, 350, 40);
+        quote1 = new JLabel("Naturally strong.");
+        quote1.setFont(new Font("Arial", Font.BOLD, 30));
+        quote1.setForeground(new Color(244, 241, 236));
+        quote1.setBounds(45, 290, 350, 40);
 
-        Quote2 = new JLabel("Beautifully crafted.");
-        Quote2.setFont(new Font("Arial", Font.BOLD, 30));
-        Quote2.setForeground(new Color(244, 241, 236));
-        Quote2.setBounds(45, 330, 350, 40);
+        quote2 = new JLabel("Beautifully crafted.");
+        quote2.setFont(new Font("Arial", Font.BOLD, 30));
+        quote2.setForeground(new Color(244, 241, 236));
+        quote2.setBounds(45, 330, 350, 40);
 
         // DESCRIPTION
-        Description1 = new JLabel("Quality stone products, carefully crafted");
-        Description1.setFont(new Font("Arial", Font.PLAIN, 16));
-        Description1.setForeground(new Color(185, 179, 168));
-        Description1.setBounds(45, 390, 350, 25);
+        description1 = new JLabel("Quality stone products, carefully crafted");
+        description1.setFont(new Font("Arial", Font.PLAIN, 16));
+        description1.setForeground(new Color(185, 179, 168));
+        description1.setBounds(45, 390, 350, 25);
 
-        Description2 = new JLabel("to bring lasting beauty and strength.");
-        Description2.setFont(new Font("Arial", Font.PLAIN, 16));
-        Description2.setForeground(new Color(185, 179, 168));
-        Description2.setBounds(45, 415, 350, 25);
+        description2 = new JLabel("to bring lasting beauty and strength.");
+        description2.setFont(new Font("Arial", Font.PLAIN, 16));
+        description2.setForeground(new Color(185, 179, 168));
+        description2.setBounds(45, 415, 350, 25);
 
         // COPYRIGHT
-        Copyright = new JLabel("© 2026 StoneCraft");
-        Copyright.setFont(new Font("Arial", Font.PLAIN, 13));
-        Copyright.setForeground(new Color(138, 133, 123));
-        Copyright.setBounds(45, 510, 300, 25);
+        copyright = new JLabel("© 2026 StoneCraft");
+        copyright.setFont(new Font("Arial", Font.PLAIN, 13));
+        copyright.setForeground(new Color(138, 133, 123));
+        copyright.setBounds(45, 510, 300, 25);
 
 
         // =========================
         // RIGHT PANEL
         // =========================
-        RightPanel = new JPanel();
-        RightPanel.setLayout(null);
-        RightPanel.setBounds(418, 0, 502, 560);
-        RightPanel.setBackground(Color.WHITE);
+        rightPanel = new JPanel();
+        rightPanel.setLayout(null);
+        rightPanel.setBounds(418, 0, 502, 560);
+        rightPanel.setBackground(Color.WHITE);
 
         // TITLE
-        Title = new JLabel("Create an Account");
-        Title.setFont(new Font("Arial", Font.BOLD, 25));
-        Title.setForeground(new Color(31, 30, 28));
-        Title.setBounds(52, 25, 398, 40);
+        title = new JLabel("Create an Account");
+        title.setFont(new Font("Arial", Font.BOLD, 25));
+        title.setForeground(new Color(31, 30, 28));
+        title.setBounds(52, 25, 398, 40);
 
         // FULL NAME
-        FullName = new JLabel("Full Name");
-        FullName.setBounds(52, 85, 398, 20);
+        fullName = new JLabel("Full Name");
+        fullName.setBounds(52, 85, 398, 20);
 
         nameField = new JTextField();
         nameField.setBounds(52, 110, 398, 38);
         addPlaceholder(nameField, "Juan Dela Cruz");
 
         // EMAIL
-        Email = new JLabel("Email Address");
-        Email.setBounds(52, 160, 398, 20);
+        email = new JLabel("Email Address");
+        email.setBounds(52, 160, 398, 20);
 
         emailField = new JTextField();
         emailField.setBounds(52, 185, 398, 38);
         addPlaceholder(emailField, "name@email.com");
 
         // CONTACT
-        Contact = new JLabel("Contact Number");
-        Contact.setBounds(52, 235, 398, 20);
+        contact = new JLabel("Contact Number");
+        contact.setBounds(52, 235, 398, 20);
 
         contactField = new JTextField();
         contactField.setBounds(52, 260, 398, 38);
@@ -154,13 +154,13 @@ public class SignUp extends MainDesign {
         // =========================
         // PASSWORD
         // =========================
-        Password = new JLabel("Password");
-        Password.setBounds(52, 310, 398, 20);
+        password = new JLabel("Password");
+        password.setBounds(52, 310, 398, 20);
 
-        PasswordPanel = new JPanel(null);
-        PasswordPanel.setBounds(52, 335, 330, 38);
-        PasswordPanel.setBackground(new Color(250, 249, 247));
-        PasswordPanel.setBorder(BorderFactory.createLineBorder(
+        passwordPanel = new JPanel(null);
+        passwordPanel.setBounds(52, 335, 330, 38);
+        passwordPanel.setBackground(new Color(250, 249, 247));
+        passwordPanel.setBorder(BorderFactory.createLineBorder(
                 new Color(222, 218, 211)
         ));
 
@@ -170,7 +170,9 @@ public class SignUp extends MainDesign {
         passwordField.setBackground(new Color(250, 249, 247));
 
         showPassword = new JButton("Show");
-        showPassword.setBounds(390, 335, 60, 38);
+        showPassword.setBounds(382, 335, 68, 38);
+        showPassword.setMargin(new Insets(0, 0, 0, 0));
+        showPassword.setFont(new Font("Arial", Font.PLAIN, 12));
         showPassword.setForeground(new Color(181, 101, 29));
         showPassword.setBackground(Color.WHITE);
         showPassword.setBorderPainted(false);
@@ -187,19 +189,19 @@ public class SignUp extends MainDesign {
             }
         });
 
-        PasswordPanel.add(passwordField);
+        passwordPanel.add(passwordField);
 
 
         // =========================
         // CONFIRM PASSWORD
         // =========================
-        ConfirmPassword = new JLabel("Confirm Password");
-        ConfirmPassword.setBounds(52, 385, 398, 20);
+        confirmPassword = new JLabel("Confirm Password");
+        confirmPassword.setBounds(52, 385, 398, 20);
 
-        ConfirmPanel = new JPanel(null);
-        ConfirmPanel.setBounds(52, 410, 330, 38);
-        ConfirmPanel.setBackground(new Color(250, 249, 247));
-        ConfirmPanel.setBorder(BorderFactory.createLineBorder(
+        confirmPanel = new JPanel(null);
+        confirmPanel.setBounds(52, 410, 330, 38);
+        confirmPanel.setBackground(new Color(250, 249, 247));
+        confirmPanel.setBorder(BorderFactory.createLineBorder(
                 new Color(222, 218, 211)
         ));
 
@@ -209,7 +211,9 @@ public class SignUp extends MainDesign {
         confirmField.setBackground(new Color(250, 249, 247));
 
         showConfirm = new JButton("Show");
-        showConfirm.setBounds(390, 410, 60, 38);
+        showConfirm.setBounds(382, 410, 68, 38);
+        showConfirm.setMargin(new Insets(0, 0, 0, 0));
+        showConfirm.setFont(new Font("Arial", Font.PLAIN, 12));
         showConfirm.setForeground(new Color(181, 101, 29));
         showConfirm.setBackground(Color.WHITE);
         showConfirm.setBorderPainted(false);
@@ -226,7 +230,7 @@ public class SignUp extends MainDesign {
             }
         });
 
-        ConfirmPanel.add(confirmField);
+        confirmPanel.add(confirmField);
 
 
         // =========================
@@ -244,19 +248,19 @@ public class SignUp extends MainDesign {
         // =========================
         // LOGIN
         // =========================
-        Login = new JLabel(
+        login = new JLabel(
                 "<html><font color='#78746D'>Already have an account? </font>"
                         + "<font color='#B5651D'>Log in</font></html>"
         );
-        Login.setBounds(52, 515, 398, 25);
-        Login.setHorizontalAlignment(SwingConstants.CENTER);
+        login.setBounds(52, 515, 398, 25);
+        login.setHorizontalAlignment(SwingConstants.CENTER);
 
 
         // =========================
         // LABEL COLORS
         // =========================
         JLabel[] labels = {
-                FullName, Email, Contact, Password, ConfirmPassword
+                fullName, email, contact, password, confirmPassword
         };
 
         for (JLabel label : labels) {
@@ -285,43 +289,43 @@ public class SignUp extends MainDesign {
         // =========================
         // ADD COMPONENTS TO PANELS
         // =========================
-        LeftPanel.add(logoIcon);
-        LeftPanel.add(Logo);
-        LeftPanel.add(Tagline);
-        LeftPanel.add(Quote1);
-        LeftPanel.add(Quote2);
-        LeftPanel.add(Description1);
-        LeftPanel.add(Description2);
-        LeftPanel.add(Copyright);
+        leftPanel.add(logoIcon);
+        leftPanel.add(logo);
+        leftPanel.add(tagline);
+        leftPanel.add(quote1);
+        leftPanel.add(quote2);
+        leftPanel.add(description1);
+        leftPanel.add(description2);
+        leftPanel.add(copyright);
 
-        RightPanel.add(Title);
+        rightPanel.add(title);
 
-        RightPanel.add(FullName);
-        RightPanel.add(nameField);
+        rightPanel.add(fullName);
+        rightPanel.add(nameField);
 
-        RightPanel.add(Email);
-        RightPanel.add(emailField);
+        rightPanel.add(email);
+        rightPanel.add(emailField);
 
-        RightPanel.add(Contact);
-        RightPanel.add(contactField);
+        rightPanel.add(contact);
+        rightPanel.add(contactField);
 
-        RightPanel.add(Password);
-        RightPanel.add(PasswordPanel);
-        RightPanel.add(showPassword);
+        rightPanel.add(password);
+        rightPanel.add(passwordPanel);
+        rightPanel.add(showPassword);
 
-        RightPanel.add(ConfirmPassword);
-        RightPanel.add(ConfirmPanel);
-        RightPanel.add(showConfirm);
+        rightPanel.add(confirmPassword);
+        rightPanel.add(confirmPanel);
+        rightPanel.add(showConfirm);
 
-        RightPanel.add(createAccount);
-        RightPanel.add(Login);
+        rightPanel.add(createAccount);
+        rightPanel.add(login);
 
 
         // =========================
         // ADD TO SIGNUP CONTAINER
         // =========================
-        contentPane.add(LeftPanel);
-        contentPane.add(RightPanel);
+        contentPane.add(leftPanel);
+        contentPane.add(rightPanel);
 
         // CENTER THE FIXED SIGNUP CONTAINER
         getContentPane().add(contentPane);
