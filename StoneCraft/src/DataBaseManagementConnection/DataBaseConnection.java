@@ -18,13 +18,29 @@ public class DataBaseConnection {
             st.executeUpdate("use stoneCraft_db");
 
             String createProductTable = "create table if not exists product (" +
-                    "productId int auto_increment primary key, " +
-                    "productName varchar(100), " +
-                    "productCategory varchar(50), " +
-                    "productPrice double, " +
-                    "productQuantity int) auto_increment = 1";
+                    "product_id int auto_increment primary key, " +
+                    "product_name varchar(100) not null, " +
+                    "product_category varchar(50) not null, " +
+                    "product_price decimal(10,2) not null, " +
+                    "product_quantity int not null) auto_increment = 1";
+
+            String createAccountTable = "create table if not exists accounts(" +
+                    "account_id int auto_increment primary key," +
+                    "account_name varchar(100) not null," +
+                    "account_email_address varchar(100) not null unique," +
+                    "account_contact_number varchar(100) not null," +
+                    "account_password varchar(100) not null) auto_increment = 0001";
+
+            String createOrderTable = "create table if not exists orders(" +
+                    "order_id int auto_increment primary key, " +
+                    "order_product_name varchar(100) not null, " +
+                    "order_product_category varchar(100) not null, " +
+                    "order_product_price decimal(10,2) not null, " +
+                    "order_product_quantity int not null) auto_increment = 1";
 
             st.executeUpdate(createProductTable);
+            st.executeUpdate(createAccountTable);
+            st.executeUpdate(createOrderTable);
 
 
         } catch (SQLException e) {

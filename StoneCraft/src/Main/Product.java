@@ -7,8 +7,7 @@ public class Product {
     private double productPrice;
     private int productQuantity;
 
-    public Product(int productId, String productName, String productCategory, double productPrice, int productQuantity){
-        this.productId = productId;
+    public Product( String productName, String productCategory, double productPrice, int productQuantity){
         this.productName = productName;
         this.productCategory = productCategory;
         this.productPrice = productPrice;
@@ -19,7 +18,7 @@ public class Product {
         return productId;
     }
 
-    public void getProductId(int productId){
+    public void setProductId(int productId){
         this.productId = productId;
     }
 

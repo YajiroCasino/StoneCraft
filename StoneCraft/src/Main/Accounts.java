@@ -1,18 +1,17 @@
 package Main;
 
-public class CustomerAccount {
+public class Accounts {
     private String name;
     private String emailAddress;
     private String contactNumber;
     private String password;
     private String password2;
 
-    public CustomerAccount(String name, String emailAddress, String contactNumber,String password, String password2){
+    public Accounts(String name, String emailAddress, String contactNumber, String password){
         this.name = name;
         this.emailAddress = emailAddress;
         this.contactNumber = contactNumber;
         this.password = password;
-        this.password2 = password2;
     }
 
     public void showAccount(){

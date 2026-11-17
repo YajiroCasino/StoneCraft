@@ -1,6 +1,8 @@
 
 package Design;
 
+import DataBaseManagementConnection.DataAccessObject;
+import Main.Product;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -74,7 +76,7 @@ public class CustomerMain extends MainDesign {
         customRequests = new ArrayList<>();
         chatMessages = new ArrayList<>();
 
-        addSampleProducts();
+        loadProducts();
 
         createHeader();
         createSidebar();
@@ -100,39 +102,9 @@ public class CustomerMain extends MainDesign {
     // SAMPLE PRODUCTS
     // =================================
 
-    private void addSampleProducts() {
-
-        // HOME DECOR
-        products.add(new Product("Stone Vase", "Home Decor", 850.00));
-        products.add(new Product("Stone Candle Holder", "Home Decor", 450.00));
-        products.add(new Product("Decorative Stone Bowl", "Home Decor", 650.00));
-        products.add(new Product("Stone Table Centerpiece", "Home Decor", 1100.00));
-        products.add(new Product("Mini Stone Figurine", "Home Decor", 550.00));
-        products.add(new Product("Stone Wall Decor", "Home Decor", 1350.00));
-
-        // GARDEN
-        products.add(new Product("Garden Planter", "Garden", 1200.00));
-        products.add(new Product("Garden Ornament", "Garden", 980.00));
-        products.add(new Product("Stone Garden Pot", "Garden", 750.00));
-        products.add(new Product("Decorative Garden Rock", "Garden", 500.00));
-        products.add(new Product("Stone Bird Bath", "Garden", 1800.00));
-        products.add(new Product("Outdoor Stone Bench", "Garden", 3500.00));
-
-        // KITCHEN
-        products.add(new Product("Carved Bowl", "Kitchen", 650.00));
-        products.add(new Product("Stone Serving Plate", "Kitchen", 900.00));
-        products.add(new Product("Stone Mortar and Pestle", "Kitchen", 750.00));
-        products.add(new Product("Stone Coaster Set", "Kitchen", 350.00));
-        products.add(new Product("Stone Fruit Tray", "Kitchen", 1050.00));
-        products.add(new Product("Decorative Stone Tray", "Kitchen", 800.00));
-
-        // SCULPTURES
-        products.add(new Product("Stone Sculpture", "Sculptures", 2500.00));
-        products.add(new Product("Abstract Stone Figure", "Sculptures", 3200.00));
-        products.add(new Product("Animal Stone Sculpture", "Sculptures", 1800.00));
-        products.add(new Product("Mini Stone Statue", "Sculptures", 950.00));
-        products.add(new Product("Traditional Stone Carving", "Sculptures", 4200.00));
-        products.add(new Product("Decorative Stone Art", "Sculptures", 2800.00));
+    private void loadProducts(){
+        products.clear();
+        products.addAll(DataAccessObject.getAllProduct());
     }
 
     // =================================
@@ -476,10 +448,10 @@ public class CustomerMain extends MainDesign {
 
             boolean categoryMatch =
                     category.equals("All Products")
-                            || product.category.equals(category);
+                            || product.getProductCategory().equals(category);
 
             boolean searchMatch =
-                    product.name.toLowerCase().contains(
+                    product.getProductName().toLowerCase().contains(
                             keyword.toLowerCase().trim()
                     );
 
@@ -498,14 +470,14 @@ public class CustomerMain extends MainDesign {
 
                 Collections.sort(
                         filteredProducts,
-                        Comparator.comparingDouble(p -> p.price)
+                        Comparator.comparingDouble(p -> p.getProductPrice())
                 );
 
             } else if ("Price: High to Low".equals(selectedSort)) {
 
                 Collections.sort(
                         filteredProducts,
-                        (p1, p2) -> Double.compare(p2.price, p1.price)
+                        (p1, p2) -> Double.compare(p2.getProductPrice(), p1.getProductPrice())
                 );
             }
         }
@@ -570,16 +542,16 @@ public class CustomerMain extends MainDesign {
 
         informationPanel.setBackground(Color.WHITE);
 
-        JLabel productName = new JLabel(product.name);
+        JLabel productName = new JLabel(product.getProductName());
         productName.setFont(new Font("Arial", Font.BOLD, 15));
         productName.setForeground(mainTextColor);
 
-        JLabel productCategory = new JLabel(product.category);
+        JLabel productCategory = new JLabel(product.getProductCategory());
         productCategory.setFont(mainFont);
         productCategory.setForeground(labelColor);
 
         JLabel productPrice = new JLabel(
-                "₱" + String.format("%.2f", product.price)
+                "₱" + String.format("%.2f", product.getProductPrice())
         );
 
         productPrice.setFont(new Font("Arial", Font.BOLD, 16));
@@ -646,7 +618,7 @@ public class CustomerMain extends MainDesign {
 
         JOptionPane.showMessageDialog(
                 this,
-                product.name + " added to cart!",
+                product.getProductName() + " added to cart!",
                 "StoneCraft",
                 JOptionPane.INFORMATION_MESSAGE
         );
@@ -814,12 +786,12 @@ public class CustomerMain extends MainDesign {
         ));
         detailsPanel.setBackground(Color.WHITE);
 
-        JLabel nameLabel = new JLabel(item.product.name);
+        JLabel nameLabel = new JLabel(item.product.getProductName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         nameLabel.setForeground(mainTextColor);
 
         JLabel priceLabel = new JLabel(
-                "₱" + String.format("%.2f", item.product.price)
+                "₱" + String.format("%.2f", item.product.getProductPrice())
         );
 
         priceLabel.setFont(mainFont);
@@ -918,7 +890,7 @@ public class CustomerMain extends MainDesign {
         double subtotal = 0;
 
         for (CartItem item : cartItems) {
-            subtotal += item.product.price * item.quantity;
+            subtotal += item.product.getProductPrice() * item.quantity;
         }
 
         subtotalLabel.setText(
@@ -929,6 +901,14 @@ public class CustomerMain extends MainDesign {
     // =================================
     // CUSTOM SCULPTURE REQUEST FORM
     // =================================
+    public JTextField sculptureNameField;
+    public JTextArea descriptionArea;
+    public JScrollPane descriptionScroll;
+    public JComboBox<String> categoryComboBox;
+    public JComboBox<String> sizeComboBox;
+    public JTextField designField;
+    public JButton cancelButton;
+    public JButton submitButton;
 
     private void openCustomRequestForm() {
 
@@ -974,8 +954,9 @@ public class CustomerMain extends MainDesign {
         ));
         formPanel.setBackground(Color.WHITE);
 
-        JTextField sculptureNameField = createFormField();
-        JTextArea descriptionArea = new JTextArea(4, 20);
+        sculptureNameField = createFormField();
+
+        descriptionArea = new JTextArea(4, 20);
         descriptionArea.setFont(mainFont);
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
@@ -984,12 +965,24 @@ public class CustomerMain extends MainDesign {
                 BorderFactory.createEmptyBorder(8, 10, 8, 10)
         );
 
-        JScrollPane descriptionScroll = new JScrollPane(descriptionArea);
+        descriptionScroll = new JScrollPane(descriptionArea);
         descriptionScroll.setBorder(
                 BorderFactory.createLineBorder(borderColor)
         );
 
-        JComboBox<String> sizeComboBox = new JComboBox<>(
+        // CATEGORY
+        categoryComboBox = new JComboBox<>(
+                new String[]{
+                        "Home Decor",
+                        "Garden",
+                        "Kitchen",
+                        "Sculptures"
+                }
+        );
+        styleComboBox(categoryComboBox);
+
+        // SIZE
+        sizeComboBox = new JComboBox<>(
                 new String[]{
                         "Small",
                         "Medium",
@@ -998,70 +991,15 @@ public class CustomerMain extends MainDesign {
                         "Custom Size"
                 }
         );
-
         styleComboBox(sizeComboBox);
 
-        JTextField customSizeField = createFormField();
-        customSizeField.setToolTipText(
-                "Enter your preferred measurements"
-        );
-
-        JTextField designField = createFormField();
-        JTextField budgetField = createFormField();
+        designField = createFormField();
 
         addFormSection(formPanel, "Sculpture Name", sculptureNameField);
         addFormSection(formPanel, "Description / Details", descriptionScroll);
+        addFormSection(formPanel, "Category", categoryComboBox);
         addFormSection(formPanel, "Preferred Size", sizeComboBox);
-        addFormSection(formPanel, "Custom Measurements (Optional)", customSizeField);
         addFormSection(formPanel, "Preferred Design / Style", designField);
-        addFormSection(formPanel, "Estimated Budget (₱)", budgetField);
-
-        // IMAGE ATTACHMENT
-        JPanel imageSection = new JPanel(new BorderLayout(10, 5));
-        imageSection.setBackground(Color.WHITE);
-
-        JLabel imageTitle = new JLabel("Design Reference Image");
-        imageTitle.setFont(boldFont);
-        imageTitle.setForeground(mainTextColor);
-
-        JLabel imageNameLabel = new JLabel("No image selected");
-        imageNameLabel.setFont(mainFont);
-        imageNameLabel.setForeground(labelColor);
-
-        JButton attachButton = new JButton("Choose Image");
-        styleButton(attachButton, darkColor, Color.WHITE);
-
-        attachButton.addActionListener(e -> {
-
-            JFileChooser fileChooser = new JFileChooser();
-
-            fileChooser.setDialogTitle("Select Design Reference");
-
-            fileChooser.setFileFilter(
-                    new javax.swing.filechooser.FileNameExtensionFilter(
-                            "Image Files",
-                            "jpg", "jpeg", "png"
-                    )
-            );
-
-            int result = fileChooser.showOpenDialog(requestFrame);
-
-            if (result == JFileChooser.APPROVE_OPTION) {
-
-                File selectedFile = fileChooser.getSelectedFile();
-
-                selectedImagePath = selectedFile.getAbsolutePath();
-
-                imageNameLabel.setText(selectedFile.getName());
-            }
-        });
-
-        imageSection.add(imageTitle, BorderLayout.NORTH);
-        imageSection.add(imageNameLabel, BorderLayout.CENTER);
-        imageSection.add(attachButton, BorderLayout.EAST);
-
-        formPanel.add(Box.createVerticalStrut(5));
-        formPanel.add(imageSection);
 
         JScrollPane formScrollPane = new JScrollPane(formPanel);
         formScrollPane.setBorder(null);
@@ -1073,109 +1011,16 @@ public class CustomerMain extends MainDesign {
         );
         buttonPanel.setBackground(Color.WHITE);
 
-        JButton cancelButton = new JButton("Cancel");
+        cancelButton = new JButton("Cancel");
         styleButton(cancelButton, fieldColor, mainTextColor);
         cancelButton.setBorder(
                 BorderFactory.createLineBorder(borderColor)
         );
 
-        JButton submitButton = new JButton("Submit Request");
+        submitButton = new JButton("Submit Request");   // walang "JButton" sa unahan
         styleButton(submitButton, copperColor, Color.WHITE);
 
         cancelButton.addActionListener(e -> requestFrame.dispose());
-
-        submitButton.addActionListener(e -> {
-
-            String sculptureName = sculptureNameField.getText().trim();
-            String description = descriptionArea.getText().trim();
-            String size = (String) sizeComboBox.getSelectedItem();
-            String customSize = customSizeField.getText().trim();
-            String design = designField.getText().trim();
-            String budgetText = budgetField.getText().trim();
-
-            if (sculptureName.isEmpty()
-                    || description.isEmpty()
-                    || design.isEmpty()
-                    || budgetText.isEmpty()) {
-
-                JOptionPane.showMessageDialog(
-                        requestFrame,
-                        "Please complete all required fields.",
-                        "Incomplete Form",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            double budget;
-
-            try {
-                budget = Double.parseDouble(budgetText);
-
-                if (budget <= 0) {
-                    JOptionPane.showMessageDialog(
-                            requestFrame,
-                            "Please enter a valid budget.",
-                            "Invalid Budget",
-                            JOptionPane.WARNING_MESSAGE
-                    );
-                    return;
-                }
-
-            } catch (NumberFormatException ex) {
-
-                JOptionPane.showMessageDialog(
-                        requestFrame,
-                        "Please enter a valid number for your budget.",
-                        "Invalid Budget",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            if ("Custom Size".equals(size) && customSize.isEmpty()) {
-
-                JOptionPane.showMessageDialog(
-                        requestFrame,
-                        "Please enter your preferred measurements.",
-                        "Missing Measurements",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            String finalSize = size;
-
-            if ("Custom Size".equals(size)) {
-                finalSize = customSize;
-            }
-
-            CustomRequest customRequest = new CustomRequest(
-                    sculptureName,
-                    description,
-                    finalSize,
-                    design,
-                    budget,
-                    selectedImagePath
-            );
-
-            customRequests.add(customRequest);
-
-            JOptionPane.showMessageDialog(
-                    requestFrame,
-                    "Your custom sculpture request has been submitted!",
-                    "Request Submitted",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-
-            // RESET SELECTED IMAGE
-            selectedImagePath = "";
-
-            requestFrame.dispose();
-        });
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
@@ -1752,23 +1597,6 @@ public class CustomerMain extends MainDesign {
         });
     }
 
-    // =================================
-    // PRODUCT CLASS
-    // =================================
-
-    private static class Product {
-
-        String name;
-        String category;
-        double price;
-
-        Product(String name, String category, double price) {
-
-            this.name = name;
-            this.category = category;
-            this.price = price;
-        }
-    }
 
     // =================================
     // CART ITEM CLASS
