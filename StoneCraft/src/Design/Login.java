@@ -3,227 +3,193 @@ package Design;
 import javax.swing.*;
 import java.awt.*;
 
-public class Login extends MainDesign{
+public class Login extends MainDesign {
 
-    // Main container
-    JPanel LoginPanel = new JPanel(new BorderLayout());
+    JPanel loginPanel;
+    JPanel brandPanel, formPanel;
+    JPanel contentPane;
 
-    // Left and right sections
-    JPanel brandPanel = new JPanel();
-    JPanel formPanel = new JPanel();
+    JLabel logoLabel, brandName;
+    JLabel sloganLabel, descriptionLabel, copyrightLabel;
 
-    // Branding components
-    JLabel logoLabel = new JLabel("S");
-    JLabel BrandName = new JLabel("StoneCraft");
+    JLabel welcomeLabel, subtitleLabel;
+    JLabel usernameLabel, emailLabel, passwordLabel;
+    JLabel forgotPasswordLabel;
+    JLabel noAccountLabel, signUpLabel;
 
-    JLabel sloganLabel = new JLabel(
-            "<html>Crafted with care,<br>made to last.</html>");
+    public JLabel usernameWarning = new JLabel();
+    public JLabel emailWarning = new JLabel();
+    public JLabel passwordWarning = new JLabel();
 
-    JLabel descriptionLabel = new JLabel(
-            "<html>Sign in to view your products,<br>" +
-                    "orders, and messages.</html>");
+    JTextField usernameField, emailField;
+    JPasswordField passwordField;
 
-    JLabel copyrightLabel = new JLabel("© 2026 StoneCraft");
+    JPanel passwordPanel;
+    JPanel optionsPanel;
+    JPanel signUpPanel;
 
-    JPanel logoRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 12, 0));
+    JButton showPasswordButton;
+    JButton loginButton;
 
-    // Login heading
-    JLabel welcomeLabel = new JLabel("Welcome Back!");
-    JLabel subtitleLabel = new JLabel("Login to your account");
+    JCheckBox rememberMeCheckBox;
 
-    // Username field
-    JLabel usernameLabel = new JLabel("Name / Username");
-    JTextField usernameField = new JTextField(20);
+    public void addPlaceholder(JTextField field, String placeholder) {
 
-    // Email field
-    JLabel emailLabel = new JLabel("Email or Phone Number");
-    JTextField emailField = new JTextField(20);
+        field.setText(placeholder);
+        field.setForeground(new Color(120, 116, 109));
 
-    // Password field
-    JLabel passwordLabel = new JLabel("Password");
-    JPasswordField passwordField = new JPasswordField(20);
+        field.addFocusListener(new java.awt.event.FocusAdapter() {
 
-    JPanel passwordPanel = new JPanel(new BorderLayout(5, 0));
-    JButton showPasswordButton = new JButton("Show");
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(new Color(31, 30, 28));
+                }
+            }
 
-    // Login options
-    JCheckBox rememberMeCheckBox = new JCheckBox("Remember me");
-    JLabel forgotPasswordLabel = new JLabel("Forgot password?");
-
-    JPanel optionsPanel = new JPanel(new BorderLayout());
-
-    // Login button
-    JButton loginButton = new JButton("Login");
-
-    // Sign up section
-    JLabel noAccountLabel = new JLabel("Doesn't have an account yet?");
-    JLabel signUpLabel = new JLabel("Sign up");
-
-    JPanel signUpPanel = new JPanel(
-            new FlowLayout(FlowLayout.CENTER, 5, 0));
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (field.getText().isEmpty()) {
+                    field.setText(placeholder);
+                    field.setForeground(new Color(120, 116, 109));
+                }
+            }
+        });
+    }
 
     public Login() {
 
-        // Add both sections to the main container
-        LoginPanel.add(brandPanel, BorderLayout.WEST);
-        LoginPanel.add(formPanel, BorderLayout.CENTER);
+        // =========================
+        // MAIN WINDOW
+        // =========================
 
-        // Left panel background
-        brandPanel.setBackground(new Color(25, 25, 25));
-        brandPanel.setPreferredSize(new Dimension(430, 0));
+        setTitle("StoneCraft");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setResizable(true);
 
-        brandPanel.setLayout(
-                new BoxLayout(brandPanel, BoxLayout.Y_AXIS));
+        getContentPane().setLayout(new GridBagLayout());
+        getContentPane().setBackground(new Color(238, 237, 234));
 
-        brandPanel.setBorder(
-                BorderFactory.createEmptyBorder(45, 35, 30, 25));
+        // =========================
+        // MAIN CONTAINER
+        // =========================
 
-        // Logo design
-        logoLabel.setOpaque(true);
-        logoLabel.setBackground(new Color(190, 85, 20));
+        contentPane = new JPanel(null);
+        contentPane.setPreferredSize(new Dimension(920, 560));
+        contentPane.setBackground(Color.WHITE);
+
+        // =========================
+        // LEFT PANEL
+        // =========================
+
+        brandPanel = new JPanel();
+        brandPanel.setLayout(null);
+        brandPanel.setBounds(0, 0, 418, 560);
+        brandPanel.setBackground(new Color(43, 42, 40));
+
+        // LOGO ICON
+        JPanel logoIcon = new JPanel(new BorderLayout());
+        logoIcon.setBounds(45, 48, 48, 48);
+        logoIcon.setBackground(new Color(181, 101, 29));
+
+        logoLabel = new JLabel("S");
+        logoLabel.setFont(new Font("Arial", Font.BOLD, 27));
         logoLabel.setForeground(Color.WHITE);
-        logoLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        logoLabel.setPreferredSize(new Dimension(40, 40));
         logoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Brand name
-        BrandName.setForeground(Color.WHITE);
-        BrandName.setFont(new Font("Arial", Font.BOLD, 23));
+        logoIcon.add(logoLabel, BorderLayout.CENTER);
 
-        // Logo and brand name
-        logoRow.setBackground(new Color(25, 25, 25));
-        logoRow.add(logoLabel);
-        logoRow.add(BrandName);
+        // BRAND NAME
+        brandName = new JLabel("StoneCraft");
+        brandName.setFont(new Font("Arial", Font.BOLD, 27));
+        brandName.setForeground(new Color(244, 241, 236));
+        brandName.setBounds(107, 48, 260, 35);
 
-        // Slogan
-        sloganLabel.setForeground(Color.WHITE);
-        sloganLabel.setFont(new Font("Arial", Font.BOLD, 27));
+        // SLOGAN
+        sloganLabel = new JLabel("<html>Crafted with care,<br>made to last.</html>");
+        sloganLabel.setFont(new Font("Arial", Font.BOLD, 30));
+        sloganLabel.setForeground(new Color(244, 241, 236));
+        sloganLabel.setBounds(45, 290, 350, 80);
 
-        // Description
-        descriptionLabel.setForeground(Color.LIGHT_GRAY);
-        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 15));
+        // DESCRIPTION
+        descriptionLabel = new JLabel(
+                "<html>Quality stone products, carefully crafted<br>" +
+                        "to bring lasting beauty and strength.</html>"
+        );
+        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        descriptionLabel.setForeground(new Color(185, 179, 168));
+        descriptionLabel.setBounds(45, 390, 350, 50);
 
-        // Copyright
-        copyrightLabel.setForeground(Color.GRAY);
-        copyrightLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        // COPYRIGHT
+        copyrightLabel = new JLabel("© 2026 StoneCraft");
+        copyrightLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        copyrightLabel.setForeground(new Color(138, 133, 123));
+        copyrightLabel.setBounds(45, 510, 300, 25);
 
-        // Add components to branding panel
-        logoRow.setAlignmentX(Component.LEFT_ALIGNMENT);
-        sloganLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        copyrightLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        // =========================
+        // RIGHT PANEL
+        // =========================
 
-        brandPanel.add(logoRow);
-        brandPanel.add(Box.createVerticalGlue());
-        brandPanel.add(sloganLabel);
-        brandPanel.add(Box.createVerticalStrut(15));
-        brandPanel.add(descriptionLabel);
-        brandPanel.add(Box.createVerticalGlue());
-        brandPanel.add(copyrightLabel);
+        formPanel = new JPanel();
+        formPanel.setLayout(null);
+        formPanel.setBounds(418, 0, 502, 560);
+        formPanel.setBackground(Color.WHITE);
 
-        // Right panel background
-        formPanel.setBackground(new Color(250, 250, 248));
+        // WELCOME TITLE
+        welcomeLabel = new JLabel("Welcome Back!");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 25));
+        welcomeLabel.setForeground(new Color(31, 30, 28));
+        welcomeLabel.setBounds(52, 65, 398, 40);
 
-        formPanel.setLayout(
-                new BoxLayout(formPanel, BoxLayout.Y_AXIS));
+        subtitleLabel = new JLabel("Mag Login sa iyong account");
+        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 15));
+        subtitleLabel.setForeground(new Color(120, 116, 109));
+        subtitleLabel.setBounds(52, 105, 398, 25);
 
-        formPanel.setBorder(
-                BorderFactory.createEmptyBorder(65, 60, 40, 60));
+        // USERNAME
+        usernameLabel = new JLabel("Name / Username");
+        usernameLabel.setBounds(52, 165, 398, 20);
 
-        // Welcome heading
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 30));
-        welcomeLabel.setForeground(new Color(35, 35, 35));
+        usernameField = new JTextField();
+        usernameField.setBounds(52, 190, 398, 38);
+        addPlaceholder(usernameField, "Juan Dela Cruz");
 
-        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 20));
-        subtitleLabel.setForeground(Color.GRAY);
+        // EMAIL
+        emailLabel = new JLabel("Email Address");
+        emailLabel.setBounds(52, 240, 398, 20);
 
-        welcomeLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        subtitleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        emailField = new JTextField();
+        emailField.setBounds(52, 265, 398, 38);
+        addPlaceholder(emailField, "name@email.com");
 
-        formPanel.add(welcomeLabel);
-        formPanel.add(Box.createVerticalStrut(8));
-        formPanel.add(subtitleLabel);
+        // PASSWORD
+        passwordLabel = new JLabel("Password");
+        passwordLabel.setBounds(52, 315, 398, 20);
 
+        passwordPanel = new JPanel(null);
+        passwordPanel.setBounds(52, 340, 330, 38);
+        passwordPanel.setBackground(new Color(250, 249, 247));
+        passwordPanel.setBorder(BorderFactory.createLineBorder(
+                new Color(222, 218, 211)
+        ));
 
-        // Username section
-        usernameLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        usernameLabel.setForeground(new Color(130, 130, 130));
+        passwordField = new JPasswordField();
+        passwordField.setBounds(10, 2, 310, 32);
+        passwordField.setBorder(null);
+        passwordField.setBackground(new Color(250, 249, 247));
 
-        usernameField.setFont(new Font("Arial", Font.PLAIN, 15));
-        usernameField.setPreferredSize(new Dimension(450, 45));
-        usernameField.setMaximumSize(new Dimension(450, 45));
-
-// Text field design
-        usernameField.setBackground(Color.WHITE);
-        usernameField.setBorder(
-                BorderFactory.createLineBorder(new Color(210, 210, 210)));
-
-        usernameLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        usernameField.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        formPanel.add(Box.createVerticalStrut(30));
-        formPanel.add(usernameLabel);
-        formPanel.add(Box.createVerticalStrut(8));
-        formPanel.add(usernameField);
-
-        // Email section
-        emailLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        emailLabel.setForeground(new Color(130, 130, 130));
-
-        emailField.setFont(new Font("Arial", Font.PLAIN, 15));
-        emailField.setPreferredSize(new Dimension(450, 45));
-        emailField.setMaximumSize(new Dimension(450, 45));
-
-// Text field design
-        emailField.setBackground(Color.WHITE);
-        emailField.setBorder(
-                BorderFactory.createLineBorder(new Color(210, 210, 210)));
-
-        emailLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        emailField.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        formPanel.add(Box.createVerticalStrut(22));
-        formPanel.add(emailLabel);
-        formPanel.add(Box.createVerticalStrut(8));
-        formPanel.add(emailField);
-
-        // Password section
-        passwordLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        passwordLabel.setForeground(new Color(130, 130, 130));
-
-        passwordField.setFont(new Font("Arial", Font.PLAIN, 15));
-        passwordField.setBackground(Color.WHITE);
-        passwordField.setBorder(
-                BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-// Password panel design
-        passwordPanel.setBackground(Color.WHITE);
-        passwordPanel.setBorder(
-                BorderFactory.createLineBorder(new Color(210, 210, 210)));
-
-// Show button design
+        showPasswordButton = new JButton("Show");
+        showPasswordButton.setBounds(382, 340, 68, 38);
+        showPasswordButton.setMargin(new Insets(0, 0, 0, 0));
+        showPasswordButton.setFont(new Font("Arial", Font.PLAIN, 12));
+        showPasswordButton.setForeground(new Color(181, 101, 29));
+        showPasswordButton.setBackground(Color.WHITE);
         showPasswordButton.setBorderPainted(false);
         showPasswordButton.setFocusPainted(false);
-        showPasswordButton.setContentAreaFilled(false);
-        showPasswordButton.setForeground(new Color(190, 85, 20));
-        showPasswordButton.setFont(new Font("Arial", Font.PLAIN, 13));
+        showPasswordButton.setOpaque(true);
 
-// Add password components
-        passwordPanel.add(passwordField, BorderLayout.CENTER);
-        passwordPanel.add(showPasswordButton, BorderLayout.EAST);
-
-        passwordPanel.setPreferredSize(new Dimension(450, 45));
-        passwordPanel.setMaximumSize(new Dimension(450, 45));
-        passwordPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        passwordLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        formPanel.add(Box.createVerticalStrut(22));
-        formPanel.add(passwordLabel);
-        formPanel.add(Box.createVerticalStrut(8));
-        formPanel.add(passwordPanel);
-
-        // Show and hide password
         char defaultChar = passwordField.getEchoChar();
 
         showPasswordButton.addActionListener(e -> {
@@ -233,68 +199,143 @@ public class Login extends MainDesign{
             } else {
                 passwordField.setEchoChar(defaultChar);
                 showPasswordButton.setText("Show");
-
             }
         });
 
-        // Remember me checkbox
+        passwordPanel.add(passwordField);
+
+        // =========================
+        // REMEMBER ME AND FORGOT PASSWORD
+        // =========================
+
+        rememberMeCheckBox = new JCheckBox("Remember me");
         rememberMeCheckBox.setFont(new Font("Arial", Font.PLAIN, 13));
         rememberMeCheckBox.setForeground(new Color(60, 60, 60));
-        rememberMeCheckBox.setBackground(new Color(250, 250, 248));
+        rememberMeCheckBox.setBackground(Color.WHITE);
         rememberMeCheckBox.setFocusPainted(false);
 
-        // Forgot password
+        forgotPasswordLabel = new JLabel("Forgot password?");
         forgotPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 13));
-        forgotPasswordLabel.setForeground(new Color(120, 120, 120));
+        forgotPasswordLabel.setForeground(new Color(120, 116, 109));
 
-        // Options panel
-        optionsPanel.setBackground(new Color(250, 250, 248));
-        optionsPanel.setPreferredSize(new Dimension(450, 30));
-        optionsPanel.setMaximumSize(new Dimension(450, 30));
-        optionsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        optionsPanel = new JPanel(new BorderLayout());
+        optionsPanel.setBounds(52, 395, 398, 30);
+        optionsPanel.setBackground(Color.WHITE);
 
         optionsPanel.add(rememberMeCheckBox, BorderLayout.WEST);
         optionsPanel.add(forgotPasswordLabel, BorderLayout.EAST);
 
-        formPanel.add(Box.createVerticalStrut(15));
-        formPanel.add(optionsPanel);
+        // =========================
+        // LOGIN BUTTON
+        // =========================
 
-        // Login button
-        loginButton.setFont(new Font("Arial", Font.BOLD, 16));
-        loginButton.setBackground(new Color(190, 85, 20));
+        loginButton = new JButton("Login");
+        loginButton.setBounds(52, 445, 398, 42);
+        loginButton.setFont(new Font("Arial", Font.BOLD, 15));
+        loginButton.setBackground(new Color(181, 101, 29));
         loginButton.setForeground(Color.WHITE);
         loginButton.setFocusPainted(false);
         loginButton.setBorderPainted(false);
+        loginButton.setOpaque(true);
 
-        loginButton.setPreferredSize(new Dimension(450, 50));
-        loginButton.setMaximumSize(new Dimension(450, 50));
-        loginButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        formPanel.add(Box.createVerticalStrut(20));
-        formPanel.add(loginButton);
 
-        // Sign up section
+        // =========================
+        // SIGN UP
+        // =========================
+
+        noAccountLabel = new JLabel("Don't have an account?");
         noAccountLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        noAccountLabel.setForeground(new Color(120, 120, 120));
+        noAccountLabel.setForeground(new Color(120, 116, 109));
 
+        signUpLabel = new JLabel("Sign up");
         signUpLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        signUpLabel.setForeground(new Color(190, 85, 20));
+        signUpLabel.setForeground(new Color(181, 101, 29));
 
-        signUpPanel.setBackground(new Color(250, 250, 248));
-
-        signUpPanel.setPreferredSize(new Dimension(450, 30));
-        signUpPanel.setMaximumSize(new Dimension(450, 30));
-
-        signUpPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        signUpPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        signUpPanel.setBounds(52, 505, 398, 30);
+        signUpPanel.setBackground(Color.WHITE);
 
         signUpPanel.add(noAccountLabel);
         signUpPanel.add(signUpLabel);
 
-        formPanel.add(Box.createVerticalStrut(20));
+        // =========================
+        // LABEL STYLING
+        // =========================
+
+        JLabel[] labels = {
+                usernameLabel, emailLabel, passwordLabel
+        };
+
+        for (JLabel label : labels) {
+            label.setFont(new Font("Arial", Font.PLAIN, 13));
+            label.setForeground(new Color(120, 116, 109));
+        }
+
+        // =========================
+        // TEXT FIELD STYLING
+        // =========================
+
+        JTextField[] fields = {
+                usernameField, emailField
+        };
+
+        for (JTextField field : fields) {
+            field.setBackground(new Color(250, 249, 247));
+            field.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(
+                            new Color(222, 218, 211)
+                    ),
+                    BorderFactory.createEmptyBorder(0, 10, 0, 10)
+            ));
+            field.setFont(new Font("Arial", Font.PLAIN, 14));
+        }
+
+        // =========================
+        // ADD COMPONENTS TO LEFT PANEL
+        // =========================
+
+        brandPanel.add(logoIcon);
+        brandPanel.add(brandName);
+        brandPanel.add(sloganLabel);
+        brandPanel.add(descriptionLabel);
+        brandPanel.add(copyrightLabel);
+
+        // =========================
+        // ADD COMPONENTS TO RIGHT PANEL
+        // =========================
+
+        formPanel.add(welcomeLabel);
+        formPanel.add(subtitleLabel);
+
+        formPanel.add(usernameLabel);
+        formPanel.add(usernameField);
+
+        formPanel.add(emailLabel);
+        formPanel.add(emailField);
+
+        formPanel.add(passwordLabel);
+        formPanel.add(passwordPanel);
+        formPanel.add(showPasswordButton);
+
+        formPanel.add(optionsPanel);
+        formPanel.add(loginButton);
         formPanel.add(signUpPanel);
 
-        // Add main container to the window
-        add(LoginPanel);
+        // =========================
+        // ADD PANELS TO CONTAINER
+        // =========================
+
+        contentPane.add(brandPanel);
+        contentPane.add(formPanel);
+
+        // CENTER THE CONTAINER
+        getContentPane().add(contentPane);
+
         setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new Login();
     }
 }
