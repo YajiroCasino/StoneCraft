@@ -901,6 +901,7 @@ public class CustomerMain extends MainDesign {
     // =================================
     // CUSTOM SCULPTURE REQUEST FORM
     // =================================
+    public JFrame requestFrame;
     public JTextField sculptureNameField;
     public JTextArea descriptionArea;
     public JScrollPane descriptionScroll;
@@ -910,9 +911,11 @@ public class CustomerMain extends MainDesign {
     public JButton cancelButton;
     public JButton submitButton;
 
-    private void openCustomRequestForm() {
 
-        JFrame requestFrame = new JFrame(
+
+    public void openCustomRequestForm() {
+
+        requestFrame = new JFrame(
                 "StoneCraft - Custom Sculpture Request"
         );
 
@@ -928,9 +931,7 @@ public class CustomerMain extends MainDesign {
 
         // FORM HEADER
         JPanel titlePanel = new JPanel();
-        titlePanel.setLayout(new BoxLayout(
-                titlePanel, BoxLayout.Y_AXIS
-        ));
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setBackground(Color.WHITE);
 
         JLabel titleLabel = new JLabel("Request Custom Sculpture");
@@ -949,9 +950,7 @@ public class CustomerMain extends MainDesign {
 
         // FORM FIELDS
         JPanel formPanel = new JPanel();
-        formPanel.setLayout(new BoxLayout(
-                formPanel, BoxLayout.Y_AXIS
-        ));
+        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
         formPanel.setBackground(Color.WHITE);
 
         sculptureNameField = createFormField();
@@ -970,27 +969,21 @@ public class CustomerMain extends MainDesign {
                 BorderFactory.createLineBorder(borderColor)
         );
 
-        // CATEGORY
-        categoryComboBox = new JComboBox<>(
-                new String[]{
-                        "Home Decor",
-                        "Garden",
-                        "Kitchen",
-                        "Sculptures"
-                }
-        );
+        categoryComboBox = new JComboBox<>(new String[]{
+                "Home Decor",
+                "Garden",
+                "Kitchen",
+                "Sculptures"
+        });
         styleComboBox(categoryComboBox);
 
-        // SIZE
-        sizeComboBox = new JComboBox<>(
-                new String[]{
-                        "Small",
-                        "Medium",
-                        "Large",
-                        "Extra Large",
-                        "Custom Size"
-                }
-        );
+        sizeComboBox = new JComboBox<>(new String[]{
+                "Small",
+                "Medium",
+                "Large",
+                "Extra Large",
+                "Custom Size"
+        });
         styleComboBox(sizeComboBox);
 
         designField = createFormField();
@@ -1016,11 +1009,10 @@ public class CustomerMain extends MainDesign {
         cancelButton.setBorder(
                 BorderFactory.createLineBorder(borderColor)
         );
+        cancelButton.addActionListener(e -> requestFrame.dispose());
 
         submitButton = new JButton("Submit Request");   // walang "JButton" sa unahan
         styleButton(submitButton, copperColor, Color.WHITE);
-
-        cancelButton.addActionListener(e -> requestFrame.dispose());
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
@@ -1644,6 +1636,22 @@ public class CustomerMain extends MainDesign {
             this.budget = budget;
             this.imagePath = imagePath;
             this.status = "Pending";
+        }
+    }
+
+    // =================================
+    // CHAT MESSAGE CLASS
+    // =================================
+
+    private static class ChatMessage {
+
+        String message;
+        String sender;
+
+        ChatMessage(String message, String sender) {
+
+            this.message = message;
+            this.sender = sender;
         }
     }
 }
