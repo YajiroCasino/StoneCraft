@@ -915,6 +915,12 @@ public class CustomerMain extends MainDesign {
 
     public void openCustomRequestForm() {
 
+        if (requestFrame != null && requestFrame.isDisplayable()) {
+            requestFrame.setState(JFrame.NORMAL);
+            requestFrame.toFront();
+            requestFrame.requestFocus();
+            return;
+        }
         requestFrame = new JFrame(
                 "StoneCraft - Custom Sculpture Request"
         );
