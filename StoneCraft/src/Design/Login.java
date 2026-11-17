@@ -143,7 +143,7 @@ public class Login extends MainDesign {
         welcomeLabel.setForeground(new Color(31, 30, 28));
         welcomeLabel.setBounds(52, 65, 398, 40);
 
-        subtitleLabel = new JLabel("Mag Login sa iyong account");
+        subtitleLabel = new JLabel("Login to your account");
         subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 15));
         subtitleLabel.setForeground(new Color(120, 116, 109));
         subtitleLabel.setBounds(52, 105, 398, 25);
@@ -214,9 +214,41 @@ public class Login extends MainDesign {
         rememberMeCheckBox.setBackground(Color.WHITE);
         rememberMeCheckBox.setFocusPainted(false);
 
+
         forgotPasswordLabel = new JLabel("Forgot password?");
         forgotPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 13));
         forgotPasswordLabel.setForeground(new Color(120, 116, 109));
+        forgotPasswordLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        forgotPasswordLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                forgotPasswordLabel.setText(
+                        "<html><u>Forgot password?</u></html>");
+
+                String email = JOptionPane.showInputDialog(
+                        Login.this,
+                        "Please enter your registered email address:",
+                        "Forgot Password",
+                        JOptionPane.QUESTION_MESSAGE
+                );
+
+                if (email != null && !email.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(
+                            Login.this,
+                            "If an account is registered with this email, " +
+                                    "you will receive instructions to reset your password.",
+                            "Password Reset", JOptionPane.INFORMATION_MESSAGE);
+
+                } else if (email != null) {
+
+                    JOptionPane.showMessageDialog(
+                            Login.this,
+                            "Please enter your email address.",
+                            "Required Field", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
 
         optionsPanel = new JPanel(new BorderLayout());
         optionsPanel.setBounds(52, 395, 398, 30);
