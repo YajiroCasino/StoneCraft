@@ -1646,20 +1646,4 @@ public class CustomerMain extends MainDesign {
             this.status = "Pending";
         }
     }
-
-    // =================================
-    // CHAT MESSAGE CLASS
-    // =================================
-
-    private static class ChatMessage {
-
-        String message;
-        String sender;
-
-        ChatMessage(String message, String sender) {
-
-            this.message = message;
-            this.sender = sender;
-        }
-    }
 }
