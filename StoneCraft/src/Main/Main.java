@@ -60,9 +60,25 @@ public class Main {
     }
 
     public static void CustomerMainProcess(){
+
          CustomerMain cm = new CustomerMain();
 
+         cm.submitButton.addActionListener(e->{
+
+             String name = cm.sculptureNameField.getText().trim();
+             String description = cm.descriptionArea.getText().trim();
+             String category = (String) cm.categoryComboBox.getSelectedItem();
+             String size = (String) cm.sizeComboBox.getSelectedItem();
+             int quantity =  ((Number) cm.quantitySpinner.getValue()).intValue();
+             String preferredDesign = cm.designField.getText().trim();
+             int price = 0;
+
+             CustomRequest cr = new CustomRequest(name, category, price, quantity, description, size, preferredDesign);
+         });
+
     }
+
+
     //gmail must not contain spaces and start always at lower case
     //password must contain 8 character
     //number must not have spaces

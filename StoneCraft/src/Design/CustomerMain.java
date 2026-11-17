@@ -907,11 +907,10 @@ public class CustomerMain extends MainDesign {
     public JScrollPane descriptionScroll;
     public JComboBox<String> categoryComboBox;
     public JComboBox<String> sizeComboBox;
+    public JSpinner quantitySpinner;
     public JTextField designField;
     public JButton cancelButton;
     public JButton submitButton;
-
-
 
     public void openCustomRequestForm() {
 
@@ -921,19 +920,15 @@ public class CustomerMain extends MainDesign {
             requestFrame.requestFocus();
             return;
         }
-        requestFrame = new JFrame(
-                "StoneCraft - Custom Sculpture Request"
-        );
 
+        requestFrame = new JFrame("StoneCraft - Custom Sculpture Request");
         requestFrame.setSize(650, 700);
         requestFrame.setLocationRelativeTo(this);
         requestFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(
-                BorderFactory.createEmptyBorder(20, 25, 20, 25)
-        );
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
 
         // FORM HEADER
         JPanel titlePanel = new JPanel();
@@ -944,9 +939,7 @@ public class CustomerMain extends MainDesign {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 23));
         titleLabel.setForeground(mainTextColor);
 
-        JLabel descriptionLabel = new JLabel(
-                "Tell us about the stone sculpture you want."
-        );
+        JLabel descriptionLabel = new JLabel("Tell us about the stone sculpture you want.");
         descriptionLabel.setFont(mainFont);
         descriptionLabel.setForeground(labelColor);
 
@@ -966,31 +959,26 @@ public class CustomerMain extends MainDesign {
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setBackground(fieldColor);
-        descriptionArea.setBorder(
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)
-        );
+        descriptionArea.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
 
         descriptionScroll = new JScrollPane(descriptionArea);
-        descriptionScroll.setBorder(
-                BorderFactory.createLineBorder(borderColor)
-        );
+        descriptionScroll.setBorder(BorderFactory.createLineBorder(borderColor));
 
         categoryComboBox = new JComboBox<>(new String[]{
-                "Home Decor",
-                "Garden",
-                "Kitchen",
-                "Sculptures"
+                "Home Decor", "Garden", "Kitchen", "Sculptures"
         });
         styleComboBox(categoryComboBox);
 
         sizeComboBox = new JComboBox<>(new String[]{
-                "Small",
-                "Medium",
-                "Large",
-                "Extra Large",
-                "Custom Size"
+                "Small", "Medium", "Large", "Extra Large", "Custom Size"
         });
         styleComboBox(sizeComboBox);
+
+        // QUANTITY
+        quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1)); // default, min, max, step
+        quantitySpinner.setFont(mainFont);
+        quantitySpinner.setPreferredSize(new Dimension(100, 35));
+        quantitySpinner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
 
         designField = createFormField();
 
@@ -998,6 +986,7 @@ public class CustomerMain extends MainDesign {
         addFormSection(formPanel, "Description / Details", descriptionScroll);
         addFormSection(formPanel, "Category", categoryComboBox);
         addFormSection(formPanel, "Preferred Size", sizeComboBox);
+        addFormSection(formPanel, "Quantity", quantitySpinner);
         addFormSection(formPanel, "Preferred Design / Style", designField);
 
         JScrollPane formScrollPane = new JScrollPane(formPanel);
@@ -1005,20 +994,17 @@ public class CustomerMain extends MainDesign {
         formScrollPane.getVerticalScrollBar().setUnitIncrement(14);
 
         // BUTTONS
-        JPanel buttonPanel = new JPanel(
-                new FlowLayout(FlowLayout.RIGHT, 10, 0)
-        );
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setBackground(Color.WHITE);
 
         cancelButton = new JButton("Cancel");
         styleButton(cancelButton, fieldColor, mainTextColor);
-        cancelButton.setBorder(
-                BorderFactory.createLineBorder(borderColor)
-        );
+        cancelButton.setBorder(BorderFactory.createLineBorder(borderColor));
         cancelButton.addActionListener(e -> requestFrame.dispose());
 
-        submitButton = new JButton("Submit Request");   // walang "JButton" sa unahan
+        submitButton = new JButton("Submit Request");
         styleButton(submitButton, copperColor, Color.WHITE);
+        submitButton.addActionListener(e -> submitCustomRequest());
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
@@ -1029,6 +1015,41 @@ public class CustomerMain extends MainDesign {
 
         requestFrame.add(mainPanel);
         requestFrame.setVisible(true);
+    }
+
+    private void submitCustomRequest() {
+        String name = sculptureNameField.getText().trim();
+        String description = descriptionArea.getText().trim();
+        String category = (String) categoryComboBox.getSelectedItem();
+        String size = (String) sizeComboBox.getSelectedItem();
+        int quantity = ((Number) quantitySpinner.getValue()).intValue();
+        String design = designField.getText().trim();
+
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(requestFrame,
+                    "Please enter a sculpture name.", "Missing Information",
+                    JOptionPane.WARNING_MESSAGE);
+            sculptureNameField.requestFocus();
+            return;
+        }
+        if (description.isEmpty()) {
+            JOptionPane.showMessageDialog(requestFrame,
+                    "Please describe the sculpture you want.", "Missing Information",
+                    JOptionPane.WARNING_MESSAGE);
+            descriptionArea.requestFocus();
+            return;
+        }
+
+
+        JOptionPane.showMessageDialog(requestFrame,
+                "Your request has been submitted!\n\n"
+                        + "Name: " + name + "\n"
+                        + "Category: " + category + "\n"
+                        + "Size: " + size + "\n"
+                        + "Quantity: " + quantity,
+                "Request Submitted", JOptionPane.INFORMATION_MESSAGE);
+
+        requestFrame.dispose();
     }
 
     // =================================
