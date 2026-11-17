@@ -23,6 +23,6 @@ public class Message {
     public Person getReceiver(){
         return receiver;
     }
-    public void set
+
 
 }
