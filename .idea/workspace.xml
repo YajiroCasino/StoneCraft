@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="62ff6950-b82d-4378-bf50-dc12a88ae668" name="Changes" comment="">
       <change afterPath="$PROJECT_DIR$/StoneCraft/src/Main/CustomRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
@@ -76,6 +77,9 @@
       <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Main/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Main/Main.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/StoneCraft/Main/Product.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/StoneCraft/Main/Product.class" afterDir="false" />
     </list>
+=======
+    <list default="true" id="62ff6950-b82d-4378-bf50-dc12a88ae668" name="Changes" comment="" />
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -112,7 +116,12 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "git-widget-placeholder": "submain",
+<<<<<<< Updated upstream
+=======
+    "ignore.virus.scanning.warn.message": "true",
+>>>>>>> Stashed changes
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/StoneCraft",
     "node.js.detected.package.jshint": "true",
     "node.js.selected.package.jshint": "",
     "nodejs_package_manager_path": "npm",
