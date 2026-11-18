@@ -13,7 +13,7 @@ public class Main {
 
         DataBaseConnection.createDatabase();
 
-        new CustomerMain();
+        new BusinessMain();
 
     }
 
@@ -40,7 +40,7 @@ public class Main {
                             Accounts acc = new Accounts(name, email, contactNumber, password);
                             int newId = DataAccessObject.insertAccounts(acc);
 
-                            CustomerMainProcess();
+                            CustomerMain cm = new CustomerMain();
                         }
                         else{
                             System.out.println("password not match");
@@ -59,13 +59,13 @@ public class Main {
 
     }
 
-    public static void CustomerMainProcess(){
-         CustomerMain cm = new CustomerMain();
 
-    }
+
+
     //gmail must not contain spaces and start always at lower case
     //password must contain 8 character
     //number must not have spaces
+    //yung sa custom kailangan nakikita kung pending or hindi
 
     //custom request need ko mamaya
 }
