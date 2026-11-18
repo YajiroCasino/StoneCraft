@@ -13,7 +13,11 @@ public class Main {
 
         DataBaseConnection.createDatabase();
 
+<<<<<<< Updated upstream
         new BusinessMain();
+=======
+        new Login();
+>>>>>>> Stashed changes
 
     }
 
