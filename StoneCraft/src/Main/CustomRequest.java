@@ -15,27 +15,27 @@ public class CustomRequest extends Product{
         this.preferredDesign = preferredDesign;
     }
 
-    public void setDescription(String description){
+    public void setProductDescription(String description){
         this.description = description;
     }
 
-    public String getDescription(){
+    public String getProductDescription(){
         return description;
     }
 
-    public void setSize(String size){
+    public void setProductSize(String size){
         this.size = size;
     }
 
-    public String getSize(){
+    public String getProductSize(){
         return size;
     }
 
-    public void setPreferredDesign(String preferredDesign){
+    public void setProductPreferredDesign(String preferredDesign){
         this.preferredDesign = preferredDesign;
     }
 
-    public String getPreferredDesign(){
+    public String getProductPreferredDesign(){
         return preferredDesign;
     }
 

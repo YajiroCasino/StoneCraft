@@ -61,6 +61,58 @@ public class DataAccessObject {
         return -1;
     }
 
+
+    public static int insertCustomProduct(CustomRequest customRequest) {
+        String sqlSyntax = "insert into custom_products(" +
+                "custom_product_name, custom_product_category, custom_product_price, " +
+                "custom_product_quantity, custom_product_description, " +
+                "custom_product_size, custom_product_preferred_design) " +
+                "values(?, ?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = con.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, customRequest.getProductName());
+            ps.setString(2, customRequest.getProductCategory());
+            ps.setDouble(3, customRequest.getProductPrice());
+            ps.setInt(4, customRequest.getProductQuantity());
+            ps.setString(5, customRequest.getProductDescription());
+            ps.setString(6, customRequest.getProductSize());
+            ps.setString(7, customRequest.getProductPreferredDesign());
+            ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) return keys.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static List<CustomRequest> getAllCustomProduct() {
+        List<CustomRequest> list = new ArrayList<>();
+        String sql = "select * from custom_products";
+
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                CustomRequest cr = new CustomRequest(
+                        rs.getString("custom_product_name"),
+                        rs.getString("custom_product_category"),
+                        rs.getDouble("custom_product_price"),
+                        rs.getInt("custom_product_quantity"),
+                        rs.getString("custom_product_description"),
+                        rs.getString("custom_product_size"),
+                        rs.getString("custom_product_preferred_design")
+                );
+                list.add(cr);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public static List<Product> getAllProduct() {
         List<Product> products = new ArrayList<>();
 

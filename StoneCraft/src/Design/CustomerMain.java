@@ -3,12 +3,15 @@ package Design;
 
 import DataBaseManagementConnection.DataAccessObject;
 import Main.Product;
+import Main.CustomRequest;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+
 
 public class CustomerMain extends MainDesign {
 
@@ -907,11 +910,10 @@ public class CustomerMain extends MainDesign {
     public JScrollPane descriptionScroll;
     public JComboBox<String> categoryComboBox;
     public JComboBox<String> sizeComboBox;
+    public JSpinner quantitySpinner;
     public JTextField designField;
     public JButton cancelButton;
     public JButton submitButton;
-
-
 
     public void openCustomRequestForm() {
 
@@ -921,19 +923,15 @@ public class CustomerMain extends MainDesign {
             requestFrame.requestFocus();
             return;
         }
-        requestFrame = new JFrame(
-                "StoneCraft - Custom Sculpture Request"
-        );
 
+        requestFrame = new JFrame("StoneCraft - Custom Sculpture Request");
         requestFrame.setSize(650, 700);
         requestFrame.setLocationRelativeTo(this);
         requestFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
         mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(
-                BorderFactory.createEmptyBorder(20, 25, 20, 25)
-        );
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
 
         // FORM HEADER
         JPanel titlePanel = new JPanel();
@@ -944,9 +942,7 @@ public class CustomerMain extends MainDesign {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 23));
         titleLabel.setForeground(mainTextColor);
 
-        JLabel descriptionLabel = new JLabel(
-                "Tell us about the stone sculpture you want."
-        );
+        JLabel descriptionLabel = new JLabel("Tell us about the stone sculpture you want.");
         descriptionLabel.setFont(mainFont);
         descriptionLabel.setForeground(labelColor);
 
@@ -966,31 +962,26 @@ public class CustomerMain extends MainDesign {
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setBackground(fieldColor);
-        descriptionArea.setBorder(
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)
-        );
+        descriptionArea.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
 
         descriptionScroll = new JScrollPane(descriptionArea);
-        descriptionScroll.setBorder(
-                BorderFactory.createLineBorder(borderColor)
-        );
+        descriptionScroll.setBorder(BorderFactory.createLineBorder(borderColor));
 
         categoryComboBox = new JComboBox<>(new String[]{
-                "Home Decor",
-                "Garden",
-                "Kitchen",
-                "Sculptures"
+                "Home Decor", "Garden", "Kitchen", "Sculptures"
         });
         styleComboBox(categoryComboBox);
 
         sizeComboBox = new JComboBox<>(new String[]{
-                "Small",
-                "Medium",
-                "Large",
-                "Extra Large",
-                "Custom Size"
+                "Small", "Medium", "Large", "Extra Large", "Custom Size"
         });
         styleComboBox(sizeComboBox);
+
+        // QUANTITY
+        quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1)); // default, min, max, step
+        quantitySpinner.setFont(mainFont);
+        quantitySpinner.setPreferredSize(new Dimension(100, 35));
+        quantitySpinner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
 
         designField = createFormField();
 
@@ -998,6 +989,7 @@ public class CustomerMain extends MainDesign {
         addFormSection(formPanel, "Description / Details", descriptionScroll);
         addFormSection(formPanel, "Category", categoryComboBox);
         addFormSection(formPanel, "Preferred Size", sizeComboBox);
+        addFormSection(formPanel, "Quantity", quantitySpinner);
         addFormSection(formPanel, "Preferred Design / Style", designField);
 
         JScrollPane formScrollPane = new JScrollPane(formPanel);
@@ -1005,20 +997,31 @@ public class CustomerMain extends MainDesign {
         formScrollPane.getVerticalScrollBar().setUnitIncrement(14);
 
         // BUTTONS
-        JPanel buttonPanel = new JPanel(
-                new FlowLayout(FlowLayout.RIGHT, 10, 0)
-        );
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setBackground(Color.WHITE);
 
         cancelButton = new JButton("Cancel");
         styleButton(cancelButton, fieldColor, mainTextColor);
-        cancelButton.setBorder(
-                BorderFactory.createLineBorder(borderColor)
-        );
+        cancelButton.setBorder(BorderFactory.createLineBorder(borderColor));
         cancelButton.addActionListener(e -> requestFrame.dispose());
 
-        submitButton = new JButton("Submit Request");   // walang "JButton" sa unahan
+        submitButton = new JButton("Submit Request");
         styleButton(submitButton, copperColor, Color.WHITE);
+
+        submitButton.addActionListener(e->{
+
+            String name = sculptureNameField.getText().trim();
+            String description = descriptionArea.getText().trim();
+            String category = (String) categoryComboBox.getSelectedItem();
+            String size = (String) sizeComboBox.getSelectedItem();
+            int quantity =  ((Number) quantitySpinner.getValue()).intValue();
+            String preferredDesign = designField.getText().trim();
+            int price = 0;
+
+            Main.CustomRequest cr = new Main.CustomRequest(name, category, price, quantity, description, size, preferredDesign);
+            int newId = DataAccessObject.insertCustomProduct(cr);
+            requestFrame.dispose();
+        });
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
@@ -1029,7 +1032,9 @@ public class CustomerMain extends MainDesign {
 
         requestFrame.add(mainPanel);
         requestFrame.setVisible(true);
+
     }
+
 
     // =================================
     // FORM DESIGN HELPERS
@@ -1099,10 +1104,7 @@ public class CustomerMain extends MainDesign {
 
     private void openCustomRequestsFrame() {
 
-        JFrame requestListFrame = new JFrame(
-                "StoneCraft - My Custom Requests"
-        );
-
+        JFrame requestListFrame = new JFrame("StoneCraft - My Custom Requests");
         requestListFrame.setSize(750, 550);
         requestListFrame.setLocationRelativeTo(this);
         requestListFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -1110,46 +1112,32 @@ public class CustomerMain extends MainDesign {
 
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(darkColor);
-        headerPanel.setBorder(
-                BorderFactory.createEmptyBorder(18, 20, 18, 20)
-        );
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
 
         JLabel titleLabel = new JLabel("My Custom Requests");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 21));
         titleLabel.setForeground(Color.WHITE);
-
         headerPanel.add(titleLabel, BorderLayout.WEST);
 
         JPanel requestListPanel = new JPanel();
-        requestListPanel.setLayout(new BoxLayout(
-                requestListPanel, BoxLayout.Y_AXIS
-        ));
+        requestListPanel.setLayout(new BoxLayout(requestListPanel, BoxLayout.Y_AXIS));
         requestListPanel.setBackground(Color.WHITE);
-        requestListPanel.setBorder(
-                BorderFactory.createEmptyBorder(15, 15, 15, 15)
-        );
+        requestListPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        if (customRequests.isEmpty()) {
+        // KUNIN SA DATABASE
+        List<CustomRequest> requests = DataAccessObject.getAllCustomProduct();
 
-            JLabel emptyLabel = new JLabel(
-                    "You haven't submitted any custom requests yet."
-            );
-
+        if (requests.isEmpty()) {
+            JLabel emptyLabel = new JLabel("You haven't submitted any custom requests yet.");
             emptyLabel.setFont(mainFont);
             emptyLabel.setForeground(labelColor);
             emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             requestListPanel.add(Box.createVerticalStrut(40));
             requestListPanel.add(emptyLabel);
-
         } else {
-
-            for (CustomRequest customRequest : customRequests) {
-
-                requestListPanel.add(
-                        createCustomRequestCard(customRequest)
-                );
-
+            for (CustomRequest customRequest : requests) {
+                requestListPanel.add(createCustomRequestCard(customRequest));
                 requestListPanel.add(Box.createVerticalStrut(12));
             }
         }
@@ -1160,102 +1148,73 @@ public class CustomerMain extends MainDesign {
 
         requestListFrame.add(headerPanel, BorderLayout.NORTH);
         requestListFrame.add(scrollPane, BorderLayout.CENTER);
-
         requestListFrame.setVisible(true);
     }
 
-    // =================================
-    // CUSTOM REQUEST CARD
-    // =================================
+// =================================
+// CUSTOM REQUEST CARD
+// =================================
 
     private JPanel createCustomRequestCard(CustomRequest customRequest) {
 
         JPanel card = new JPanel(new BorderLayout(10, 10));
         card.setBackground(Color.WHITE);
-
-        card.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(borderColor),
-                        BorderFactory.createEmptyBorder(15, 15, 15, 15)
-                )
-        );
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(borderColor),
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)
+        ));
 
         JPanel detailsPanel = new JPanel();
-        detailsPanel.setLayout(new BoxLayout(
-                detailsPanel, BoxLayout.Y_AXIS
-        ));
+        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBackground(Color.WHITE);
 
-        JLabel nameLabel = new JLabel(customRequest.sculptureName);
+        JLabel nameLabel = new JLabel(customRequest.getProductName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
         nameLabel.setForeground(mainTextColor);
 
-        JLabel sizeLabel = new JLabel(
-                "Preferred Size: " + customRequest.size
-        );
+        JLabel sizeLabel = new JLabel("Preferred Size: " + customRequest.getProductSize());
         sizeLabel.setFont(mainFont);
         sizeLabel.setForeground(labelColor);
 
-        JLabel designLabel = new JLabel(
-                "Design: " + customRequest.design
-        );
+        JLabel quantityLabel = new JLabel("Quantity: " + customRequest.getProductQuantity());
+        quantityLabel.setFont(mainFont);
+        quantityLabel.setForeground(labelColor);
+
+        JLabel designLabel = new JLabel("Design: " + customRequest.getProductPreferredDesign());
         designLabel.setFont(mainFont);
         designLabel.setForeground(labelColor);
-
-        JLabel budgetLabel = new JLabel(
-                "Budget: ₱" + String.format("%.2f", customRequest.budget)
-        );
-        budgetLabel.setFont(mainFont);
-        budgetLabel.setForeground(copperColor);
-
-        JLabel statusLabel = new JLabel(
-                "Status: " + customRequest.status
-        );
-        statusLabel.setFont(boldFont);
-        statusLabel.setForeground(copperColor);
 
         detailsPanel.add(nameLabel);
         detailsPanel.add(Box.createVerticalStrut(7));
         detailsPanel.add(sizeLabel);
+        detailsPanel.add(quantityLabel);
         detailsPanel.add(designLabel);
-        detailsPanel.add(budgetLabel);
         detailsPanel.add(Box.createVerticalStrut(7));
-        detailsPanel.add(statusLabel);
 
         JButton viewButton = new JButton("View Details");
         styleButton(viewButton, darkColor, Color.WHITE);
-
-        viewButton.addActionListener(e ->
-                showCustomRequestDetails(customRequest)
-        );
+        viewButton.addActionListener(e -> showCustomRequestDetails(customRequest));
 
         card.add(detailsPanel, BorderLayout.CENTER);
         card.add(viewButton, BorderLayout.EAST);
-
-        card.setMaximumSize(
-                new Dimension(Integer.MAX_VALUE, 160)
-        );
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 170));
 
         return card;
     }
 
-    // =================================
-    // CUSTOM REQUEST DETAILS
-    // =================================
+// =================================
+// CUSTOM REQUEST DETAILS
+// =================================
 
     private void showCustomRequestDetails(CustomRequest customRequest) {
 
         String details =
-                "Sculpture Name: " + customRequest.sculptureName
-                        + "\n\nDescription: " + customRequest.description
-                        + "\n\nPreferred Size: " + customRequest.size
-                        + "\n\nDesign: " + customRequest.design
-                        + "\n\nBudget: ₱" + String.format("%.2f", customRequest.budget)
-                        + "\n\nStatus: " + customRequest.status
-                        + "\n\nReference Image: "
-                        + (customRequest.imagePath.isEmpty()
-                        ? "No image attached"
-                        : new File(customRequest.imagePath).getName());
+                "Sculpture Name: " + customRequest.getProductName()
+                        + "\n\nCategory: " + customRequest.getProductCategory()
+                        + "\n\nDescription: " + customRequest.getProductDescription()
+                        + "\n\nPreferred Size: " + customRequest.getProductSize()
+                        + "\n\nQuantity: " + customRequest.getProductQuantity()
+                        + "\n\nDesign: " + customRequest.getProductPreferredDesign();
 
         JOptionPane.showMessageDialog(
                 this,
@@ -1609,39 +1568,6 @@ public class CustomerMain extends MainDesign {
 
             this.product = product;
             this.quantity = quantity;
-        }
-    }
-
-    // =================================
-    // CUSTOM REQUEST CLASS
-    // =================================
-
-    private static class CustomRequest {
-
-        String sculptureName;
-        String description;
-        String size;
-        String design;
-        double budget;
-        String imagePath;
-        String status;
-
-        CustomRequest(
-                String sculptureName,
-                String description,
-                String size,
-                String design,
-                double budget,
-                String imagePath
-        ) {
-
-            this.sculptureName = sculptureName;
-            this.description = description;
-            this.size = size;
-            this.design = design;
-            this.budget = budget;
-            this.imagePath = imagePath;
-            this.status = "Pending";
         }
     }
 

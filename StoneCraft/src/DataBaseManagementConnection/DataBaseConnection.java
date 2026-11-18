@@ -31,6 +31,17 @@ public class DataBaseConnection {
                     "account_contact_number varchar(100) not null," +
                     "account_password varchar(100) not null) auto_increment = 0001";
 
+            String createCustomProductTable = "create table if not exists custom_products(" +
+                    "custom_product_id int auto_increment primary key, " +
+                    "custom_product_name varchar(100) not null, " +
+                    "custom_product_category varchar(100) not null, " +
+                    "custom_product_price decimal(10,2) not null default 0, " +
+                    "custom_product_quantity int not null default 1, " +
+                    "custom_product_description text not null, " +
+                    "custom_product_size varchar(100) not null, " +
+                    "custom_product_preferred_design varchar(100) not null" +
+                    ") auto_increment = 1";
+
             String createOrderTable = "create table if not exists orders(" +
                     "order_id int auto_increment primary key, " +
                     "order_product_name varchar(100) not null, " +
@@ -40,6 +51,7 @@ public class DataBaseConnection {
 
             st.executeUpdate(createProductTable);
             st.executeUpdate(createAccountTable);
+            st.executeUpdate(createCustomProductTable);
             st.executeUpdate(createOrderTable);
 
 
