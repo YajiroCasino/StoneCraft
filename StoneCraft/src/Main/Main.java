@@ -13,7 +13,7 @@ public class Main {
 
         DataBaseConnection.createDatabase();
 
-        new CustomerMain();
+        new BusinessMain();
 
     }
 

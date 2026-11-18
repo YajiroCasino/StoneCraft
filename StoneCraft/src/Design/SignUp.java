@@ -5,6 +5,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+// =====================================
+// INHERITANCE
+// SignUp inherits from MainDesign
+// =====================================
+
 public class SignUp extends MainDesign {
 
     // =========================
@@ -61,6 +66,13 @@ public class SignUp extends MainDesign {
     private final Color fieldColor = new Color(250, 249, 247);
     private final Color borderColor = new Color(222, 218, 211);
     private final Color warningColor = new Color(220, 53, 69);
+
+    // =========================
+    // ABSTRACTION
+    // =========================
+
+    private final InputValidator requiredFieldValidator =
+            new RequiredFieldValidator();
 
     // =========================
     // CONSTRUCTOR
@@ -168,7 +180,6 @@ public class SignUp extends MainDesign {
         nameField.setBounds(52, 88, 398, 35);
         addPlaceholder(nameField, "Juan Dela Cruz");
 
-        // NAME WARNING DESIGN
         nameWarning.setBounds(52, 124, 398, 13);
 
         // =========================
@@ -182,7 +193,6 @@ public class SignUp extends MainDesign {
         emailField.setBounds(52, 160, 398, 35);
         addPlaceholder(emailField, "name@email.com");
 
-        // EMAIL WARNING DESIGN
         emailWarning.setBounds(52, 196, 398, 13);
 
         // =========================
@@ -196,7 +206,6 @@ public class SignUp extends MainDesign {
         contactField.setBounds(52, 232, 398, 35);
         addPlaceholder(contactField, "09XX XXX XXXX");
 
-        // CONTACT WARNING DESIGN
         contactWarning.setBounds(52, 268, 398, 13);
 
         // =========================
@@ -235,7 +244,6 @@ public class SignUp extends MainDesign {
             }
         });
 
-        // PASSWORD WARNING DESIGN
         passwordWarning.setBounds(52, 340, 398, 13);
 
         // =========================
@@ -274,7 +282,6 @@ public class SignUp extends MainDesign {
             }
         });
 
-        // CONFIRM PASSWORD WARNING DESIGN
         confirmWarning.setBounds(52, 412, 398, 13);
 
         // =========================
@@ -437,9 +444,6 @@ public class SignUp extends MainDesign {
         return button;
     }
 
-    // =========================
-    // PLACEHOLDER METHOD
-    // =========================
 
     public void addPlaceholder(JTextField field, String placeholder) {
 
@@ -466,5 +470,93 @@ public class SignUp extends MainDesign {
                 }
             }
         });
+    }
+
+
+    public boolean areRequiredFieldsFilled() {
+
+        return requiredFieldValidator.isValid(nameField.getText())
+                && !nameField.getText().equals("Juan Dela Cruz")
+                && requiredFieldValidator.isValid(emailField.getText())
+                && !emailField.getText().equals("name@email.com")
+                && requiredFieldValidator.isValid(contactField.getText())
+                && !contactField.getText().equals("09XX XXX XXXX")
+                && requiredFieldValidator.isValid(
+                new String(passwordField.getPassword())
+        )
+                && requiredFieldValidator.isValid(
+                new String(confirmField.getPassword())
+        );
+    }
+
+
+    public SignUpData getSignUpData() {
+
+        SignUpData data = new SignUpData();
+
+        data.setFullName(nameField.getText());
+        data.setEmail(emailField.getText());
+        data.setContact(contactField.getText());
+        data.setPassword(new String(passwordField.getPassword()));
+
+        return data;
+    }
+
+    // PRIVATE FIELDS WITH GETTERS AND SETTERS
+    public static class SignUpData {
+
+        private String fullName;
+        private String email;
+        private String contact;
+        private String password;
+
+        public String getFullName() {
+            return fullName;
+        }
+
+        public void setFullName(String fullName) {
+            this.fullName = fullName;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getContact() {
+            return contact;
+        }
+
+        public void setContact(String contact) {
+            this.contact = contact;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
+}
+
+
+abstract class InputValidator {
+
+    public abstract boolean isValid(String value);
+}
+
+
+
+class RequiredFieldValidator extends InputValidator {
+
+    @Override
+    public boolean isValid(String value) {
+
+        return value != null && !value.trim().isEmpty();
     }
 }
