@@ -30,7 +30,30 @@ public class DataAccessObject {
         return -1;
     }
 
-    public int insertOrder(Product product){
+    public static Accounts getAccounts(String name) {
+        String sqlSyntax = "Select * from accounts where account_name = ?";
+
+        try (Connection con = DataBaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sqlSyntax)) {
+
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new Accounts(
+                        rs.getString("name"),
+                        rs.getString("email"),
+                        rs.getString("contact_number"),
+                        rs.getString("password")
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+    }
+        public int insertOrder(Product product){
         String sqlSyntax = "insert into orders (product_name, product_category, product_price, product_quantity) values (?, ?, ?, ?)";
 
         try(PreparedStatement ps = con.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {

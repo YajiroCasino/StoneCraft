@@ -2,27 +2,38 @@ package Main;
 
 public class Message {
 
-    private Person sender;
-    private Person receiver;
+    private Accounts sender;
+    private Accounts receiver;
     private String messages;
 
-    public Message(Person sender, Person receiver, String messages){
+    public Message(Accounts sender, Accounts receiver, String messages){
         this.sender = sender;
         this.receiver = receiver;
         this.messages = messages;
     }
-
-    public Person getSender(){
+    public Accounts getSender(){
         return sender;
     }
 
-    public void setSender(Person sender){
+    public void setSender(Accounts sender){
         this.sender = sender;
     }
 
-    public Person getReceiver(){
+    public Accounts getReceiver(){
         return receiver;
     }
+
+    public void setReceiver(Accounts receiver){
+        this.receiver = receiver;
+    }
+
+    public String getMessages(){
+        return messages;
+    }
+    public void Messages(String messages){
+        this.messages = messages;
+    }
+
 
 
 }

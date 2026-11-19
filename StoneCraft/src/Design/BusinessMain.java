@@ -1,4 +1,3 @@
-
 package Design;
 
 import javax.swing.*;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class BusinessMain extends MainDesign{
+public class BusinessMain extends MainDesign {
 
     // =========================================
     // COLORS AND FONTS
@@ -50,16 +49,12 @@ public class BusinessMain extends MainDesign{
 
     private CardLayout cardLayout;
 
-<<<<<<< Updated upstream
     // =========================================
     // PUBLIC COMPONENTS
     // =========================================
-=======
+
     // HEADER COMPONENTS
-    private JTextField searchField;
-    private JButton profileButton;
     private JButton selectedMenuButton;
->>>>>>> Stashed changes
 
     public JTextField searchField;
     public JButton profileButton;
@@ -436,46 +431,21 @@ public class BusinessMain extends MainDesign{
 
         sidebarPanel = new JPanel();
 
-<<<<<<< Updated upstream
         sidebarPanel.setLayout(
                 new BoxLayout(sidebarPanel, BoxLayout.Y_AXIS)
         );
 
         sidebarPanel.setPreferredSize(new Dimension(215, 0));
-=======
-        sidebarPanel.setPreferredSize(new Dimension(210, 0));
->>>>>>> Stashed changes
         sidebarPanel.setBackground(darkColor);
 
         sidebarPanel.setBorder(
                 BorderFactory.createEmptyBorder(25, 12, 20, 12)
         );
 
-<<<<<<< Updated upstream
         addSidebarTitle("WORKSPACE");
         addMenuButton("Dashboard", "Overview");
 
         addSidebarTitle("MANAGEMENT");
-=======
-        JLabel menuTitle = new JLabel("MENU");
-        menuTitle.setFont(boldFont);
-        menuTitle.setForeground(new Color(185, 179, 168));
-
-        sidebarPanel.add(menuTitle);
-        sidebarPanel.add(Box.createVerticalStrut(15));
-
-        addMenuButton("Dashboard", "Overview");
-
-        JLabel manageTitle = new JLabel("MANAGE");
-        manageTitle.setFont(boldFont);
-        manageTitle.setForeground(new Color(185, 179, 168));
-        manageTitle.setBorder(
-                BorderFactory.createEmptyBorder(20, 0, 10, 0)
-        );
-
-        sidebarPanel.add(manageTitle);
-
->>>>>>> Stashed changes
         addMenuButton("My Products", "Products");
         addMenuButton("Custom Requests", "Requests");
         addMenuButton("Order History", "History");
@@ -488,19 +458,9 @@ public class BusinessMain extends MainDesign{
         sidebarPanel.add(Box.createVerticalGlue());
     }
 
-<<<<<<< Updated upstream
     private void addSidebarTitle(String title) {
 
         JLabel sectionLabel = new JLabel(title);
-=======
-        JLabel helpLabel = new JLabel("Need help?");
-        helpLabel.setFont(boldFont);
-        helpLabel.setForeground(Color.WHITE);
-
-        JLabel helpDescription = new JLabel("Contact your team");
-        helpDescription.setFont(mainFont);
-        helpDescription.setForeground(new Color(185, 179, 168));
->>>>>>> Stashed changes
 
         sectionLabel.setFont(new Font("Arial", Font.BOLD, 11));
         sectionLabel.setForeground(new Color(170, 164, 155));
@@ -521,10 +481,7 @@ public class BusinessMain extends MainDesign{
         menuButton.setFont(mainFont);
         menuButton.setForeground(Color.WHITE);
         menuButton.setBackground(darkColor);
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
         menuButton.setHorizontalAlignment(SwingConstants.LEFT);
 
         menuButton.setMaximumSize(
@@ -540,14 +497,10 @@ public class BusinessMain extends MainDesign{
         menuButton.setFocusPainted(false);
         menuButton.setOpaque(true);
         menuButton.setBorderPainted(false);
-<<<<<<< Updated upstream
 
         menuButton.setCursor(
                 new Cursor(Cursor.HAND_CURSOR)
         );
-=======
-        menuButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
->>>>>>> Stashed changes
 
         menuButton.addActionListener(e -> {
 
@@ -1146,18 +1099,9 @@ public class BusinessMain extends MainDesign{
 
         Product selectedProduct = getSelectedProduct();
 
-<<<<<<< Updated upstream
         if (selectedProduct == null) {
 
             showWarning("Please select a product to edit.");
-=======
-        if (row < 0) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please select a product to edit.",
-                    "StoneCraft",
-                    JOptionPane.WARNING_MESSAGE);
->>>>>>> Stashed changes
             return;
         }
 
@@ -1180,18 +1124,9 @@ public class BusinessMain extends MainDesign{
 
         Product selectedProduct = getSelectedProduct();
 
-<<<<<<< Updated upstream
         if (selectedProduct == null) {
 
             showWarning("Please select a product to delete.");
-=======
-        if (row < 0) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please select a product to delete.",
-                    "StoneCraft",
-                    JOptionPane.WARNING_MESSAGE);
->>>>>>> Stashed changes
             return;
         }
 
@@ -1909,14 +1844,10 @@ public class BusinessMain extends MainDesign{
         });
     }
 
-<<<<<<< Updated upstream
     // =========================================
     // COMPACT MESSAGE BUBBLES
     // =========================================
 
-=======
-    // CREATE MESSAGE BUBBLE
->>>>>>> Stashed changes
     private JPanel createMessageBubble(ChatMessage chatMessage) {
 
         boolean fromBusiness =
@@ -1952,20 +1883,10 @@ public class BusinessMain extends MainDesign{
 
         senderLabel.setFont(new Font("Arial", Font.BOLD, 10));
 
-        // ADJUST MESSAGE WIDTH BASED ON CONTENT
-        FontMetrics metrics = getFontMetrics(mainFont);
-        String wrappedMessage = wrapMessage(
-                chatMessage.message, metrics, 220
-        );
-
         JLabel messageLabel = new JLabel(
-<<<<<<< Updated upstream
                 "<html><div style='width:155px;'>"
                         + escapeHtml(chatMessage.message)
                         + "</div></html>"
-=======
-                "<html>" + escapeHtml(wrappedMessage) + "</html>"
->>>>>>> Stashed changes
         );
 
         messageLabel.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -1995,39 +1916,6 @@ public class BusinessMain extends MainDesign{
         rowPanel.add(bubblePanel);
 
         return rowPanel;
-    }
-
-    // WRAP LONG MESSAGES
-    private String wrapMessage(
-            String message, FontMetrics metrics, int maxWidth
-    ) {
-
-        String[] words = message.split("\\s+");
-
-        StringBuilder result = new StringBuilder();
-        StringBuilder line = new StringBuilder();
-
-        for (String word : words) {
-
-            String testLine = line.length() == 0
-                    ? word
-                    : line + " " + word;
-
-            if (metrics.stringWidth(testLine) > maxWidth
-                    && line.length() > 0) {
-
-                result.append(line).append("\n");
-                line = new StringBuilder(word);
-
-            } else {
-
-                line = new StringBuilder(testLine);
-            }
-        }
-
-        result.append(line);
-
-        return result.toString();
     }
 
     private String escapeHtml(String text) {
@@ -2747,16 +2635,11 @@ public class BusinessMain extends MainDesign{
         accountItem.addActionListener(e ->
                 JOptionPane.showMessageDialog(
                         this,
-<<<<<<< Updated upstream
                         "StoneCraft Business Account",
                         "StoneCraft",
                         JOptionPane.INFORMATION_MESSAGE
                 )
         );
-=======
-                        "Business Account",
-                        "StoneCraft", JOptionPane.INFORMATION_MESSAGE));
->>>>>>> Stashed changes
 
         logoutItem.addActionListener(e -> {
             int choice = JOptionPane.showConfirmDialog(
@@ -2995,7 +2878,6 @@ public class BusinessMain extends MainDesign{
     // CHAT MESSAGE CLASS
     // =========================================
 
-<<<<<<< Updated upstream
     public static class ChatMessage {
 
         public String message;
@@ -3003,13 +2885,6 @@ public class BusinessMain extends MainDesign{
 
         public ChatMessage(String message, String sender) {
 
-=======
-    private static class ChatMessage {
-        String message;
-        String sender;
-
-        ChatMessage(String message, String sender) {
->>>>>>> Stashed changes
             this.message = message;
             this.sender = sender;
         }

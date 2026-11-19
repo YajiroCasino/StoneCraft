@@ -16,16 +16,11 @@ public class SignUp extends MainDesign {
     // PUBLIC COMPONENTS
     // =========================
 
-    public JPanel panel1;
-    public JButton productButton;
-    public JButton messageButton;
-    public JPanel productCard;
-    public JPanel messageCard;
     public JPanel contentPane;
 
     public JPanel passwordPanel, confirmPanel;
 
-    public JLabel logo;
+    public JLabel logo, login;
     public JLabel tagline;
 
     public JTextField nameField, emailField, contactField;
@@ -48,7 +43,7 @@ public class SignUp extends MainDesign {
     private JPanel leftPanel, rightPanel;
 
     private JLabel title, fullName, email, contact;
-    private JLabel password, confirmPassword, login;
+    private JLabel password, confirmPassword;
 
     private JLabel quote1, quote2;
     private JLabel description1, description2;
@@ -71,8 +66,6 @@ public class SignUp extends MainDesign {
     // ABSTRACTION
     // =========================
 
-    private final InputValidator requiredFieldValidator =
-            new RequiredFieldValidator();
 
     // =========================
     // CONSTRUCTOR
@@ -308,6 +301,7 @@ public class SignUp extends MainDesign {
 
         login.setBounds(52, 490, 398, 25);
         login.setHorizontalAlignment(SwingConstants.CENTER);
+        login.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // =========================
         // LABEL COLORS AND FONTS
@@ -472,91 +466,4 @@ public class SignUp extends MainDesign {
         });
     }
 
-
-    public boolean areRequiredFieldsFilled() {
-
-        return requiredFieldValidator.isValid(nameField.getText())
-                && !nameField.getText().equals("Juan Dela Cruz")
-                && requiredFieldValidator.isValid(emailField.getText())
-                && !emailField.getText().equals("name@email.com")
-                && requiredFieldValidator.isValid(contactField.getText())
-                && !contactField.getText().equals("09XX XXX XXXX")
-                && requiredFieldValidator.isValid(
-                new String(passwordField.getPassword())
-        )
-                && requiredFieldValidator.isValid(
-                new String(confirmField.getPassword())
-        );
-    }
-
-
-    public SignUpData getSignUpData() {
-
-        SignUpData data = new SignUpData();
-
-        data.setFullName(nameField.getText());
-        data.setEmail(emailField.getText());
-        data.setContact(contactField.getText());
-        data.setPassword(new String(passwordField.getPassword()));
-
-        return data;
-    }
-
-    // PRIVATE FIELDS WITH GETTERS AND SETTERS
-    public static class SignUpData {
-
-        private String fullName;
-        private String email;
-        private String contact;
-        private String password;
-
-        public String getFullName() {
-            return fullName;
-        }
-
-        public void setFullName(String fullName) {
-            this.fullName = fullName;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getContact() {
-            return contact;
-        }
-
-        public void setContact(String contact) {
-            this.contact = contact;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-    }
-}
-
-
-abstract class InputValidator {
-
-    public abstract boolean isValid(String value);
-}
-
-
-
-class RequiredFieldValidator extends InputValidator {
-
-    @Override
-    public boolean isValid(String value) {
-
-        return value != null && !value.trim().isEmpty();
-    }
 }

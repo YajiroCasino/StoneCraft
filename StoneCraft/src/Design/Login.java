@@ -15,21 +15,21 @@ public class Login extends MainDesign {
     JLabel welcomeLabel, subtitleLabel;
     JLabel usernameLabel, emailLabel, passwordLabel;
     JLabel forgotPasswordLabel;
-    JLabel noAccountLabel, signUpLabel;
+    public JLabel noAccountLabel, signUpLabel;
 
     public JLabel usernameWarning = new JLabel();
     public JLabel emailWarning = new JLabel();
     public JLabel passwordWarning = new JLabel();
 
-    JTextField usernameField, emailField;
-    JPasswordField passwordField;
+    public JTextField usernameField, emailField;
+    public JPasswordField passwordField;
 
     JPanel passwordPanel;
     JPanel optionsPanel;
     JPanel signUpPanel;
 
     JButton showPasswordButton;
-    JButton loginButton;
+    public JButton loginButton;
 
     JCheckBox rememberMeCheckBox;
 
@@ -283,6 +283,7 @@ public class Login extends MainDesign {
         signUpLabel = new JLabel("Sign up");
         signUpLabel.setFont(new Font("Arial", Font.BOLD, 14));
         signUpLabel.setForeground(new Color(181, 101, 29));
+        signUpLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         signUpPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         signUpPanel.setBounds(52, 505, 398, 30);
