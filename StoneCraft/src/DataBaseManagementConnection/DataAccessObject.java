@@ -41,10 +41,10 @@ public class DataAccessObject {
 
             if (rs.next()) {
                 return new Accounts(
-                        rs.getString("name"),
-                        rs.getString("email"),
-                        rs.getString("contact_number"),
-                        rs.getString("password")
+                        rs.getString("account_name"),
+                        rs.getString("account_email_address"),
+                        rs.getString("account_contact_number"),
+                        rs.getString("account_password")
                 );
             }
         } catch (SQLException e) {

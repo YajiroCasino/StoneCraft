@@ -53,7 +53,6 @@ public class Main {
                 valid = false;
             }
 
-
             if (contactNumber.isEmpty()) {
                 su.contactWarning.setText("Please enter your contact number.");
                 valid = false;
@@ -80,9 +79,8 @@ public class Main {
 
             Accounts acc = new Accounts(name, email, contactNumber, password);
             int newId = DataAccessObject.insertAccounts(acc);
-
             su.dispose();
-            new CustomerMain();
+            customerProcess();
         });
 
         su.login.addMouseListener(new MouseAdapter(){
@@ -99,6 +97,7 @@ public class Main {
 
 
         lg.loginButton.addActionListener(e ->{
+
             String name = lg.usernameField.getText().trim();
             String email = lg.emailField.getText().trim();
             String password = lg.passwordField.getText().trim();
@@ -112,21 +111,21 @@ public class Main {
 
             if(accounts == null){
                 lg.usernameWarning.setText("This username doesn't exist.");
-                valid = false;
+
             }
             else if(!accounts.getEmailAddress().equals(email)){
                 lg.emailWarning.setText("Incorrect email");
+
             }
             else if (!accounts.getPassword().equals(password)) {
                 lg.passwordWarning.setText("Incorrect password.");
+
             }
             else{
                 lg.dispose();
                 customerProcess();
             }
-            if(!valid){
-                return;
-            }
+
 
         });
 
@@ -150,4 +149,7 @@ public class Main {
     //yung sa custom kailangan nakikita kung pending or hindi
 
     //custom request need ko mamaya
+
+
+    //error sa log-in di sya nagshoshow ng warning pag mismatch
 }
