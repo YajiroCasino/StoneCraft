@@ -4,18 +4,18 @@ import DataBaseManagementConnection.*;
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 import java.awt.*;
 
 
 public class Main {
 
     public static DataAccessObject productDao = new DataAccessObject();
+    public static Login lg = new Login();
 
     public static void main(String[] args){
 
         DataBaseConnection.createDatabase();
-        signUpProcess();
+        businessProcess();
 
     }
 
@@ -93,7 +93,11 @@ public class Main {
     }
 
     public static void loginProcess(){
-        Login lg = new Login();
+
+
+        String bs_name = "Business Owner";
+        String bs_email = "businessowner@gmail.com";
+        String bs_password = "12345678";
 
 
         lg.loginButton.addActionListener(e ->{
@@ -103,13 +107,19 @@ public class Main {
             String password = lg.passwordField.getText().trim();
             boolean valid = true;
 
+
             lg.usernameWarning.setText("");
             lg.emailWarning.setText("");
             lg.passwordWarning.setText("");
 
             Accounts accounts = DataAccessObject.getAccounts(name);
 
-            if(accounts == null){
+            if(name.equals(bs_name) && email.equals(bs_email) && password.equals(bs_password)){
+                lg.dispose();
+                businessProcess();
+            }
+
+            else if(accounts == null){
                 lg.usernameWarning.setText("This username doesn't exist.");
 
             }
@@ -142,6 +152,30 @@ public class Main {
         CustomerMain cm = new CustomerMain();
     }
 
+    public static void businessProcess(){
+        BusinessMain bm = new BusinessMain();
+
+        bm.profileButton.addActionListener(e -> {
+            bm.showProfile();
+        });
+
+        bm.addButton.addActionListener(e -> {
+            bm.addProduct();
+        });
+
+        bm.accountItem.addActionListener(e ->{
+
+        });
+
+        bm.logoutItem.addActionListener(e -> {
+            if (bm.choice == JOptionPane.YES_OPTION) {
+                loginProcess();
+                lg.dispose();
+            }
+
+        });
+    }
+
 
     //gmail must not contain spaces and start always at lower case
     //password must contain 8 character
@@ -152,4 +186,5 @@ public class Main {
 
 
     //error sa log-in di sya nagshoshow ng warning pag mismatch
+    //if existing na yung account di na pwedeng magcreate pa ng another acc
 }
