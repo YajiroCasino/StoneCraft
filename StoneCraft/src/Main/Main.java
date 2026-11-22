@@ -10,7 +10,6 @@ import java.awt.*;
 public class Main {
 
     public static DataAccessObject productDao = new DataAccessObject();
-    public static Login lg = new Login();
 
     public static void main(String[] args){
 
@@ -93,7 +92,7 @@ public class Main {
     }
 
     public static void loginProcess(){
-
+        Login lg = new Login();
 
         String bs_name = "Business Owner";
         String bs_email = "businessowner@gmail.com";
@@ -170,7 +169,7 @@ public class Main {
         bm.logoutItem.addActionListener(e -> {
             if (bm.choice == JOptionPane.YES_OPTION) {
                 loginProcess();
-                lg.dispose();
+                bm.dispose();
             }
 
         });
