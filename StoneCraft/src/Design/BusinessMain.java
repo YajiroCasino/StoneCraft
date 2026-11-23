@@ -4,6 +4,7 @@ import DataBaseManagementConnection.DataAccessObject;
 import Main.ChatMessage;
 import Main.CustomRequest;
 import Main.Product;
+import Main.Main;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -176,6 +177,12 @@ public class BusinessMain extends MainDesign {
     void loadProducts() {
         products.clear();
         products.addAll(DataAccessObject.getAllProduct());
+    }
+
+    void loadCustomRequest(){
+        customRequests.clear();
+        customRequests.addAll(DataAccessObject.getAllCustomProduct());
+        System.out.println("Custom requests loaded: " + customRequests.size());
     }
 
     // =========================================
@@ -361,6 +368,7 @@ public class BusinessMain extends MainDesign {
                 break;
 
             case "Requests":
+                loadCustomRequest();
                 refreshRequests();
                 break;
 
@@ -1484,9 +1492,13 @@ public class BusinessMain extends MainDesign {
         accountItem = new JMenuItem("Business Account");
         logoutItem = new JMenuItem("Log Out");
 
+        accountItem.addActionListener(e ->{
+            showProfileAccount();
+        });
 
-
-
+        logoutItem.addActionListener(e -> {
+            logout();
+        });
 
         profileMenu.add(accountItem);
         profileMenu.addSeparator();
@@ -1508,6 +1520,11 @@ public class BusinessMain extends MainDesign {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
+        if (choice == JOptionPane.YES_OPTION) {
+            Main.loginProcess();
+            Main.currentAccount = null;
+            dispose();
+        }
 
 
     }

@@ -11,13 +11,14 @@ public class DataAccessObject {
     static Connection con = DataBaseConnection.getConnection();
 
     public static int insertAccounts(Accounts accounts){
-        String sqlSyntax = "insert into Accounts(account_name, account_email_address, account_contact_number, account_password) values (?,?,?,?)";
+        String sqlSyntax = "insert into Accounts(account_name, account_email_address, account_contact_number, account_password, account_type) values (?,?,?,?,?)";
 
         try(PreparedStatement ps = con.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)){
             ps.setString(1, accounts.getName());
             ps.setString(2, accounts.getEmailAddress());
             ps.setString(3, accounts.getContactNumber());
             ps.setString(4, accounts.getPassword());
+            ps.setString(5, accounts.getAccountType());
 
             ps.executeUpdate();
 
@@ -31,21 +32,42 @@ public class DataAccessObject {
     }
 
     public static Accounts getAccounts(String name) {
-        String sqlSyntax = "Select * from accounts where account_name = ?";
+        String sqlSyntax = "select a.*, b.business_account_type, c.customer_account_type " +
+                "from accounts a " +
+                "left join business_account b on b.account_id = a.account_id " +
+                "left join customer_account c on c.account_id = a.account_id " +
+                "where a.account_name = ?";
 
         try (Connection con = DataBaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sqlSyntax)) {
 
             ps.setString(1, name);
-            ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                return new Accounts(
-                        rs.getString("account_name"),
-                        rs.getString("account_email_address"),
-                        rs.getString("account_contact_number"),
-                        rs.getString("account_password")
-                );
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Accounts acc;
+
+                    if ("Business".equals(rs.getString("account_type"))) {
+                        acc = new BusinessAccount(
+                                rs.getString("account_name"),
+                                rs.getString("account_email_address"),
+                                rs.getString("account_contact_number"),
+                                rs.getString("account_password"),
+                                rs.getString("business_account_type")
+                        );
+                    } else {
+                        acc = new CustomerAccount(
+                                rs.getString("account_name"),
+                                rs.getString("account_email_address"),
+                                rs.getString("account_contact_number"),
+                                rs.getString("account_password"),
+                                rs.getString("customer_account_type")
+                        );
+                    }
+
+                    acc.setAccountId(rs.getInt("account_id"));
+                    return acc;
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -53,7 +75,49 @@ public class DataAccessObject {
 
         return null;
     }
-        public int insertOrder(Product product){
+
+    public static int insertBusinessAccount(BusinessAccount ba) {
+        String sql = "insert into business_account(account_id, business_account_type) values (?, ?)";
+
+        try (Connection con = DataBaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, ba.getAccountId());
+            ps.setString(2, ba.getRole());
+            ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) return keys.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public static int insertCustomerAccount(CustomerAccount ca) {
+        String sql = "insert into customer_account(account_id, customer_account_type) values (?, ?)";
+
+        try (Connection con = DataBaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, ca.getAccountId());
+            ps.setString(2, ca.getCustomerType());
+            ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) return keys.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
+
+
+    public int insertOrder(Product product){
         String sqlSyntax = "insert into orders (product_name, product_category, product_price, product_quantity) values (?, ?, ?, ?)";
 
         try(PreparedStatement ps = con.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
@@ -171,6 +235,7 @@ public class DataAccessObject {
 
             while (rs.next()) {
                 CustomRequest cr = new CustomRequest(
+                        rs.getString("customer_name"),
                         rs.getString("custom_product_name"),
                         rs.getString("custom_product_category"),
                         rs.getDouble("custom_product_price"),
@@ -179,6 +244,8 @@ public class DataAccessObject {
                         rs.getString("custom_product_size"),
                         rs.getString("custom_product_preferred_design")
                 );
+                cr.setProductId(rs.getInt("custom_product_id"));
+                cr.setStatus(rs.getString("custom_product_status"));
                 list.add(cr);
             }
         } catch (SQLException e) {

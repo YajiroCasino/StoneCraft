@@ -162,7 +162,7 @@ public class Login extends MainDesign {
 
         emailField = new JTextField();
         emailField.setBounds(52, 265, 398, 38);
-        addPlaceholder(emailField, "name@email.com");
+        addPlaceholder(emailField, "name@gmail.com");
 
         // PASSWORD
         passwordLabel = new JLabel("Password");
@@ -205,6 +205,23 @@ public class Login extends MainDesign {
         passwordPanel.add(passwordField);
 
         // =========================
+        // WARNING LABELS
+        // =========================
+
+        usernameWarning.setBounds(52, 229, 398, 14);
+        emailWarning.setBounds(52, 304, 398, 14);
+        passwordWarning.setBounds(52, 379, 398, 14);
+
+        JLabel[] warningLabels = {
+                usernameWarning, emailWarning, passwordWarning
+        };
+
+        for (JLabel warning : warningLabels) {
+            warning.setFont(new Font("Arial", Font.PLAIN, 11));
+            warning.setForeground(new Color(220, 53, 69));
+        }
+
+        // =========================
         // REMEMBER ME AND FORGOT PASSWORD
         // =========================
 
@@ -213,7 +230,6 @@ public class Login extends MainDesign {
         rememberMeCheckBox.setForeground(new Color(60, 60, 60));
         rememberMeCheckBox.setBackground(Color.WHITE);
         rememberMeCheckBox.setFocusPainted(false);
-
 
         forgotPasswordLabel = new JLabel("Forgot password?");
         forgotPasswordLabel.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -269,8 +285,6 @@ public class Login extends MainDesign {
         loginButton.setFocusPainted(false);
         loginButton.setBorderPainted(false);
         loginButton.setOpaque(true);
-
-
 
         // =========================
         // SIGN UP
@@ -343,13 +357,16 @@ public class Login extends MainDesign {
 
         formPanel.add(usernameLabel);
         formPanel.add(usernameField);
+        formPanel.add(usernameWarning);
 
         formPanel.add(emailLabel);
         formPanel.add(emailField);
+        formPanel.add(emailWarning);
 
         formPanel.add(passwordLabel);
         formPanel.add(passwordPanel);
         formPanel.add(showPasswordButton);
+        formPanel.add(passwordWarning);
 
         formPanel.add(optionsPanel);
         formPanel.add(loginButton);
@@ -366,9 +383,5 @@ public class Login extends MainDesign {
         getContentPane().add(contentPane);
 
         setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        new Login();
     }
 }

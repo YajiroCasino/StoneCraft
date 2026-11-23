@@ -1,55 +1,34 @@
 package Main;
 
-public class Accounts {
-    private String name;
-    private String emailAddress;
-    private String contactNumber;
-    private String password;
-    private String password2;
+public abstract class Accounts {
 
-    public Accounts(String name, String emailAddress, String contactNumber, String password){
+    protected int accountId;
+    protected String name;
+    protected String emailAddress;
+    protected String contactNumber;
+    protected String password;
+
+    public Accounts(String name, String emailAddress, String contactNumber, String password) {
         this.name = name;
         this.emailAddress = emailAddress;
         this.contactNumber = contactNumber;
         this.password = password;
     }
 
-    public void showAccount(){
-        System.out.println(name + emailAddress + contactNumber + password + password2);
-    }
+    public int getAccountId() { return accountId; }
+    public void setAccountId(int accountId) { this.accountId = accountId; }
 
-    public String getName(){
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setName(String name){
-        this.name = name;
-    }
-    public String getEmailAddress(){
-        return emailAddress;
-    }
+    public String getEmailAddress() { return emailAddress; }
+    public void setEmailAddress(String emailAddress) { this.emailAddress = emailAddress; }
 
-    public void setEmailAddress(String emailAddress){
-        this.emailAddress = emailAddress;
-    }
+    public String getContactNumber() { return contactNumber; }
+    public void setContactNumber(String contactNumber) { this.contactNumber = contactNumber; }
 
-    public String getContactNumber(){
-        return contactNumber;
-    }
-    public void setContactNumber(String contactNumber){
-        this.contactNumber = contactNumber;
-    }
-    public String getPassword(){
-        return password;
-    }
-    public void setPassword(String password){
-        this.password = password;
-    }
-    public String getPassword2(){
-        return password2;
-    }
-    public void setPassword2(String password2){
-        this.password2 = password2;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
+    public abstract String getAccountType();
 }

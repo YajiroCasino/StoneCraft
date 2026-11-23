@@ -5,24 +5,15 @@ public class CustomRequest extends Product {
     private String description;
     private String size;
     private String preferredDesign;
-
-    // Added fields (defaults keep your existing constructor working)
     private String customerName = "";
     private String status = "Pending";
 
-    // Your original constructor (unchanged)
-    public CustomRequest(String productName, String productCategory, double productPrice, int productQuantity, String description, String size, String preferredDesign) {
-
-        super(productName, productCategory, productPrice, productQuantity);
+    public CustomRequest(String customerName, String productName, String productCategory, double productPrice, int productQuantity, String description, String size, String preferredDesign) {
+        super(productName, productCategory,productPrice, productQuantity);
+        this.customerName = customerName;
         this.description = description;
         this.size = size;
         this.preferredDesign = preferredDesign;
-    }
-
-    public CustomRequest(String customerName, String productName, String productCategory, double productPrice, int productQuantity, String description, String size, String preferredDesign) {
-
-        this(productName, productCategory, productPrice, productQuantity, description, size, preferredDesign);
-        this.customerName = customerName;
     }
 
     public void setProductDescription(String description) { this.description = description; }

@@ -10,14 +10,13 @@ import java.awt.*;
 public class Main {
 
     public static DataAccessObject productDao = new DataAccessObject();
+    public static Accounts currentAccount;
 
     public static void main(String[] args){
 
         DataBaseConnection.createDatabase();
-        businessProcess();
-
+        signUpProcess();
     }
-
 
     public static void signUpProcess() {
 
@@ -25,7 +24,6 @@ public class Main {
 
         su.createAccount.addActionListener(e -> {
 
-            // Clear all previous errors first
             su.nameWarning.setText("");
             su.emailWarning.setText("");
             su.contactWarning.setText("");
@@ -37,10 +35,17 @@ public class Main {
             String password = su.passwordField.getText().trim();
             String password2 = su.confirmField.getText().trim();
 
+            if (name.equals("Juan Dela Cruz")) name = "";
+            if (email.equals("name@gmail.com")) email = "";
+            if (contactNumber.equals("09XX XXX XXXX")) contactNumber = "";
+
             boolean valid = true;
 
             if (name.isEmpty()) {
                 su.nameWarning.setText("Please enter your name.");
+                valid = false;
+            } else if (DataAccessObject.getAccounts(name) != null) {
+                su.nameWarning.setText("This name is already taken.");
                 valid = false;
             }
 
@@ -60,7 +65,6 @@ public class Main {
                 valid = false;
             }
 
-
             if (password.isEmpty()) {
                 su.passwordWarning.setText("Please enter a password.");
                 valid = false;
@@ -76,79 +80,139 @@ public class Main {
                 return;
             }
 
-            Accounts acc = new Accounts(name, email, contactNumber, password);
+            Accounts acc;
+
+            if (email.equals("bossbusinessowner@gmail.com")) {
+                acc = new BusinessAccount(name, email, contactNumber, password, "Boss");
+            } else if (email.equals("employeebusinessowner@gmail.com")) {
+                acc = new BusinessAccount(name, email, contactNumber, password, "Employee");
+            } else {
+                acc = new CustomerAccount(name, email, contactNumber, password, "Standard");
+            }
+
             int newId = DataAccessObject.insertAccounts(acc);
-            su.dispose();
-            customerProcess();
+
+            if (newId <= 0) {
+                JOptionPane.showMessageDialog(su, "Failed to create your account.");
+                return;
+            }
+
+            acc.setAccountId(newId);
+            currentAccount = acc;
+
+            if (acc instanceof BusinessAccount b) {
+                DataAccessObject.insertBusinessAccount(b);
+                su.dispose();
+                businessProcess();
+            } else if (acc instanceof CustomerAccount c) {
+                DataAccessObject.insertCustomerAccount(c);
+                su.dispose();
+                customerProcess();
+            }
         });
 
-        su.login.addMouseListener(new MouseAdapter(){
-            public void mouseClicked(MouseEvent e){
+        su.login.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
                 loginProcess();
                 su.dispose();
             }
         });
-
     }
 
-    public static void loginProcess(){
+    public static void loginProcess() {
+
         Login lg = new Login();
 
-        String bs_name = "Business Owner";
-        String bs_email = "businessowner@gmail.com";
-        String bs_password = "12345678";
-
-
-        lg.loginButton.addActionListener(e ->{
+        lg.loginButton.addActionListener(e -> {
 
             String name = lg.usernameField.getText().trim();
-            String email = lg.emailField.getText().trim();
+            String gmail = lg.emailField.getText().trim();
             String password = lg.passwordField.getText().trim();
-            boolean valid = true;
-
 
             lg.usernameWarning.setText("");
             lg.emailWarning.setText("");
             lg.passwordWarning.setText("");
 
+            if (name.equals("Juan Dela Cruz")) name = "";
+            if (gmail.equals("name@gmail.com")) gmail = "";
+
+            boolean valid = true;
+
+            if (name.isEmpty()) {
+                lg.usernameWarning.setText("Please enter your name.");
+                valid = false;
+            }
+
+            if (gmail.isEmpty()) {
+                lg.emailWarning.setText("Please enter your gmail.");
+                valid = false;
+            }
+
+            if (password.isEmpty()) {
+                lg.passwordWarning.setText("Please enter your password.");
+                valid = false;
+            }
+
+            if (!valid) {
+                return;
+            }
+
             Accounts accounts = DataAccessObject.getAccounts(name);
 
-            if(name.equals(bs_name) && email.equals(bs_email) && password.equals(bs_password)){
-                lg.dispose();
-                businessProcess();
-            }
-
-            else if(accounts == null){
+            if (accounts == null) {
                 lg.usernameWarning.setText("This username doesn't exist.");
-
+                return;
             }
-            else if(!accounts.getEmailAddress().equals(email)){
-                lg.emailWarning.setText("Incorrect email");
 
+            if (!accounts.getEmailAddress().equals(gmail)) {
+                lg.emailWarning.setText("Wrong email.");
+                valid = false;
             }
-            else if (!accounts.getPassword().equals(password)) {
-                lg.passwordWarning.setText("Incorrect password.");
 
+            if (!accounts.getPassword().equals(password)) {
+                lg.passwordWarning.setText("Wrong password.");
+                valid = false;
             }
-            else{
-                lg.dispose();
+
+            if (!valid) {
+                return;
+            }
+
+            currentAccount = accounts;
+            lg.dispose();
+
+            if (accounts instanceof BusinessAccount) {
+                businessProcess();
+            } else {
                 customerProcess();
             }
-
-
         });
 
         lg.signUpLabel.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e){
-                 signUpProcess();
-                 lg.dispose();
+            public void mouseClicked(MouseEvent e) {
+                signUpProcess();
+                lg.dispose();
             }
         });
-
     }
-
     public static void customerProcess(){
         CustomerMain cm = new CustomerMain();
+
+        cm.submitButton.addActionListener(e ->{
+            String customerName = currentAccount.getName();
+            String name = cm.sculptureNameField.getText().trim();
+            String description = cm.descriptionArea.getText().trim();
+            String category = (String) cm.categoryComboBox.getSelectedItem();
+            String size = (String) cm.sizeComboBox.getSelectedItem();
+            int quantity =  ((Number) cm.quantitySpinner.getValue()).intValue();
+            String preferredDesign = cm.designField.getText().trim();
+            int price = 0;
+
+            CustomRequest cr = new CustomRequest(customerName,name, category, price, quantity, description, size, preferredDesign);
+            int newId = DataAccessObject.insertCustomProduct(cr);
+            cm.requestFrame.dispose();
+        });
+
     }
 
     public static void businessProcess(){
@@ -162,17 +226,7 @@ public class Main {
             bm.addProduct();
         });
 
-        bm.accountItem.addActionListener(e ->{
 
-        });
-
-        bm.logoutItem.addActionListener(e -> {
-            if (bm.choice == JOptionPane.YES_OPTION) {
-                loginProcess();
-                bm.dispose();
-            }
-
-        });
     }
 
 
@@ -184,6 +238,4 @@ public class Main {
     //custom request need ko mamaya
 
 
-    //error sa log-in di sya nagshoshow ng warning pag mismatch
-    //if existing na yung account di na pwedeng magcreate pa ng another acc
 }

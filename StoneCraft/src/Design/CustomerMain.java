@@ -2,6 +2,7 @@
 package Design;
 
 import DataBaseManagementConnection.DataAccessObject;
+import Main.Main;
 import Main.Product;
 import Main.CustomRequest;
 import javax.swing.*;
@@ -913,7 +914,7 @@ public class CustomerMain extends MainDesign {
     public JSpinner quantitySpinner;
     public JTextField designField;
     public JButton cancelButton;
-    public JButton submitButton;
+    public JButton submitButton = new JButton("Submit Request");
 
     public void openCustomRequestForm() {
 
@@ -1005,23 +1006,7 @@ public class CustomerMain extends MainDesign {
         cancelButton.setBorder(BorderFactory.createLineBorder(borderColor));
         cancelButton.addActionListener(e -> requestFrame.dispose());
 
-        submitButton = new JButton("Submit Request");
         styleButton(submitButton, copperColor, Color.WHITE);
-
-        submitButton.addActionListener(e->{
-
-            String name = sculptureNameField.getText().trim();
-            String description = descriptionArea.getText().trim();
-            String category = (String) categoryComboBox.getSelectedItem();
-            String size = (String) sizeComboBox.getSelectedItem();
-            int quantity =  ((Number) quantitySpinner.getValue()).intValue();
-            String preferredDesign = designField.getText().trim();
-            int price = 0;
-
-            Main.CustomRequest cr = new Main.CustomRequest(name, category, price, quantity, description, size, preferredDesign);
-            int newId = DataAccessObject.insertCustomProduct(cr);
-            requestFrame.dispose();
-        });
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
@@ -1494,6 +1479,7 @@ public class CustomerMain extends MainDesign {
             );
 
             if (choice == JOptionPane.YES_OPTION) {
+                Main.loginProcess();
                 dispose();
             }
         });

@@ -14,7 +14,6 @@ public class DataBaseConnection {
             Statement st = con.createStatement()){
 
             st.executeUpdate("create database if not exists stoneCraft_db");
-
             st.executeUpdate("use stoneCraft_db");
 
             String createProductTable = "create table if not exists product (" +
@@ -22,14 +21,27 @@ public class DataBaseConnection {
                     "product_name varchar(100) not null, " +
                     "product_category varchar(50) not null, " +
                     "product_price decimal(10,2) not null, " +
-                    "product_quantity int not null) auto_increment = 1";
+                    "product_quantity int not null)";
 
             String createAccountTable = "create table if not exists accounts(" +
-                    "account_id int auto_increment primary key," +
-                    "account_name varchar(100) not null," +
-                    "account_email_address varchar(100) not null unique," +
-                    "account_contact_number varchar(100) not null," +
-                    "account_password varchar(100) not null) auto_increment = 0001";
+                    "account_id int auto_increment primary key, " +
+                    "account_name varchar(100) not null unique, " +
+                    "account_email_address varchar(100) not null, " +
+                    "account_contact_number varchar(100) not null, " +
+                    "account_password varchar(255) not null, " +
+                    "account_type enum('Customer','Business') not null default 'Customer')";
+
+            String createCustomerAccountTable = "create table if not exists customer_account(" +
+                    "customer_account_id int auto_increment primary key, " +
+                    "account_id int not null unique, " +
+                    "customer_account_type varchar(100), " +
+                    "foreign key (account_id) references accounts(account_id) on delete cascade)";
+
+            String createBusinessAccountTable = "create table if not exists business_account(" +
+                    "business_account_id int auto_increment primary key, " +
+                    "account_id int not null unique, " +
+                    "business_account_type varchar(30) not null default 'Employee', " +
+                    "foreign key (account_id) references accounts(account_id) on delete cascade)";
 
             String createCustomProductTable = "create table if not exists custom_products(" +
                     "custom_product_id int auto_increment primary key, " +
@@ -39,21 +51,23 @@ public class DataBaseConnection {
                     "custom_product_quantity int not null default 1, " +
                     "custom_product_description text not null, " +
                     "custom_product_size varchar(100) not null, " +
-                    "custom_product_preferred_design varchar(100) not null" +
-                    ") auto_increment = 1";
+                    "custom_product_preferred_design varchar(100) not null, " +
+                    "customer_name varchar(100) not null default '', " +
+                    "custom_product_status varchar(30) not null default 'Pending')";
 
             String createOrderTable = "create table if not exists orders(" +
                     "order_id int auto_increment primary key, " +
                     "order_product_name varchar(100) not null, " +
                     "order_product_category varchar(100) not null, " +
                     "order_product_price decimal(10,2) not null, " +
-                    "order_product_quantity int not null) auto_increment = 1";
+                    "order_product_quantity int not null)";
 
             st.executeUpdate(createProductTable);
             st.executeUpdate(createAccountTable);
+            st.executeUpdate(createCustomerAccountTable);
+            st.executeUpdate(createBusinessAccountTable);
             st.executeUpdate(createCustomProductTable);
             st.executeUpdate(createOrderTable);
-
 
         } catch (SQLException e) {
             e.printStackTrace();
