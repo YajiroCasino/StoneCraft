@@ -2,6 +2,7 @@ package Main;
 
 public class CustomerAccount extends Accounts{
 
+    private int customerAccountId;
     private String customerType;
 
     public CustomerAccount(String name, String emailAddress, String contactNumber, String password, String customerType){
@@ -9,6 +10,14 @@ public class CustomerAccount extends Accounts{
         this.customerType = customerType;
     }
 
+
+    public int getCustomerAccountId(){
+        return customerAccountId;
+    }
+
+    public void setCustomerAccountId(int customerAccountId){
+        this.customerAccountId = customerAccountId;
+    }
     public String getCustomerType(){
         return customerType;
     }

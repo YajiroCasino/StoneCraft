@@ -44,7 +44,7 @@ public class Main {
             if (name.isEmpty()) {
                 su.nameWarning.setText("Please enter your name.");
                 valid = false;
-            } else if (DataAccessObject.getAccounts(name) != null) {
+            } else if (DataAccessObject.getAccountsByName(name) != null) {
                 su.nameWarning.setText("This name is already taken.");
                 valid = false;
             }
@@ -157,7 +157,7 @@ public class Main {
                 return;
             }
 
-            Accounts accounts = DataAccessObject.getAccounts(name);
+            Accounts accounts = DataAccessObject.getAccountsByName(name);
 
             if (accounts == null) {
                 lg.usernameWarning.setText("This username doesn't exist.");
@@ -165,7 +165,7 @@ public class Main {
             }
 
             if (!accounts.getEmailAddress().equals(gmail)) {
-                lg.emailWarning.setText("Wrong email.");
+                lg.emailWarning.setText("Wrong gmail.");
                 valid = false;
             }
 
@@ -199,7 +199,6 @@ public class Main {
         CustomerMain cm = new CustomerMain();
 
         cm.submitButton.addActionListener(e ->{
-            String customerName = currentAccount.getName();
             String name = cm.sculptureNameField.getText().trim();
             String description = cm.descriptionArea.getText().trim();
             String category = (String) cm.categoryComboBox.getSelectedItem();
@@ -208,10 +207,12 @@ public class Main {
             String preferredDesign = cm.designField.getText().trim();
             int price = 0;
 
-            CustomRequest cr = new CustomRequest(customerName,name, category, price, quantity, description, size, preferredDesign);
+            CustomRequest cr = new CustomRequest(currentAccount, name, category, price, quantity, description, size, preferredDesign);
             int newId = DataAccessObject.insertCustomProduct(cr);
             cm.requestFrame.dispose();
         });
+
+
 
     }
 
@@ -230,12 +231,13 @@ public class Main {
     }
 
 
-    //gmail must not contain spaces and start always at lower case
-    //password must contain 8 character
-    //number must not have spaces
-    //yung sa custom kailangan nakikita kung pending or hindi
-
     //custom request need ko mamaya
+    //maya kaipuhan ko yung sa design for Business Main yung sa price
+    //yungg sa custom request tapos sa message
+    //sa message pa
+    //yung sa cart
+    //delete message
+    //improve design
 
 
 }

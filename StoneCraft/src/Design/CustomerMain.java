@@ -1,13 +1,9 @@
-
 package Design;
 
 import DataBaseManagementConnection.DataAccessObject;
-import Main.Main;
-import Main.Product;
-import Main.CustomRequest;
+import Main.*;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,13 +40,12 @@ public class CustomerMain extends MainDesign {
 
     // PRODUCT AND CART DATA
     private ArrayList<Product> products;
-    private ArrayList<CartItem> cartItems;
+    private ArrayList<Cart> cartItems;
 
     // CUSTOM REQUEST AND MESSAGE DATA
     private ArrayList<CustomRequest> customRequests;
-    private ArrayList<ChatMessage> chatMessages;
 
-    private String selectedCategory = "All Products";
+    private String selectedCateory = "All Products";
     private String selectedImagePath = "";
 
     // CART FRAME
@@ -78,13 +73,15 @@ public class CustomerMain extends MainDesign {
         products = new ArrayList<>();
         cartItems = new ArrayList<>();
         customRequests = new ArrayList<>();
-        chatMessages = new ArrayList<>();
 
         loadProducts();
 
         createHeader();
         createSidebar();
         createProductContent();
+
+        // I-LOAD ANG CART MULA SA DATABASE
+        loadCart();
 
         dashboardPanel = new JPanel(new BorderLayout());
         dashboardPanel.setBackground(Color.WHITE);
@@ -103,12 +100,18 @@ public class CustomerMain extends MainDesign {
     }
 
     // =================================
-    // SAMPLE PRODUCTS
+    // LOAD DATA
     // =================================
 
-    private void loadProducts(){
+    private void loadProducts() {
         products.clear();
         products.addAll(DataAccessObject.getAllProduct());
+    }
+
+    private void loadCart() {
+        cartItems.clear();
+        cartItems.addAll(DataAccessObject.getAllCart());
+        updateCartButton();
     }
 
     // =================================
@@ -281,11 +284,6 @@ public class CustomerMain extends MainDesign {
         addActionMenuButton(
                 "My Custom Requests",
                 e -> openCustomRequestsFrame()
-        );
-
-        addActionMenuButton(
-                "Messages",
-                e -> openMessageFrame()
         );
 
         sidebarPanel.add(Box.createVerticalGlue());
@@ -522,11 +520,6 @@ public class CustomerMain extends MainDesign {
         );
 
         // PRODUCT IMAGE PLACEHOLDER
-        // Add your actual product image here.
-        // Example:
-        // ImageIcon image = new ImageIcon("images/stone-vase.jpg");
-        // JLabel imageLabel = new JLabel(image);
-
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setPreferredSize(new Dimension(200, 150));
         imagePanel.setBackground(fieldColor);
@@ -567,7 +560,7 @@ public class CustomerMain extends MainDesign {
         informationPanel.add(Box.createVerticalStrut(7));
         informationPanel.add(productPrice);
 
-        // ADD TO CART
+        // ADD TO CART (local variable na, hindi na field)
         JButton addButton = new JButton("Add to Cart");
         styleButton(addButton, copperColor, Color.WHITE);
 
@@ -603,22 +596,40 @@ public class CustomerMain extends MainDesign {
 
     private void addToCart(Product product) {
 
+        if (product.getProductQuantity() <= 0) {
+            JOptionPane.showMessageDialog(this, "Out of stock!");
+            return;
+        }
+
         boolean alreadyAdded = false;
 
-        for (CartItem item : cartItems) {
+        for (Cart cartItem : cartItems) {
+            if (cartItem.getProduct().getProductId() == product.getProductId()) {
 
-            if (item.product == product) {
-                item.quantity++;
+                if (cartItem.getQuantity() >= product.getProductQuantity()) {
+                    JOptionPane.showMessageDialog(this, "Not enough stock!");
+                    return;
+                }
+
+                cartItem.setQuantity(cartItem.getQuantity() + 1);
+                DataAccessObject.updateCartQuantity(cartItem);
                 alreadyAdded = true;
                 break;
             }
         }
 
         if (!alreadyAdded) {
-            cartItems.add(new CartItem(product, 1));
+            Cart newItem = new Cart(product, 1);
+            if (DataAccessObject.insertCartItem(newItem) != -1) {
+                cartItems.add(newItem);
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to save to cart.");
+                return;
+            }
         }
 
         updateCartButton();
+        refreshCart();   // may null check sa loob, safe kahit sarado ang cart frame
 
         JOptionPane.showMessageDialog(
                 this,
@@ -628,15 +639,19 @@ public class CustomerMain extends MainDesign {
         );
     }
 
+    // =================================
+    // UPDATE CART BUTTON
+    // =================================
+
     private void updateCartButton() {
 
-        int totalQuantity = 0;
+        int totalItems = 0;
 
-        for (CartItem item : cartItems) {
-            totalQuantity += item.quantity;
+        for (Cart item : cartItems) {
+            totalItems += item.getQuantity();
         }
 
-        cartButton.setText("Cart (" + totalQuantity + ")");
+        cartButton.setText("Cart (" + totalItems + ")");
     }
 
     // =================================
@@ -755,7 +770,7 @@ public class CustomerMain extends MainDesign {
 
         } else {
 
-            for (CartItem item : cartItems) {
+            for (Cart item : cartItems) {
 
                 cartContentPanel.add(createCartItemPanel(item));
                 cartContentPanel.add(Box.createVerticalStrut(10));
@@ -772,7 +787,7 @@ public class CustomerMain extends MainDesign {
     // CART ITEM PANEL
     // =================================
 
-    private JPanel createCartItemPanel(CartItem item) {
+    private JPanel createCartItemPanel(Cart item) {
 
         JPanel itemPanel = new JPanel(new BorderLayout(10, 5));
         itemPanel.setBackground(Color.WHITE);
@@ -790,12 +805,12 @@ public class CustomerMain extends MainDesign {
         ));
         detailsPanel.setBackground(Color.WHITE);
 
-        JLabel nameLabel = new JLabel(item.product.getProductName());
+        JLabel nameLabel = new JLabel(item.getProduct().getProductName());
         nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         nameLabel.setForeground(mainTextColor);
 
         JLabel priceLabel = new JLabel(
-                "₱" + String.format("%.2f", item.product.getProductPrice())
+                "₱" + String.format("%.2f", item.getProduct().getProductPrice())
         );
 
         priceLabel.setFont(mainFont);
@@ -824,7 +839,7 @@ public class CustomerMain extends MainDesign {
         removeButton.setFocusPainted(false);
 
         JLabel quantityLabel = new JLabel(
-                String.valueOf(item.quantity)
+                String.valueOf(item.getQuantity())
         );
 
         quantityLabel.setFont(boldFont);
@@ -832,8 +847,9 @@ public class CustomerMain extends MainDesign {
 
         minusButton.addActionListener(e -> {
 
-            if (item.quantity > 1) {
-                item.quantity--;
+            if (item.getQuantity() > 1) {
+                item.setQuantity(item.getQuantity() - 1);
+                DataAccessObject.updateCartQuantity(item);
             }
 
             refreshCart();
@@ -842,7 +858,13 @@ public class CustomerMain extends MainDesign {
 
         plusButton.addActionListener(e -> {
 
-            item.quantity++;
+            if (item.getQuantity() >= item.getProduct().getProductQuantity()) {
+                JOptionPane.showMessageDialog(cartFrame, "Not enough stock!");
+                return;
+            }
+
+            item.setQuantity(item.getQuantity() + 1);
+            DataAccessObject.updateCartQuantity(item);
 
             refreshCart();
             updateCartButton();
@@ -850,6 +872,7 @@ public class CustomerMain extends MainDesign {
 
         removeButton.addActionListener(e -> {
 
+            DataAccessObject.deleteCartItem(item);
             cartItems.remove(item);
 
             refreshCart();
@@ -891,10 +914,14 @@ public class CustomerMain extends MainDesign {
 
     private void updateSubtotal() {
 
+        if (subtotalLabel == null) {
+            return;   // hindi pa nabubuksan ang cart frame
+        }
+
         double subtotal = 0;
 
-        for (CartItem item : cartItems) {
-            subtotal += item.product.getProductPrice() * item.quantity;
+        for (Cart item : cartItems) {
+            subtotal += item.getProduct().getProductPrice() * item.getQuantity();
         }
 
         subtotalLabel.setText(
@@ -1017,7 +1044,6 @@ public class CustomerMain extends MainDesign {
 
         requestFrame.add(mainPanel);
         requestFrame.setVisible(true);
-
     }
 
 
@@ -1095,14 +1121,14 @@ public class CustomerMain extends MainDesign {
         requestListFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         requestListFrame.setLayout(new BorderLayout());
 
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(darkColor);
-        headerPanel.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
+        JPanel listHeaderPanel = new JPanel(new BorderLayout());
+        listHeaderPanel.setBackground(darkColor);
+        listHeaderPanel.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
 
         JLabel titleLabel = new JLabel("My Custom Requests");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 21));
         titleLabel.setForeground(Color.WHITE);
-        headerPanel.add(titleLabel, BorderLayout.WEST);
+        listHeaderPanel.add(titleLabel, BorderLayout.WEST);
 
         JPanel requestListPanel = new JPanel();
         requestListPanel.setLayout(new BoxLayout(requestListPanel, BoxLayout.Y_AXIS));
@@ -1131,14 +1157,14 @@ public class CustomerMain extends MainDesign {
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(15);
 
-        requestListFrame.add(headerPanel, BorderLayout.NORTH);
+        requestListFrame.add(listHeaderPanel, BorderLayout.NORTH);
         requestListFrame.add(scrollPane, BorderLayout.CENTER);
         requestListFrame.setVisible(true);
     }
 
-// =================================
-// CUSTOM REQUEST CARD
-// =================================
+    // =================================
+    // CUSTOM REQUEST CARD
+    // =================================
 
     private JPanel createCustomRequestCard(CustomRequest customRequest) {
 
@@ -1187,9 +1213,9 @@ public class CustomerMain extends MainDesign {
         return card;
     }
 
-// =================================
-// CUSTOM REQUEST DETAILS
-// =================================
+    // =================================
+    // CUSTOM REQUEST DETAILS
+    // =================================
 
     private void showCustomRequestDetails(CustomRequest customRequest) {
 
@@ -1207,236 +1233,6 @@ public class CustomerMain extends MainDesign {
                 "Custom Request Details",
                 JOptionPane.INFORMATION_MESSAGE
         );
-    }
-
-    // =================================
-    // MESSAGES / CHAT FRAME
-    // =================================
-
-    private void openMessageFrame() {
-
-        if (messageFrame != null && messageFrame.isDisplayable()) {
-            messageFrame.toFront();
-            return;
-        }
-
-        messageFrame = new JFrame("StoneCraft - Messages");
-        messageFrame.setSize(750, 600);
-        messageFrame.setLocationRelativeTo(this);
-        messageFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        messageFrame.setLayout(new BorderLayout());
-
-        // CHAT HEADER
-        JPanel chatHeader = new JPanel(new BorderLayout());
-        chatHeader.setBackground(darkColor);
-        chatHeader.setBorder(
-                BorderFactory.createEmptyBorder(18, 20, 18, 20)
-        );
-
-        JPanel sellerInfoPanel = new JPanel();
-        sellerInfoPanel.setLayout(new BoxLayout(
-                sellerInfoPanel, BoxLayout.Y_AXIS
-        ));
-        sellerInfoPanel.setOpaque(false);
-
-        JLabel sellerName = new JLabel("StoneCraft Seller");
-        sellerName.setFont(new Font("Arial", Font.BOLD, 18));
-        sellerName.setForeground(Color.WHITE);
-
-        JLabel sellerStatus = new JLabel("Customer Support");
-        sellerStatus.setFont(mainFont);
-        sellerStatus.setForeground(new Color(185, 179, 168));
-
-        sellerInfoPanel.add(sellerName);
-        sellerInfoPanel.add(Box.createVerticalStrut(4));
-        sellerInfoPanel.add(sellerStatus);
-
-        chatHeader.add(sellerInfoPanel, BorderLayout.WEST);
-
-        // CHAT AREA
-        chatPanel = new JPanel();
-        chatPanel.setLayout(new BoxLayout(
-                chatPanel, BoxLayout.Y_AXIS
-        ));
-        chatPanel.setBackground(backgroundColor);
-        chatPanel.setBorder(
-                BorderFactory.createEmptyBorder(15, 15, 15, 15)
-        );
-
-        JScrollPane chatScrollPane = new JScrollPane(chatPanel);
-        chatScrollPane.setBorder(null);
-        chatScrollPane.getVerticalScrollBar().setUnitIncrement(15);
-
-        // MESSAGE INPUT
-        JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
-        inputPanel.setBackground(Color.WHITE);
-        inputPanel.setBorder(
-                BorderFactory.createEmptyBorder(12, 15, 12, 15)
-        );
-
-        messageField = new JTextField();
-        messageField.setFont(mainFont);
-        messageField.setBackground(fieldColor);
-
-        messageField.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(borderColor),
-                        BorderFactory.createEmptyBorder(8, 10, 8, 10)
-                )
-        );
-
-        JButton sendButton = new JButton("Send");
-        styleButton(sendButton, copperColor, Color.WHITE);
-
-        sendButton.addActionListener(e -> sendMessage());
-        messageField.addActionListener(e -> sendMessage());
-
-        inputPanel.add(messageField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
-
-        messageFrame.add(chatHeader, BorderLayout.NORTH);
-        messageFrame.add(chatScrollPane, BorderLayout.CENTER);
-        messageFrame.add(inputPanel, BorderLayout.SOUTH);
-
-        refreshChatMessages();
-
-        messageFrame.setVisible(true);
-    }
-
-    // =================================
-    // SEND MESSAGE
-    // =================================
-
-    private void sendMessage() {
-
-        if (messageField == null) {
-            return;
-        }
-
-        String message = messageField.getText().trim();
-
-        if (message.isEmpty()) {
-            return;
-        }
-
-        // SAVE CUSTOMER MESSAGE LOCALLY
-        chatMessages.add(new ChatMessage(message, "Customer"));
-
-        messageField.setText("");
-
-        refreshChatMessages();
-    }
-
-    // =================================
-    // REFRESH CHAT MESSAGES
-    // =================================
-
-    private void refreshChatMessages() {
-
-        if (chatPanel == null) {
-            return;
-        }
-
-        chatPanel.removeAll();
-
-        if (chatMessages.isEmpty()) {
-
-            JLabel welcomeLabel = new JLabel(
-                    "Start a conversation with the StoneCraft seller."
-            );
-
-            welcomeLabel.setFont(mainFont);
-            welcomeLabel.setForeground(labelColor);
-            welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            chatPanel.add(Box.createVerticalStrut(30));
-            chatPanel.add(welcomeLabel);
-
-        } else {
-
-            for (ChatMessage chatMessage : chatMessages) {
-
-                chatPanel.add(createMessageBubble(chatMessage));
-                chatPanel.add(Box.createVerticalStrut(10));
-            }
-        }
-
-        chatPanel.revalidate();
-        chatPanel.repaint();
-
-        SwingUtilities.invokeLater(() -> {
-
-            JScrollBar verticalBar =
-                    ((JScrollPane) chatPanel.getParent().getParent())
-                            .getVerticalScrollBar();
-
-            verticalBar.setValue(verticalBar.getMaximum());
-        });
-    }
-
-    // =================================
-    // MESSAGE BUBBLE
-    // =================================
-
-    private JPanel createMessageBubble(ChatMessage chatMessage) {
-
-        JPanel rowPanel = new JPanel(new BorderLayout());
-        rowPanel.setOpaque(false);
-
-        JPanel bubblePanel = new JPanel();
-        bubblePanel.setLayout(new BoxLayout(
-                bubblePanel, BoxLayout.Y_AXIS
-        ));
-
-        bubblePanel.setBorder(
-                BorderFactory.createEmptyBorder(10, 12, 10, 12)
-        );
-
-        JLabel senderLabel = new JLabel(chatMessage.sender);
-        senderLabel.setFont(new Font("Arial", Font.BOLD, 11));
-
-        JLabel messageLabel = new JLabel(
-                "<html><div style='width:250px;'>"
-                        + escapeHtml(chatMessage.message)
-                        + "</div></html>"
-        );
-
-        messageLabel.setFont(mainFont);
-
-        if ("Customer".equals(chatMessage.sender)) {
-
-            bubblePanel.setBackground(new Color(246, 228, 210));
-            senderLabel.setForeground(copperColor);
-            messageLabel.setForeground(mainTextColor);
-
-            bubblePanel.add(senderLabel);
-            bubblePanel.add(Box.createVerticalStrut(5));
-            bubblePanel.add(messageLabel);
-
-            rowPanel.add(bubblePanel, BorderLayout.EAST);
-
-        } else {
-
-            bubblePanel.setBackground(Color.WHITE);
-            senderLabel.setForeground(darkColor);
-            messageLabel.setForeground(mainTextColor);
-
-            bubblePanel.add(senderLabel);
-            bubblePanel.add(Box.createVerticalStrut(5));
-            bubblePanel.add(messageLabel);
-
-            rowPanel.add(bubblePanel, BorderLayout.WEST);
-        }
-
-        return rowPanel;
-    }
-
-    private String escapeHtml(String text) {
-
-        return text.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\n", "<br>");
     }
 
     // =================================
@@ -1538,38 +1334,5 @@ public class CustomerMain extends MainDesign {
                 button.setBackground(background);
             }
         });
-    }
-
-
-    // =================================
-    // CART ITEM CLASS
-    // =================================
-
-    private static class CartItem {
-
-        Product product;
-        int quantity;
-
-        CartItem(Product product, int quantity) {
-
-            this.product = product;
-            this.quantity = quantity;
-        }
-    }
-
-    // =================================
-    // CHAT MESSAGE CLASS
-    // =================================
-
-    private static class ChatMessage {
-
-        String message;
-        String sender;
-
-        ChatMessage(String message, String sender) {
-
-            this.message = message;
-            this.sender = sender;
-        }
     }
 }

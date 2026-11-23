@@ -1,7 +1,6 @@
 package Design;
 
 import DataBaseManagementConnection.DataAccessObject;
-import Main.ChatMessage;
 import Main.CustomRequest;
 import Main.Product;
 import Main.Main;
@@ -182,7 +181,6 @@ public class BusinessMain extends MainDesign {
     void loadCustomRequest(){
         customRequests.clear();
         customRequests.addAll(DataAccessObject.getAllCustomProduct());
-        System.out.println("Custom requests loaded: " + customRequests.size());
     }
 
     // =========================================
@@ -372,10 +370,6 @@ public class BusinessMain extends MainDesign {
                 refreshRequests();
                 break;
 
-            case "Messages":
-                refreshCustomerList();
-                refreshChatMessages();
-                break;
 
             default:
                 return;
@@ -533,7 +527,7 @@ public class BusinessMain extends MainDesign {
             nameLabel.setForeground(mainTextColor);
 
             JLabel customerLabel = new JLabel(
-                    request.getCustomerName() + "  |  " + request.getStatus()
+                    request.getCustomer() + "  |  " + request.getStatus()
             );
             customerLabel.setFont(mainFont);
             customerLabel.setForeground(labelColor);
@@ -1063,11 +1057,6 @@ public class BusinessMain extends MainDesign {
         JLabel customerLabel = new JLabel("Customer: " + request.getCustomerName());
         JLabel sizeLabel = new JLabel("Preferred Size: " + request.getProductSize());
         JLabel designLabel = new JLabel("Design: " + request.getProductPreferredDesign());
-
-        JLabel budgetLabel = new JLabel(
-                "Budget: \u20B1" + String.format("%.2f", request.getProductPrice())
-        );
-
         JLabel statusLabel = new JLabel("Status: " + request.getStatus());
 
         JLabel[] detailLabels = {customerLabel, sizeLabel, designLabel};
@@ -1076,9 +1065,6 @@ public class BusinessMain extends MainDesign {
             label.setFont(mainFont);
             label.setForeground(labelColor);
         }
-
-        budgetLabel.setFont(mainFont);
-        budgetLabel.setForeground(copperColor);
 
         statusLabel.setFont(boldFont);
         statusLabel.setForeground(copperColor);
@@ -1090,7 +1076,6 @@ public class BusinessMain extends MainDesign {
             detailsPanel.add(label);
         }
 
-        detailsPanel.add(budgetLabel);
         detailsPanel.add(Box.createVerticalStrut(7));
         detailsPanel.add(statusLabel);
 
@@ -1140,7 +1125,7 @@ public class BusinessMain extends MainDesign {
     private void showRequestDetails(CustomRequest request) {
 
         String details =
-                "Customer: " + request.getCustomerName()
+                "Customer: " + request.getCustomer()
                         + "\n\nSculpture Name: " + request.getProductName()
                         + "\n\nDescription: " + request.getProductDescription()
                         + "\n\nPreferred Size: " + request.getProductSize()
@@ -1185,7 +1170,6 @@ public class BusinessMain extends MainDesign {
         customerList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 selectedCustomer = customerList.getSelectedValue();
-                refreshChatMessages();
             }
         });
 
@@ -1224,9 +1208,6 @@ public class BusinessMain extends MainDesign {
 
         JButton sendButton = new JButton("Send");
         styleButton(sendButton, copperColor, Color.WHITE);
-
-        sendButton.addActionListener(e -> sendMessage());
-        messageField.addActionListener(e -> sendMessage());
 
         inputPanel.add(messageField, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
@@ -1273,213 +1254,6 @@ public class BusinessMain extends MainDesign {
         }
     }
 
-    // =========================================
-    // MESSAGE METHODS
-    // =========================================
-
-    public void refreshCustomerList() {
-
-        if (customerListModel == null) {
-            return;
-        }
-
-        String previousCustomer = selectedCustomer;
-
-        customerListModel.clear();
-
-        for (String customer : conversations.keySet()) {
-            customerListModel.addElement(customer);
-        }
-
-        if (previousCustomer != null
-                && conversations.containsKey(previousCustomer)) {
-
-            customerList.setSelectedValue(previousCustomer, true);
-
-        } else if (!customerListModel.isEmpty()) {
-
-            customerList.setSelectedIndex(0);
-
-        } else {
-
-            selectedCustomer = null;
-        }
-
-        customerList.repaint();
-    }
-
-    private void sendMessage() {
-
-        if (selectedCustomer == null) {
-            showWarning("Please select a customer first.");
-            return;
-        }
-
-        String message = messageField.getText().trim();
-
-        if (message.isEmpty()) {
-            return;
-        }
-
-        ArrayList<ChatMessage> messages = conversations.get(selectedCustomer);
-
-        if (messages == null) {
-            return;
-        }
-
-        messages.add(new ChatMessage(message, "Business"));
-
-        messageField.setText("");
-
-        refreshChatMessages();
-    }
-
-    public void receiveCustomerMessage(String customerName, String message) {
-
-        if (customerName == null || customerName.trim().isEmpty()
-                || message == null || message.trim().isEmpty()) {
-            return;
-        }
-
-        String name = customerName.trim();
-
-        conversations.putIfAbsent(name, new ArrayList<>());
-
-        conversations.get(name).add(new ChatMessage(message.trim(), "Customer"));
-
-        refreshCustomerList();
-
-        if (name.equals(selectedCustomer) && currentPage.equals("Messages")) {
-            refreshChatMessages();
-        }
-
-        if (currentPage.equals("Overview")) {
-            refreshOverview();
-        }
-    }
-
-    private void refreshChatMessages() {
-
-        if (chatPanel == null) {
-            return;
-        }
-
-        chatPanel.removeAll();
-
-        if (selectedCustomer == null) {
-
-            chatTitle.setText("Select a customer");
-
-            JLabel hintLabel = new JLabel(
-                    "Choose a customer on the left to see the conversation."
-            );
-            hintLabel.setFont(mainFont);
-            hintLabel.setForeground(labelColor);
-            hintLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            chatPanel.add(Box.createVerticalStrut(30));
-            chatPanel.add(hintLabel);
-
-        } else {
-
-            chatTitle.setText(selectedCustomer);
-
-            ArrayList<ChatMessage> messages = conversations.get(selectedCustomer);
-
-            if (messages == null || messages.isEmpty()) {
-
-                JLabel emptyLabel = new JLabel("No messages yet.");
-                emptyLabel.setFont(mainFont);
-                emptyLabel.setForeground(labelColor);
-                emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-                chatPanel.add(Box.createVerticalStrut(30));
-                chatPanel.add(emptyLabel);
-
-            } else {
-
-                for (ChatMessage chatMessage : messages) {
-                    chatPanel.add(createMessageBubble(chatMessage));
-                    chatPanel.add(Box.createVerticalStrut(8));
-                }
-            }
-        }
-
-        chatPanel.revalidate();
-        chatPanel.repaint();
-
-        SwingUtilities.invokeLater(() -> {
-
-            if (chatScrollPane != null) {
-                JScrollBar scrollBar = chatScrollPane.getVerticalScrollBar();
-                scrollBar.setValue(scrollBar.getMaximum());
-            }
-        });
-    }
-
-    // =========================================
-    // MESSAGE BUBBLES
-    // =========================================
-
-    private JPanel createMessageBubble(ChatMessage chatMessage) {
-
-        boolean fromBusiness = "Business".equals(chatMessage.getSender());
-
-        JPanel rowPanel = new JPanel(
-                new FlowLayout(fromBusiness ? FlowLayout.RIGHT : FlowLayout.LEFT, 0, 0)
-        );
-
-        rowPanel.setOpaque(false);
-        rowPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        JPanel bubblePanel = new JPanel();
-        bubblePanel.setLayout(new BoxLayout(bubblePanel, BoxLayout.Y_AXIS));
-
-        bubblePanel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(borderColor),
-                        BorderFactory.createEmptyBorder(7, 9, 7, 9)
-                )
-        );
-
-        JLabel senderLabel = new JLabel(fromBusiness ? "You" : selectedCustomer);
-        senderLabel.setFont(new Font("Arial", Font.BOLD, 10));
-
-        JLabel messageLabel = new JLabel(
-                "<html><div style='width:155px;'>"
-                        + escapeHtml(chatMessage.getMessage())
-                        + "</div></html>"
-        );
-
-        messageLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        messageLabel.setForeground(mainTextColor);
-
-        if (fromBusiness) {
-            bubblePanel.setBackground(selectionColor);
-            senderLabel.setForeground(copperColor);
-        } else {
-            bubblePanel.setBackground(Color.WHITE);
-            senderLabel.setForeground(darkColor);
-        }
-
-        bubblePanel.add(senderLabel);
-        bubblePanel.add(Box.createVerticalStrut(3));
-        bubblePanel.add(messageLabel);
-
-        bubblePanel.setMaximumSize(new Dimension(180, Integer.MAX_VALUE));
-
-        rowPanel.add(bubblePanel);
-
-        return rowPanel;
-    }
-
-    private String escapeHtml(String text) {
-
-        return text.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\n", "<br>");
-    }
 
     // =========================================
     // PROFILE MENU
