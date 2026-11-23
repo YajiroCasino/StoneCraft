@@ -15,7 +15,7 @@ public class Main {
     public static void main(String[] args){
 
         DataBaseConnection.createDatabase();
-        signUpProcess();
+        customerProcess();
     }
 
     public static void signUpProcess() {

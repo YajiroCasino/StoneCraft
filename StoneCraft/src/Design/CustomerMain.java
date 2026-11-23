@@ -1,18 +1,24 @@
+
 package Design;
 
 import DataBaseManagementConnection.DataAccessObject;
 import Main.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class CustomerMain extends MainDesign {
 
-    // COLORS
+    // =================================
+    // COLORS AND FONTS
+    // =================================
+
     private final Color darkColor = new Color(43, 42, 40);
     private final Color copperColor = new Color(181, 101, 29);
     private final Color hoverColor = new Color(151, 83, 15);
@@ -21,42 +27,103 @@ public class CustomerMain extends MainDesign {
     private final Color fieldColor = new Color(250, 249, 247);
     private final Color borderColor = new Color(222, 218, 211);
     private final Color backgroundColor = new Color(247, 245, 241);
+    private final Color selectionColor = new Color(246, 228, 210);
+    private final Color deleteColor = new Color(174, 65, 59);
 
     private final Font mainFont = new Font("Arial", Font.PLAIN, 13);
     private final Font boldFont = new Font("Arial", Font.BOLD, 13);
+    private final Font titleFont = new Font("Arial", Font.BOLD, 25);
 
+    // =================================
     // MAIN PANELS
+    // =================================
+
     private JPanel dashboardPanel;
     private JPanel headerPanel;
     private JPanel sidebarPanel;
-    private JPanel contentPanel;
+    private JPanel pagesPanel;
+
+    private CardLayout cardLayout;
+
+    private JPanel productsPage;
+    private JPanel profilePage;
+    private JPanel requestPage;
+    private JPanel myRequestsPage;
+
     private JPanel productGrid;
 
+    // =================================
     // HEADER COMPONENTS
+    // =================================
+
     private JTextField searchField;
     private JComboBox<String> sortComboBox;
     private JButton cartButton;
-    private JButton profileButton;
 
+    // =================================
+    // SIDEBAR COMPONENTS
+    // =================================
+
+    private JButton profileButton;
+    private JButton logoutButton;
+
+    private final Map<String, JButton> menuButtons = new LinkedHashMap<>();
+    private final Map<String, JButton> actionMenuButtons = new LinkedHashMap<>();
+
+    private String currentPage = "Products";
+    private String currentMenu = "Dashboard";
+
+    // =================================
     // PRODUCT AND CART DATA
+    // =================================
+
     private ArrayList<Product> products;
     private ArrayList<Cart> cartItems;
 
-    // CUSTOM REQUEST AND MESSAGE DATA
     private ArrayList<CustomRequest> customRequests;
 
-    private String selectedCateory = "All Products";
-    private String selectedImagePath = "";
+    private String selectedCategory = "All Products";
 
+    // =================================
     // CART FRAME
+    // =================================
+
     private JFrame cartFrame;
     private JPanel cartContentPanel;
     private JLabel subtotalLabel;
 
-    // MESSAGE FRAME
-    private JFrame messageFrame;
-    private JPanel chatPanel;
-    private JTextField messageField;
+    // =================================
+    // CUSTOM REQUEST COMPONENTS
+    // =================================
+
+    public JFrame requestFrame;
+    public JTextField sculptureNameField;
+    public JTextArea descriptionArea;
+    public JScrollPane descriptionScroll;
+    public JComboBox<String> categoryComboBox;
+    public JComboBox<String> sizeComboBox;
+    public JSpinner quantitySpinner;
+    public JTextField designField;
+    public JButton cancelButton;
+    public JButton submitButton = new JButton("Submit Request");
+
+    private JPanel requestFormPanel;
+    private JPanel requestListPanel;
+
+    // =================================
+    // PROFILE COMPONENTS
+    // =================================
+
+    private JPanel profileDetailsPanel;
+
+    private String profileName = "Not set";
+    private String profileAddress = "Not set";
+    private String profilePhone = "Not set";
+    private String profileEmail = "Not set";
+
+    // =================================
+    // CONSTRUCTOR
+    // =================================
 
     public CustomerMain() {
 
@@ -64,10 +131,8 @@ public class CustomerMain extends MainDesign {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         setSize(1100, 700);
+        setMinimumSize(new Dimension(900, 600));
         setLocationRelativeTo(null);
-        setResizable(true);
-
-        // MAXIMIZED WINDOW
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         products = new ArrayList<>();
@@ -78,24 +143,40 @@ public class CustomerMain extends MainDesign {
 
         createHeader();
         createSidebar();
-        createProductContent();
 
-        // I-LOAD ANG CART MULA SA DATABASE
+        createProductContent();
+        createProfilePage();
+        createCustomRequestPage();
+        createMyCustomRequestsPage();
+
+        cardLayout = new CardLayout();
+
+        pagesPanel = new JPanel(cardLayout);
+        pagesPanel.setBackground(backgroundColor);
+
+        pagesPanel.add(productsPage, "Products");
+        pagesPanel.add(profilePage, "Profile");
+        pagesPanel.add(requestPage, "CustomRequest");
+        pagesPanel.add(myRequestsPage, "MyCustomRequests");
+
         loadCart();
 
         dashboardPanel = new JPanel(new BorderLayout());
-        dashboardPanel.setBackground(Color.WHITE);
+        dashboardPanel.setBackground(backgroundColor);
 
         JPanel bodyPanel = new JPanel(new BorderLayout());
-        bodyPanel.setBackground(Color.WHITE);
+        bodyPanel.setBackground(backgroundColor);
 
         bodyPanel.add(sidebarPanel, BorderLayout.WEST);
-        bodyPanel.add(contentPanel, BorderLayout.CENTER);
+        bodyPanel.add(pagesPanel, BorderLayout.CENTER);
 
         dashboardPanel.add(headerPanel, BorderLayout.NORTH);
         dashboardPanel.add(bodyPanel, BorderLayout.CENTER);
 
         setContentPane(dashboardPanel);
+
+        showPage("Products");
+
         setVisible(true);
     }
 
@@ -104,13 +185,16 @@ public class CustomerMain extends MainDesign {
     // =================================
 
     private void loadProducts() {
+
         products.clear();
         products.addAll(DataAccessObject.getAllProduct());
     }
 
     private void loadCart() {
+
         cartItems.clear();
         cartItems.addAll(DataAccessObject.getAllCart());
+
         updateCartButton();
     }
 
@@ -121,7 +205,7 @@ public class CustomerMain extends MainDesign {
     private void createHeader() {
 
         headerPanel = new JPanel(new BorderLayout(20, 0));
-        headerPanel.setPreferredSize(new Dimension(0, 80));
+        headerPanel.setPreferredSize(new Dimension(0, 75));
         headerPanel.setBackground(darkColor);
 
         headerPanel.setBorder(
@@ -129,8 +213,9 @@ public class CustomerMain extends MainDesign {
         );
 
         // LOGO
+
         JPanel logoPanel = new JPanel(
-                new FlowLayout(FlowLayout.LEFT, 10, 5)
+                new FlowLayout(FlowLayout.LEFT, 10, 4)
         );
 
         logoPanel.setOpaque(false);
@@ -153,7 +238,7 @@ public class CustomerMain extends MainDesign {
         logoName.setFont(new Font("Arial", Font.BOLD, 21));
         logoName.setForeground(Color.WHITE);
 
-        JLabel logoTagline = new JLabel("Business Management System");
+        JLabel logoTagline = new JLabel("Customer Management System");
         logoTagline.setFont(new Font("Arial", Font.PLAIN, 11));
         logoTagline.setForeground(new Color(185, 179, 168));
 
@@ -164,6 +249,7 @@ public class CustomerMain extends MainDesign {
         logoPanel.add(logoTextPanel);
 
         // SEARCH BAR
+
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
         searchPanel.setOpaque(false);
         searchPanel.setPreferredSize(new Dimension(320, 36));
@@ -172,10 +258,12 @@ public class CustomerMain extends MainDesign {
         searchField.setFont(mainFont);
         searchField.setBackground(fieldColor);
 
-        searchField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
-        ));
+        searchField.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                )
+        );
 
         searchField.setToolTipText("Search products");
 
@@ -195,7 +283,8 @@ public class CustomerMain extends MainDesign {
         searchHolder.setOpaque(false);
         searchHolder.add(searchPanel);
 
-        // CART AND PROFILE
+        // CART
+
         JPanel accountPanel = new JPanel(
                 new FlowLayout(FlowLayout.RIGHT, 8, 5)
         );
@@ -206,16 +295,7 @@ public class CustomerMain extends MainDesign {
         styleButton(cartButton, copperColor, Color.WHITE);
         cartButton.addActionListener(e -> openCartFrame());
 
-        profileButton = new JButton("Profile");
-        styleButton(profileButton, Color.WHITE, darkColor);
-        profileButton.setBorder(
-                BorderFactory.createLineBorder(Color.WHITE)
-        );
-
-        profileButton.addActionListener(e -> showProfile());
-
         accountPanel.add(cartButton);
-        accountPanel.add(profileButton);
 
         headerPanel.add(logoPanel, BorderLayout.WEST);
         headerPanel.add(searchHolder, BorderLayout.CENTER);
@@ -233,48 +313,26 @@ public class CustomerMain extends MainDesign {
                 sidebarPanel, BoxLayout.Y_AXIS
         ));
 
-        sidebarPanel.setPreferredSize(new Dimension(210, 0));
-        sidebarPanel.setBackground(backgroundColor);
+        sidebarPanel.setPreferredSize(new Dimension(215, 0));
+        sidebarPanel.setBackground(darkColor);
 
         sidebarPanel.setBorder(
-                BorderFactory.createEmptyBorder(25, 15, 20, 15)
+                BorderFactory.createEmptyBorder(25, 12, 20, 12)
         );
 
-        JLabel menuTitle = new JLabel("MENU");
-        menuTitle.setFont(boldFont);
-        menuTitle.setForeground(labelColor);
-
-        JLabel categoryTitle = new JLabel("CATEGORIES");
-        categoryTitle.setFont(boldFont);
-        categoryTitle.setForeground(labelColor);
-
-        categoryTitle.setBorder(
-                BorderFactory.createEmptyBorder(20, 0, 10, 0)
-        );
-
-        sidebarPanel.add(menuTitle);
-        sidebarPanel.add(Box.createVerticalStrut(15));
+        addSidebarTitle("MENU");
 
         addMenuButton("Dashboard", "All Products");
         addMenuButton("All Products", "All Products");
 
-        sidebarPanel.add(Box.createVerticalStrut(15));
-        sidebarPanel.add(categoryTitle);
+        addSidebarTitle("CATEGORIES");
 
         addMenuButton("Home Decor", "Home Decor");
         addMenuButton("Garden", "Garden");
         addMenuButton("Kitchen", "Kitchen");
         addMenuButton("Sculptures", "Sculptures");
 
-        // CUSTOM SCULPTURE SECTION
-        JLabel customTitle = new JLabel("CUSTOMER SERVICES");
-        customTitle.setFont(boldFont);
-        customTitle.setForeground(labelColor);
-        customTitle.setBorder(
-                BorderFactory.createEmptyBorder(20, 0, 10, 0)
-        );
-
-        sidebarPanel.add(customTitle);
+        addSidebarTitle("CUSTOMER SERVICES");
 
         addActionMenuButton(
                 "Request Custom Sculpture",
@@ -288,17 +346,34 @@ public class CustomerMain extends MainDesign {
 
         sidebarPanel.add(Box.createVerticalGlue());
 
-        JLabel helpLabel = new JLabel("Need help?");
-        helpLabel.setFont(boldFont);
-        helpLabel.setForeground(mainTextColor);
+        addSidebarTitle("ACCOUNT");
 
-        JLabel helpDescription = new JLabel("Contact StoneCraft");
-        helpDescription.setFont(mainFont);
-        helpDescription.setForeground(labelColor);
+        profileButton = new JButton("Profile");
+        styleSidebarButton(profileButton);
+        profileButton.addActionListener(e -> showProfile());
 
-        sidebarPanel.add(helpLabel);
-        sidebarPanel.add(Box.createVerticalStrut(5));
-        sidebarPanel.add(helpDescription);
+        sidebarPanel.add(profileButton);
+
+        sidebarPanel.add(Box.createVerticalStrut(8));
+
+        logoutButton = new JButton("Log Out");
+        styleSidebarLogoutButton(logoutButton);
+        logoutButton.addActionListener(e -> logout());
+
+        sidebarPanel.add(logoutButton);
+    }
+
+    private void addSidebarTitle(String title) {
+
+        JLabel sectionLabel = new JLabel(title);
+        sectionLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        sectionLabel.setForeground(new Color(170, 164, 155));
+        sectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sectionLabel.setBorder(
+                BorderFactory.createEmptyBorder(15, 10, 10, 0)
+        );
+
+        sidebarPanel.add(sectionLabel);
     }
 
     private void addMenuButton(String buttonText, String category) {
@@ -306,23 +381,39 @@ public class CustomerMain extends MainDesign {
         JButton menuButton = new JButton(buttonText);
 
         menuButton.setFont(mainFont);
-        menuButton.setForeground(mainTextColor);
-        menuButton.setBackground(backgroundColor);
+        menuButton.setForeground(Color.WHITE);
+        menuButton.setBackground(darkColor);
         menuButton.setHorizontalAlignment(SwingConstants.LEFT);
 
-        menuButton.setMaximumSize(new Dimension(180, 38));
+        menuButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        menuButton.setPreferredSize(new Dimension(190, 42));
+
         menuButton.setBorder(
-                BorderFactory.createEmptyBorder(8, 10, 8, 5)
+                BorderFactory.createEmptyBorder(8, 12, 8, 5)
         );
 
         menuButton.setFocusPainted(false);
         menuButton.setOpaque(true);
+        menuButton.setBorderPainted(false);
         menuButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        menuButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         menuButton.addActionListener(e -> {
+
             selectedCategory = category;
-            displayProducts(selectedCategory, searchField.getText());
+            currentMenu = buttonText;
+
+            showPage("Products");
+
+            displayProducts(
+                    selectedCategory,
+                    searchField.getText()
+            );
+
+            updateSidebarSelection();
         });
+
+        menuButtons.put(buttonText, menuButton);
 
         sidebarPanel.add(menuButton);
     }
@@ -335,22 +426,198 @@ public class CustomerMain extends MainDesign {
         JButton menuButton = new JButton(buttonText);
 
         menuButton.setFont(mainFont);
-        menuButton.setForeground(mainTextColor);
-        menuButton.setBackground(backgroundColor);
+        menuButton.setForeground(Color.WHITE);
+        menuButton.setBackground(darkColor);
         menuButton.setHorizontalAlignment(SwingConstants.LEFT);
 
-        menuButton.setMaximumSize(new Dimension(180, 42));
+        menuButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        menuButton.setPreferredSize(new Dimension(190, 42));
+
         menuButton.setBorder(
-                BorderFactory.createEmptyBorder(8, 10, 8, 5)
+                BorderFactory.createEmptyBorder(8, 12, 8, 5)
         );
 
         menuButton.setFocusPainted(false);
         menuButton.setOpaque(true);
+        menuButton.setBorderPainted(false);
         menuButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        menuButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         menuButton.addActionListener(action);
 
+        // STORE CUSTOM REQUEST BUTTONS
+        actionMenuButtons.put(buttonText, menuButton);
+
         sidebarPanel.add(menuButton);
+    }
+
+    private void styleSidebarButton(JButton button) {
+
+        button.setFont(mainFont);
+        button.setForeground(Color.WHITE);
+        button.setBackground(darkColor);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        button.setPreferredSize(new Dimension(190, 42));
+
+        button.setBorder(
+                BorderFactory.createEmptyBorder(8, 12, 8, 5)
+        );
+
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+    }
+
+    private void styleSidebarLogoutButton(JButton button) {
+
+        button.setFont(boldFont);
+        button.setForeground(Color.WHITE);
+        button.setBackground(deleteColor);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        button.setPreferredSize(new Dimension(190, 42));
+
+        button.setBorder(
+                BorderFactory.createEmptyBorder(8, 12, 8, 5)
+        );
+
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                button.setBackground(new Color(145, 49, 44));
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                button.setBackground(deleteColor);
+            }
+        });
+    }
+
+    private void updateSidebarSelection() {
+
+        // DASHBOARD AND CATEGORY BUTTONS
+
+        for (Map.Entry<String, JButton> entry : menuButtons.entrySet()) {
+
+            boolean selected =
+                    currentPage.equals("Products")
+                            && entry.getKey().equals(currentMenu);
+
+            JButton menuButton = entry.getValue();
+
+            menuButton.setBackground(
+                    selected ? copperColor : darkColor
+            );
+
+            menuButton.setForeground(Color.WHITE);
+        }
+
+        // CUSTOM REQUEST BUTTONS
+
+        for (Map.Entry<String, JButton> entry : actionMenuButtons.entrySet()) {
+
+            boolean selected = false;
+
+            if (entry.getKey().equals("Request Custom Sculpture")
+                    && currentPage.equals("CustomRequest")) {
+
+                selected = true;
+
+            } else if (entry.getKey().equals("My Custom Requests")
+                    && currentPage.equals("MyCustomRequests")) {
+
+                selected = true;
+            }
+
+            JButton menuButton = entry.getValue();
+
+            menuButton.setBackground(
+                    selected ? copperColor : darkColor
+            );
+
+            menuButton.setForeground(Color.WHITE);
+        }
+
+        // PROFILE BUTTON
+
+        if (profileButton != null) {
+
+            profileButton.setBackground(
+                    currentPage.equals("Profile")
+                            ? copperColor : darkColor
+            );
+
+            profileButton.setForeground(Color.WHITE);
+        }
+    }
+
+    // =================================
+    // PAGES
+    // =================================
+
+    private void showPage(String pageName) {
+
+        currentPage = pageName;
+
+        if ("Products".equals(pageName)) {
+
+            displayProducts(
+                    selectedCategory,
+                    searchField.getText()
+            );
+
+        } else if ("Profile".equals(pageName)) {
+
+            refreshProfile();
+
+        } else if ("MyCustomRequests".equals(pageName)) {
+
+            refreshCustomRequests();
+        }
+
+        cardLayout.show(pagesPanel, pageName);
+
+        updateSidebarSelection();
+    }
+
+    private JPanel createPageTitle(
+            String title,
+            String description
+    ) {
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setOpaque(false);
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(titleFont);
+        titleLabel.setForeground(mainTextColor);
+
+        JLabel descriptionLabel = new JLabel(description);
+        descriptionLabel.setFont(mainFont);
+        descriptionLabel.setForeground(labelColor);
+
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        panel.add(titleLabel);
+        panel.add(Box.createVerticalStrut(5));
+        panel.add(descriptionLabel);
+
+        return panel;
     }
 
     // =================================
@@ -359,10 +626,10 @@ public class CustomerMain extends MainDesign {
 
     private void createProductContent() {
 
-        contentPanel = new JPanel(new BorderLayout(15, 15));
-        contentPanel.setBackground(Color.WHITE);
+        productsPage = new JPanel(new BorderLayout(15, 15));
+        productsPage.setBackground(backgroundColor);
 
-        contentPanel.setBorder(
+        productsPage.setBorder(
                 BorderFactory.createEmptyBorder(25, 25, 20, 25)
         );
 
@@ -371,19 +638,17 @@ public class CustomerMain extends MainDesign {
                 titlePanel, BoxLayout.Y_AXIS
         ));
 
-        titlePanel.setBackground(Color.WHITE);
+        titlePanel.setBackground(backgroundColor);
 
         JLabel pageTitle = new JLabel("Discover Products");
-        pageTitle.setFont(new Font("Arial", Font.BOLD, 25));
+        pageTitle.setFont(titleFont);
         pageTitle.setForeground(mainTextColor);
 
         JLabel pageDescription = new JLabel(
                 "Find beautifully crafted stone products."
         );
 
-        pageDescription.setFont(
-                new Font("Arial", Font.PLAIN, 13)
-        );
+        pageDescription.setFont(mainFont);
         pageDescription.setForeground(labelColor);
 
         titlePanel.add(pageTitle);
@@ -391,8 +656,9 @@ public class CustomerMain extends MainDesign {
         titlePanel.add(pageDescription);
 
         // FILTER SECTION
+
         JPanel filterPanel = new JPanel(new BorderLayout());
-        filterPanel.setBackground(Color.WHITE);
+        filterPanel.setBackground(backgroundColor);
 
         JLabel productCount = new JLabel("Available Products");
         productCount.setFont(boldFont);
@@ -408,30 +674,36 @@ public class CustomerMain extends MainDesign {
         sortComboBox.setBackground(Color.WHITE);
 
         sortComboBox.addActionListener(e ->
-                displayProducts(selectedCategory, searchField.getText())
+                displayProducts(
+                        selectedCategory,
+                        searchField.getText()
+                )
         );
 
         filterPanel.add(productCount, BorderLayout.WEST);
         filterPanel.add(sortComboBox, BorderLayout.EAST);
 
         // PRODUCT GRID
+
         productGrid = new JPanel(
                 new GridLayout(0, 3, 15, 15)
         );
-        productGrid.setBackground(Color.WHITE);
+
+        productGrid.setBackground(backgroundColor);
 
         JScrollPane scrollPane = new JScrollPane(productGrid);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getViewport().setBackground(backgroundColor);
 
         JPanel topContent = new JPanel(new BorderLayout(10, 15));
-        topContent.setBackground(Color.WHITE);
+        topContent.setBackground(backgroundColor);
 
         topContent.add(titlePanel, BorderLayout.NORTH);
         topContent.add(filterPanel, BorderLayout.SOUTH);
 
-        contentPanel.add(topContent, BorderLayout.NORTH);
-        contentPanel.add(scrollPane, BorderLayout.CENTER);
+        productsPage.add(topContent, BorderLayout.NORTH);
+        productsPage.add(scrollPane, BorderLayout.CENTER);
 
         displayProducts("All Products", "");
     }
@@ -463,6 +735,7 @@ public class CustomerMain extends MainDesign {
         }
 
         // PRICE SORTING
+
         if (sortComboBox != null) {
 
             String selectedSort =
@@ -472,14 +745,17 @@ public class CustomerMain extends MainDesign {
 
                 Collections.sort(
                         filteredProducts,
-                        Comparator.comparingDouble(p -> p.getProductPrice())
+                        Comparator.comparingDouble(Product::getProductPrice)
                 );
 
             } else if ("Price: High to Low".equals(selectedSort)) {
 
                 Collections.sort(
                         filteredProducts,
-                        (p1, p2) -> Double.compare(p2.getProductPrice(), p1.getProductPrice())
+                        (p1, p2) -> Double.compare(
+                                p2.getProductPrice(),
+                                p1.getProductPrice()
+                        )
                 );
             }
         }
@@ -520,6 +796,7 @@ public class CustomerMain extends MainDesign {
         );
 
         // PRODUCT IMAGE PLACEHOLDER
+
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setPreferredSize(new Dimension(200, 150));
         imagePanel.setBackground(fieldColor);
@@ -532,6 +809,7 @@ public class CustomerMain extends MainDesign {
         imagePanel.add(imageLabel, BorderLayout.CENTER);
 
         // PRODUCT DETAILS
+
         JPanel informationPanel = new JPanel();
         informationPanel.setLayout(new BoxLayout(
                 informationPanel, BoxLayout.Y_AXIS
@@ -560,7 +838,8 @@ public class CustomerMain extends MainDesign {
         informationPanel.add(Box.createVerticalStrut(7));
         informationPanel.add(productPrice);
 
-        // ADD TO CART (local variable na, hindi na field)
+        // ADD TO CART
+
         JButton addButton = new JButton("Add to Cart");
         styleButton(addButton, copperColor, Color.WHITE);
 
@@ -604,6 +883,7 @@ public class CustomerMain extends MainDesign {
         boolean alreadyAdded = false;
 
         for (Cart cartItem : cartItems) {
+
             if (cartItem.getProduct().getProductId() == product.getProductId()) {
 
                 if (cartItem.getQuantity() >= product.getProductQuantity()) {
@@ -613,13 +893,16 @@ public class CustomerMain extends MainDesign {
 
                 cartItem.setQuantity(cartItem.getQuantity() + 1);
                 DataAccessObject.updateCartQuantity(cartItem);
+
                 alreadyAdded = true;
                 break;
             }
         }
 
         if (!alreadyAdded) {
+
             Cart newItem = new Cart(product, 1);
+
             if (DataAccessObject.insertCartItem(newItem) != -1) {
                 cartItems.add(newItem);
             } else {
@@ -629,7 +912,7 @@ public class CustomerMain extends MainDesign {
         }
 
         updateCartButton();
-        refreshCart();   // may null check sa loob, safe kahit sarado ang cart frame
+        refreshCart();
 
         JOptionPane.showMessageDialog(
                 this,
@@ -651,7 +934,9 @@ public class CustomerMain extends MainDesign {
             totalItems += item.getQuantity();
         }
 
-        cartButton.setText("Cart (" + totalItems + ")");
+        if (cartButton != null) {
+            cartButton.setText("Cart (" + totalItems + ")");
+        }
     }
 
     // =================================
@@ -688,6 +973,7 @@ public class CustomerMain extends MainDesign {
         cartContentPanel.setLayout(new BoxLayout(
                 cartContentPanel, BoxLayout.Y_AXIS
         ));
+
         cartContentPanel.setBackground(Color.WHITE);
 
         cartContentPanel.setBorder(
@@ -803,6 +1089,7 @@ public class CustomerMain extends MainDesign {
         detailsPanel.setLayout(new BoxLayout(
                 detailsPanel, BoxLayout.Y_AXIS
         ));
+
         detailsPanel.setBackground(Color.WHITE);
 
         JLabel nameLabel = new JLabel(item.getProduct().getProductName());
@@ -823,6 +1110,7 @@ public class CustomerMain extends MainDesign {
         JPanel quantityPanel = new JPanel(
                 new FlowLayout(FlowLayout.RIGHT, 5, 5)
         );
+
         quantityPanel.setBackground(Color.WHITE);
 
         JButton minusButton = new JButton("-");
@@ -915,7 +1203,7 @@ public class CustomerMain extends MainDesign {
     private void updateSubtotal() {
 
         if (subtotalLabel == null) {
-            return;   // hindi pa nabubuksan ang cart frame
+            return;
         }
 
         double subtotal = 0;
@@ -930,58 +1218,142 @@ public class CustomerMain extends MainDesign {
     }
 
     // =================================
-    // CUSTOM SCULPTURE REQUEST FORM
+    // CUSTOM SCULPTURE REQUEST PAGE
     // =================================
-    public JFrame requestFrame;
-    public JTextField sculptureNameField;
-    public JTextArea descriptionArea;
-    public JScrollPane descriptionScroll;
-    public JComboBox<String> categoryComboBox;
-    public JComboBox<String> sizeComboBox;
-    public JSpinner quantitySpinner;
-    public JTextField designField;
-    public JButton cancelButton;
-    public JButton submitButton = new JButton("Submit Request");
 
-    public void openCustomRequestForm() {
+    private void createCustomRequestPage() {
 
-        if (requestFrame != null && requestFrame.isDisplayable()) {
-            requestFrame.setState(JFrame.NORMAL);
-            requestFrame.toFront();
-            requestFrame.requestFocus();
-            return;
-        }
+        requestPage = new JPanel(new BorderLayout(0, 20));
+        requestPage.setBackground(backgroundColor);
 
-        requestFrame = new JFrame("StoneCraft - Custom Sculpture Request");
-        requestFrame.setSize(650, 700);
-        requestFrame.setLocationRelativeTo(this);
-        requestFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        requestPage.setBorder(
+                BorderFactory.createEmptyBorder(30, 40, 25, 40)
+        );
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
+        // PAGE HEADER
 
-        // FORM HEADER
-        JPanel titlePanel = new JPanel();
-        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
-        titlePanel.setBackground(Color.WHITE);
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
 
-        JLabel titleLabel = new JLabel("Request Custom Sculpture");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 23));
-        titleLabel.setForeground(mainTextColor);
+        JPanel titlePanel = createPageTitle(
+                "Request Custom Sculpture",
+                "Share your ideas and tell us about the stone sculpture you want."
+        );
 
-        JLabel descriptionLabel = new JLabel("Tell us about the stone sculpture you want.");
-        descriptionLabel.setFont(mainFont);
-        descriptionLabel.setForeground(labelColor);
+        headerPanel.add(titlePanel, BorderLayout.WEST);
 
-        titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(5));
-        titlePanel.add(descriptionLabel);
+        JLabel requestBadge = new JLabel("CUSTOM ORDER");
+        requestBadge.setFont(new Font("Arial", Font.BOLD, 10));
+        requestBadge.setForeground(copperColor);
+        requestBadge.setOpaque(true);
+        requestBadge.setBackground(new Color(250, 240, 229));
+        requestBadge.setBorder(
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        );
+
+        headerPanel.add(requestBadge, BorderLayout.EAST);
+
+        // MAIN CONTENT
+
+        JPanel contentPanel = new JPanel(new BorderLayout(20, 0));
+        contentPanel.setOpaque(false);
+
+        // LEFT INFORMATION PANEL
+
+        JPanel informationPanel = new JPanel();
+        informationPanel.setLayout(new BoxLayout(
+                informationPanel, BoxLayout.Y_AXIS
+        ));
+
+        informationPanel.setBackground(darkColor);
+        informationPanel.setBorder(
+                BorderFactory.createEmptyBorder(25, 25, 25, 25)
+        );
+
+        informationPanel.setPreferredSize(new Dimension(260, 0));
+
+        JLabel informationTitle = new JLabel(
+                "<html>Bring Your<br>Ideas to Life</html>"
+        );
+
+        informationTitle.setFont(new Font("Arial", Font.BOLD, 23));
+        informationTitle.setForeground(Color.WHITE);
+
+        JLabel informationDescription = new JLabel(
+                "<html>Tell us what you have in mind. "
+                        + "Our team will review your request and "
+                        + "work on the details of your custom stone sculpture.</html>"
+        );
+
+        informationDescription.setFont(mainFont);
+        informationDescription.setForeground(new Color(195, 190, 181));
+
+        JLabel stepTitle = new JLabel("REQUEST GUIDE");
+        stepTitle.setFont(new Font("Arial", Font.BOLD, 11));
+        stepTitle.setForeground(new Color(210, 160, 111));
+
+        JLabel stepOne = createRequestGuide("01", "Describe your sculpture");
+        JLabel stepTwo = createRequestGuide("02", "Choose your preferred size");
+        JLabel stepThree = createRequestGuide("03", "Add your design preference");
+        JLabel stepFour = createRequestGuide("04", "Submit your request");
+
+        informationPanel.add(informationTitle);
+        informationPanel.add(Box.createVerticalStrut(15));
+        informationPanel.add(informationDescription);
+        informationPanel.add(Box.createVerticalStrut(35));
+        informationPanel.add(stepTitle);
+        informationPanel.add(Box.createVerticalStrut(18));
+        informationPanel.add(stepOne);
+        informationPanel.add(Box.createVerticalStrut(18));
+        informationPanel.add(stepTwo);
+        informationPanel.add(Box.createVerticalStrut(18));
+        informationPanel.add(stepThree);
+        informationPanel.add(Box.createVerticalStrut(18));
+        informationPanel.add(stepFour);
+
+        // FORM CARD
+
+        JPanel formCard = createWhiteCard();
+        formCard.setLayout(new BorderLayout(0, 15));
+
+        formCard.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(25, 30, 20, 30)
+                )
+        );
+
+        JPanel formHeader = new JPanel();
+        formHeader.setLayout(new BoxLayout(
+                formHeader, BoxLayout.Y_AXIS
+        ));
+
+        formHeader.setOpaque(false);
+
+        JLabel formTitle = new JLabel("Sculpture Details");
+        formTitle.setFont(new Font("Arial", Font.BOLD, 19));
+        formTitle.setForeground(mainTextColor);
+
+        JLabel formDescription = new JLabel(
+                "Please provide the information below."
+        );
+
+        formDescription.setFont(mainFont);
+        formDescription.setForeground(labelColor);
+
+        formHeader.add(formTitle);
+        formHeader.add(Box.createVerticalStrut(5));
+        formHeader.add(formDescription);
 
         // FORM FIELDS
-        JPanel formPanel = new JPanel();
-        formPanel.setLayout(new BoxLayout(formPanel, BoxLayout.Y_AXIS));
-        formPanel.setBackground(Color.WHITE);
+
+        requestFormPanel = new JPanel(new GridBagLayout());
+        requestFormPanel.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 8, 12, 8);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
 
         sculptureNameField = createFormField();
 
@@ -990,62 +1362,227 @@ public class CustomerMain extends MainDesign {
         descriptionArea.setLineWrap(true);
         descriptionArea.setWrapStyleWord(true);
         descriptionArea.setBackground(fieldColor);
-        descriptionArea.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        descriptionArea.setForeground(mainTextColor);
+
+        descriptionArea.setBorder(
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)
+        );
 
         descriptionScroll = new JScrollPane(descriptionArea);
-        descriptionScroll.setBorder(BorderFactory.createLineBorder(borderColor));
+        descriptionScroll.setBorder(
+                BorderFactory.createLineBorder(borderColor)
+        );
 
         categoryComboBox = new JComboBox<>(new String[]{
                 "Home Decor", "Garden", "Kitchen", "Sculptures"
         });
+
         styleComboBox(categoryComboBox);
 
         sizeComboBox = new JComboBox<>(new String[]{
                 "Small", "Medium", "Large", "Extra Large", "Custom Size"
         });
+
         styleComboBox(sizeComboBox);
 
-        // QUANTITY
-        quantitySpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1)); // default, min, max, step
+        quantitySpinner = new JSpinner(
+                new SpinnerNumberModel(1, 1, 100, 1)
+        );
+
         quantitySpinner.setFont(mainFont);
-        quantitySpinner.setPreferredSize(new Dimension(100, 35));
-        quantitySpinner.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+        quantitySpinner.setPreferredSize(new Dimension(100, 38));
 
         designField = createFormField();
 
-        addFormSection(formPanel, "Sculpture Name", sculptureNameField);
-        addFormSection(formPanel, "Description / Details", descriptionScroll);
-        addFormSection(formPanel, "Category", categoryComboBox);
-        addFormSection(formPanel, "Preferred Size", sizeComboBox);
-        addFormSection(formPanel, "Quantity", quantitySpinner);
-        addFormSection(formPanel, "Preferred Design / Style", designField);
+        // ROW 1 - SCULPTURE NAME
 
-        JScrollPane formScrollPane = new JScrollPane(formPanel);
+        addRequestFormField(
+                requestFormPanel, gbc,
+                0, 0, 2,
+                "Sculpture Name",
+                sculptureNameField
+        );
+
+        // ROW 2 - DESCRIPTION
+
+        addRequestFormField(
+                requestFormPanel, gbc,
+                1, 0, 2,
+                "Description / Details",
+                descriptionScroll
+        );
+
+        // ROW 3 - CATEGORY AND SIZE
+
+        addRequestFormField(
+                requestFormPanel, gbc,
+                2, 0, 1,
+                "Category",
+                categoryComboBox
+        );
+
+        addRequestFormField(
+                requestFormPanel, gbc,
+                2, 1, 1,
+                "Preferred Size",
+                sizeComboBox
+        );
+
+        // ROW 4 - QUANTITY AND DESIGN
+
+        addRequestFormField(
+                requestFormPanel, gbc,
+                3, 0, 1,
+                "Quantity",
+                quantitySpinner
+        );
+
+        addRequestFormField(
+                requestFormPanel, gbc,
+                3, 1, 1,
+                "Preferred Design / Style",
+                designField
+        );
+
+        JScrollPane formScrollPane = new JScrollPane(requestFormPanel);
         formScrollPane.setBorder(null);
-        formScrollPane.getVerticalScrollBar().setUnitIncrement(14);
+        formScrollPane.getVerticalScrollBar().setUnitIncrement(15);
+        formScrollPane.getViewport().setBackground(Color.WHITE);
 
         // BUTTONS
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+
+        JPanel buttonPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 10, 0)
+        );
+
         buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setBorder(
+                BorderFactory.createMatteBorder(
+                        1, 0, 0, 0, borderColor
+                )
+        );
 
         cancelButton = new JButton("Cancel");
         styleButton(cancelButton, fieldColor, mainTextColor);
-        cancelButton.setBorder(BorderFactory.createLineBorder(borderColor));
-        cancelButton.addActionListener(e -> requestFrame.dispose());
 
+        cancelButton.setBorder(
+                BorderFactory.createLineBorder(borderColor)
+        );
+
+        cancelButton.setPreferredSize(new Dimension(110, 40));
+        cancelButton.addActionListener(e -> showPage("Products"));
+
+        submitButton = new JButton("Submit Request");
         styleButton(submitButton, copperColor, Color.WHITE);
+        submitButton.setPreferredSize(new Dimension(155, 40));
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
 
-        mainPanel.add(titlePanel, BorderLayout.NORTH);
-        mainPanel.add(formScrollPane, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        formCard.add(formHeader, BorderLayout.NORTH);
+        formCard.add(formScrollPane, BorderLayout.CENTER);
+        formCard.add(buttonPanel, BorderLayout.SOUTH);
 
-        requestFrame.add(mainPanel);
-        requestFrame.setVisible(true);
+        contentPanel.add(informationPanel, BorderLayout.WEST);
+        contentPanel.add(formCard, BorderLayout.CENTER);
+
+        requestPage.add(headerPanel, BorderLayout.NORTH);
+        requestPage.add(contentPanel, BorderLayout.CENTER);
     }
 
+    // =================================
+    // REQUEST GUIDE LABEL
+    // =================================
+
+    private JLabel createRequestGuide(
+            String number,
+            String description
+    ) {
+
+        JLabel label = new JLabel(
+                "<html><b><font color='#D2A06F'>" + number
+                        + "</font></b>&nbsp;&nbsp; "
+                        + "<font color='#FFFFFF'>" + description
+                        + "</font></html>"
+        );
+
+        label.setFont(mainFont);
+
+        return label;
+    }
+
+    // =================================
+    // REQUEST FORM FIELD HELPER
+    // =================================
+
+    private void addRequestFormField(
+            JPanel panel,
+            GridBagConstraints gbc,
+            int row,
+            int column,
+            int width,
+            String labelText,
+            JComponent component
+    ) {
+
+        JPanel fieldPanel = new JPanel();
+        fieldPanel.setLayout(new BoxLayout(
+                fieldPanel, BoxLayout.Y_AXIS
+        ));
+
+        fieldPanel.setBackground(Color.WHITE);
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(boldFont);
+        label.setForeground(mainTextColor);
+        label.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        component.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        if (component instanceof JTextField
+                || component instanceof JComboBox
+                || component instanceof JSpinner) {
+
+            component.setPreferredSize(new Dimension(200, 38));
+            component.setMaximumSize(
+                    new Dimension(Integer.MAX_VALUE, 38)
+            );
+        }
+
+        if (component instanceof JScrollPane) {
+            component.setPreferredSize(new Dimension(400, 105));
+        }
+
+        fieldPanel.add(label);
+        fieldPanel.add(Box.createVerticalStrut(8));
+        fieldPanel.add(component);
+
+        gbc.gridx = column;
+        gbc.gridy = row;
+        gbc.gridwidth = width;
+        gbc.weightx = width;
+        gbc.insets = new Insets(8, 8, 15, 8);
+
+        panel.add(fieldPanel, gbc);
+    }
+
+    // =================================
+    // OPEN CUSTOM REQUEST PAGE
+    // =================================
+
+    public void openCustomRequestForm() {
+
+        if (sculptureNameField != null) {
+            sculptureNameField.setText("");
+            descriptionArea.setText("");
+            categoryComboBox.setSelectedIndex(0);
+            sizeComboBox.setSelectedIndex(0);
+            quantitySpinner.setValue(1);
+            designField.setText("");
+        }
+
+        showPage("CustomRequest");
+    }
 
     // =================================
     // FORM DESIGN HELPERS
@@ -1056,6 +1593,7 @@ public class CustomerMain extends MainDesign {
         JTextField textField = new JTextField();
         textField.setFont(mainFont);
         textField.setBackground(fieldColor);
+        textField.setForeground(mainTextColor);
 
         textField.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -1110,105 +1648,280 @@ public class CustomerMain extends MainDesign {
     }
 
     // =================================
-    // MY CUSTOM REQUESTS
+    // MY CUSTOM REQUESTS PAGE
     // =================================
 
-    private void openCustomRequestsFrame() {
+    private void createMyCustomRequestsPage() {
 
-        JFrame requestListFrame = new JFrame("StoneCraft - My Custom Requests");
-        requestListFrame.setSize(750, 550);
-        requestListFrame.setLocationRelativeTo(this);
-        requestListFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        requestListFrame.setLayout(new BorderLayout());
+        myRequestsPage = new JPanel(new BorderLayout(0, 20));
+        myRequestsPage.setBackground(backgroundColor);
 
-        JPanel listHeaderPanel = new JPanel(new BorderLayout());
-        listHeaderPanel.setBackground(darkColor);
-        listHeaderPanel.setBorder(BorderFactory.createEmptyBorder(18, 20, 18, 20));
+        myRequestsPage.setBorder(
+                BorderFactory.createEmptyBorder(30, 40, 25, 40)
+        );
 
-        JLabel titleLabel = new JLabel("My Custom Requests");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 21));
-        titleLabel.setForeground(Color.WHITE);
-        listHeaderPanel.add(titleLabel, BorderLayout.WEST);
+        // PAGE HEADER
 
-        JPanel requestListPanel = new JPanel();
-        requestListPanel.setLayout(new BoxLayout(requestListPanel, BoxLayout.Y_AXIS));
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+
+        JPanel titlePanel = createPageTitle(
+                "My Custom Requests",
+                "View and review the custom sculpture requests you have submitted."
+        );
+
+        headerPanel.add(titlePanel, BorderLayout.WEST);
+
+        JLabel requestBadge = new JLabel("REQUEST HISTORY");
+        requestBadge.setFont(new Font("Arial", Font.BOLD, 10));
+        requestBadge.setForeground(copperColor);
+        requestBadge.setOpaque(true);
+        requestBadge.setBackground(new Color(250, 240, 229));
+        requestBadge.setBorder(
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)
+        );
+
+        headerPanel.add(requestBadge, BorderLayout.EAST);
+
+        // CONTENT CARD
+
+        JPanel contentCard = createWhiteCard();
+        contentCard.setLayout(new BorderLayout(0, 15));
+
+        contentCard.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(22, 25, 22, 25)
+                )
+        );
+
+        // CONTENT HEADER
+
+        JPanel contentHeader = new JPanel(new BorderLayout());
+        contentHeader.setOpaque(false);
+
+        JPanel contentTitlePanel = new JPanel();
+        contentTitlePanel.setLayout(new BoxLayout(
+                contentTitlePanel, BoxLayout.Y_AXIS
+        ));
+
+        contentTitlePanel.setOpaque(false);
+
+        JLabel contentTitle = new JLabel("Submitted Requests");
+        contentTitle.setFont(new Font("Arial", Font.BOLD, 18));
+        contentTitle.setForeground(mainTextColor);
+
+        JLabel contentDescription = new JLabel(
+                "All your custom sculpture requests are listed below."
+        );
+
+        contentDescription.setFont(mainFont);
+        contentDescription.setForeground(labelColor);
+
+        contentTitlePanel.add(contentTitle);
+        contentTitlePanel.add(Box.createVerticalStrut(5));
+        contentTitlePanel.add(contentDescription);
+
+        JButton newRequestButton = new JButton("+ New Request");
+        styleButton(newRequestButton, copperColor, Color.WHITE);
+        newRequestButton.setPreferredSize(new Dimension(140, 38));
+
+        newRequestButton.addActionListener(e -> openCustomRequestForm());
+
+        contentHeader.add(contentTitlePanel, BorderLayout.WEST);
+        contentHeader.add(newRequestButton, BorderLayout.EAST);
+
+        // REQUEST LIST
+
+        requestListPanel = new JPanel();
+        requestListPanel.setLayout(new BoxLayout(
+                requestListPanel, BoxLayout.Y_AXIS
+        ));
+
         requestListPanel.setBackground(Color.WHITE);
-        requestListPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        // KUNIN SA DATABASE
-        List<CustomRequest> requests = DataAccessObject.getAllCustomProduct();
-
-        if (requests.isEmpty()) {
-            JLabel emptyLabel = new JLabel("You haven't submitted any custom requests yet.");
-            emptyLabel.setFont(mainFont);
-            emptyLabel.setForeground(labelColor);
-            emptyLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            requestListPanel.add(Box.createVerticalStrut(40));
-            requestListPanel.add(emptyLabel);
-        } else {
-            for (CustomRequest customRequest : requests) {
-                requestListPanel.add(createCustomRequestCard(customRequest));
-                requestListPanel.add(Box.createVerticalStrut(12));
-            }
-        }
 
         JScrollPane scrollPane = new JScrollPane(requestListPanel);
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(15);
+        scrollPane.getViewport().setBackground(Color.WHITE);
 
-        requestListFrame.add(listHeaderPanel, BorderLayout.NORTH);
-        requestListFrame.add(scrollPane, BorderLayout.CENTER);
-        requestListFrame.setVisible(true);
+        contentCard.add(contentHeader, BorderLayout.NORTH);
+        contentCard.add(scrollPane, BorderLayout.CENTER);
+
+        myRequestsPage.add(headerPanel, BorderLayout.NORTH);
+        myRequestsPage.add(contentCard, BorderLayout.CENTER);
+    }
+
+    // =================================
+    // OPEN MY CUSTOM REQUESTS PAGE
+    // =================================
+
+    private void openCustomRequestsFrame() {
+
+        showPage("MyCustomRequests");
+    }
+
+    // =================================
+    // REFRESH CUSTOM REQUESTS
+    // =================================
+
+    private void refreshCustomRequests() {
+
+        if (requestListPanel == null) {
+            return;
+        }
+
+        requestListPanel.removeAll();
+
+        List<CustomRequest> requests =
+                DataAccessObject.getAllCustomProduct();
+
+        if (requests == null || requests.isEmpty()) {
+
+            JPanel emptyPanel = new JPanel();
+            emptyPanel.setLayout(new BoxLayout(
+                    emptyPanel, BoxLayout.Y_AXIS
+            ));
+
+            emptyPanel.setBackground(Color.WHITE);
+            emptyPanel.setBorder(
+                    BorderFactory.createEmptyBorder(55, 10, 55, 10)
+            );
+
+            JLabel emptyTitle = new JLabel("No Custom Requests Yet");
+            emptyTitle.setFont(new Font("Arial", Font.BOLD, 18));
+            emptyTitle.setForeground(mainTextColor);
+            emptyTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JLabel emptyDescription = new JLabel(
+                    "Your submitted sculpture requests will appear here."
+            );
+
+            emptyDescription.setFont(mainFont);
+            emptyDescription.setForeground(labelColor);
+            emptyDescription.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            JButton createButton = new JButton("Create Custom Request");
+            styleButton(createButton, copperColor, Color.WHITE);
+            createButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            createButton.addActionListener(e -> openCustomRequestForm());
+
+            emptyPanel.add(emptyTitle);
+            emptyPanel.add(Box.createVerticalStrut(8));
+            emptyPanel.add(emptyDescription);
+            emptyPanel.add(Box.createVerticalStrut(20));
+            emptyPanel.add(createButton);
+
+            requestListPanel.add(emptyPanel);
+
+        } else {
+
+            for (CustomRequest customRequest : requests) {
+
+                requestListPanel.add(
+                        createCustomRequestCard(customRequest)
+                );
+
+                requestListPanel.add(Box.createVerticalStrut(12));
+            }
+        }
+
+        requestListPanel.revalidate();
+        requestListPanel.repaint();
     }
 
     // =================================
     // CUSTOM REQUEST CARD
     // =================================
 
-    private JPanel createCustomRequestCard(CustomRequest customRequest) {
+    private JPanel createCustomRequestCard(
+            CustomRequest customRequest
+    ) {
 
-        JPanel card = new JPanel(new BorderLayout(10, 10));
+        JPanel card = new JPanel(new BorderLayout(15, 10));
         card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(borderColor),
-                BorderFactory.createEmptyBorder(15, 15, 15, 15)
-        ));
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(18, 20, 18, 20)
+                )
+        );
 
         JPanel detailsPanel = new JPanel();
-        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+        detailsPanel.setLayout(new BoxLayout(
+                detailsPanel, BoxLayout.Y_AXIS
+        ));
+
         detailsPanel.setBackground(Color.WHITE);
 
+        JLabel categoryLabel = new JLabel(
+                customRequest.getProductCategory() != null
+                        ? customRequest.getProductCategory().toUpperCase()
+                        : "CUSTOM REQUEST"
+        );
+
+        categoryLabel.setFont(new Font("Arial", Font.BOLD, 10));
+        categoryLabel.setForeground(copperColor);
+
         JLabel nameLabel = new JLabel(customRequest.getProductName());
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 17));
         nameLabel.setForeground(mainTextColor);
 
-        JLabel sizeLabel = new JLabel("Preferred Size: " + customRequest.getProductSize());
+        JLabel sizeLabel = new JLabel(
+                "Preferred Size: " + customRequest.getProductSize()
+        );
+
         sizeLabel.setFont(mainFont);
         sizeLabel.setForeground(labelColor);
 
-        JLabel quantityLabel = new JLabel("Quantity: " + customRequest.getProductQuantity());
+        JLabel quantityLabel = new JLabel(
+                "Quantity: " + customRequest.getProductQuantity()
+        );
+
         quantityLabel.setFont(mainFont);
         quantityLabel.setForeground(labelColor);
 
-        JLabel designLabel = new JLabel("Design: " + customRequest.getProductPreferredDesign());
+        JLabel designLabel = new JLabel(
+                "Design: " + customRequest.getProductPreferredDesign()
+        );
+
         designLabel.setFont(mainFont);
         designLabel.setForeground(labelColor);
 
+        detailsPanel.add(categoryLabel);
+        detailsPanel.add(Box.createVerticalStrut(6));
         detailsPanel.add(nameLabel);
-        detailsPanel.add(Box.createVerticalStrut(7));
+        detailsPanel.add(Box.createVerticalStrut(9));
         detailsPanel.add(sizeLabel);
+        detailsPanel.add(Box.createVerticalStrut(4));
         detailsPanel.add(quantityLabel);
+        detailsPanel.add(Box.createVerticalStrut(4));
         detailsPanel.add(designLabel);
-        detailsPanel.add(Box.createVerticalStrut(7));
+
+        JPanel buttonPanel = new JPanel(
+                new GridBagLayout()
+        );
+
+        buttonPanel.setOpaque(false);
 
         JButton viewButton = new JButton("View Details");
         styleButton(viewButton, darkColor, Color.WHITE);
-        viewButton.addActionListener(e -> showCustomRequestDetails(customRequest));
+        viewButton.setPreferredSize(new Dimension(125, 38));
+
+        viewButton.addActionListener(
+                e -> showCustomRequestDetails(customRequest)
+        );
+
+        buttonPanel.add(viewButton);
 
         card.add(detailsPanel, BorderLayout.CENTER);
-        card.add(viewButton, BorderLayout.EAST);
-        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 170));
+        card.add(buttonPanel, BorderLayout.EAST);
+
+        card.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, 160)
+        );
 
         return card;
     }
@@ -1217,7 +1930,9 @@ public class CustomerMain extends MainDesign {
     // CUSTOM REQUEST DETAILS
     // =================================
 
-    private void showCustomRequestDetails(CustomRequest customRequest) {
+    private void showCustomRequestDetails(
+            CustomRequest customRequest
+    ) {
 
         String details =
                 "Sculpture Name: " + customRequest.getProductName()
@@ -1236,65 +1951,628 @@ public class CustomerMain extends MainDesign {
     }
 
     // =================================
-    // PROFILE MENU
+    // CUSTOMER PROFILE PAGE
     // =================================
 
-    private void showProfile() {
+    private void createProfilePage() {
 
-        JPopupMenu profileMenu = new JPopupMenu();
+        profilePage = new JPanel(new BorderLayout(20, 20));
+        profilePage.setBackground(backgroundColor);
 
-        JMenuItem accountItem = new JMenuItem("My Account");
-        JMenuItem ordersItem = new JMenuItem("My Orders");
-        JMenuItem logoutItem = new JMenuItem("Log Out");
-
-        accountItem.addActionListener(e ->
-                JOptionPane.showMessageDialog(
-                        this,
-                        "My Account",
-                        "StoneCraft",
-                        JOptionPane.INFORMATION_MESSAGE
-                )
+        profilePage.setBorder(
+                BorderFactory.createEmptyBorder(30, 35, 25, 35)
         );
 
-        ordersItem.addActionListener(e ->
-                JOptionPane.showMessageDialog(
-                        this,
-                        "My Orders",
-                        "StoneCraft",
-                        JOptionPane.INFORMATION_MESSAGE
-                )
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+
+        topPanel.add(
+                createPageTitle(
+                        "My Profile",
+                        "Manage your personal account information."
+                ),
+                BorderLayout.NORTH
         );
 
-        logoutItem.addActionListener(e -> {
+        profileDetailsPanel = new JPanel(new BorderLayout());
+        profileDetailsPanel.setOpaque(false);
 
-            int choice = JOptionPane.showConfirmDialog(
-                    this,
-                    "Are you sure you want to log out?",
-                    "Log Out",
-                    JOptionPane.YES_NO_OPTION
-            );
+        profilePage.add(topPanel, BorderLayout.NORTH);
+        profilePage.add(profileDetailsPanel, BorderLayout.CENTER);
+    }
 
-            if (choice == JOptionPane.YES_OPTION) {
-                Main.loginProcess();
-                dispose();
+    private void refreshProfile() {
+
+        Accounts account = Main.currentAccount;
+
+        if (account != null) {
+
+            if (account.getName() != null
+                    && !account.getName().trim().isEmpty()) {
+                profileName = account.getName();
             }
-        });
 
-        profileMenu.add(accountItem);
-        profileMenu.add(ordersItem);
-        profileMenu.addSeparator();
-        profileMenu.add(logoutItem);
+            if (account.getContactNumber() != null
+                    && !account.getContactNumber().trim().isEmpty()) {
+                profilePhone = account.getContactNumber();
+            }
 
-        profileMenu.show(
-                profileButton,
-                0,
-                profileButton.getHeight()
+            if (account.getEmailAddress() != null
+                    && !account.getEmailAddress().trim().isEmpty()) {
+                profileEmail = account.getEmailAddress();
+            }
+        }
+
+        profileDetailsPanel.removeAll();
+
+        profileDetailsPanel.add(
+                createProfileDetailsPanel(),
+                BorderLayout.CENTER
         );
+
+        profileDetailsPanel.revalidate();
+        profileDetailsPanel.repaint();
+    }
+
+    private JPanel createProfileDetailsPanel() {
+
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 20));
+        mainPanel.setOpaque(false);
+
+        // PROFILE BANNER
+
+        JPanel profileBanner = new JPanel(new BorderLayout(20, 0));
+        profileBanner.setBackground(darkColor);
+
+        profileBanner.setBorder(
+                BorderFactory.createEmptyBorder(25, 30, 25, 30)
+        );
+
+        profileBanner.setPreferredSize(new Dimension(0, 155));
+
+        // PROFILE NAME AND DETAILS
+
+        JPanel namePanel = new JPanel();
+        namePanel.setLayout(new BoxLayout(
+                namePanel, BoxLayout.Y_AXIS
+        ));
+
+        namePanel.setOpaque(false);
+
+        JLabel accountTypeLabel = new JLabel("CUSTOMER ACCOUNT");
+        accountTypeLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        accountTypeLabel.setForeground(new Color(210, 160, 111));
+
+        JLabel nameLabel = new JLabel(profileName);
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 25));
+        nameLabel.setForeground(Color.WHITE);
+
+        JLabel emailLabel = new JLabel(profileEmail);
+        emailLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        emailLabel.setForeground(new Color(195, 190, 181));
+
+        JLabel descriptionLabel = new JLabel(
+                "Your personal StoneCraft account"
+        );
+
+        descriptionLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        descriptionLabel.setForeground(new Color(160, 155, 147));
+
+        namePanel.add(accountTypeLabel);
+        namePanel.add(Box.createVerticalStrut(8));
+        namePanel.add(nameLabel);
+        namePanel.add(Box.createVerticalStrut(5));
+        namePanel.add(emailLabel);
+        namePanel.add(Box.createVerticalStrut(8));
+        namePanel.add(descriptionLabel);
+
+        profileBanner.add(namePanel, BorderLayout.CENTER);
+
+        // ACCOUNT INFORMATION CARD
+
+        JPanel informationPanel = createWhiteCard();
+
+        informationPanel.setLayout(new BorderLayout(0, 18));
+
+        informationPanel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(22, 25, 22, 25)
+                )
+        );
+
+        // INFORMATION HEADER
+
+        JPanel informationHeader = new JPanel(new BorderLayout());
+        informationHeader.setOpaque(false);
+
+        JPanel informationTitlePanel = new JPanel();
+        informationTitlePanel.setLayout(new BoxLayout(
+                informationTitlePanel, BoxLayout.Y_AXIS
+        ));
+
+        informationTitlePanel.setOpaque(false);
+
+        JLabel informationTitle = new JLabel("Account Information");
+        informationTitle.setFont(new Font("Arial", Font.BOLD, 19));
+        informationTitle.setForeground(mainTextColor);
+
+        JLabel informationDescription = new JLabel(
+                "Your registered personal and contact details."
+        );
+
+        informationDescription.setFont(mainFont);
+        informationDescription.setForeground(labelColor);
+
+        informationTitlePanel.add(informationTitle);
+        informationTitlePanel.add(Box.createVerticalStrut(5));
+        informationTitlePanel.add(informationDescription);
+
+        JLabel accountBadge = new JLabel("PERSONAL DETAILS");
+        accountBadge.setFont(new Font("Arial", Font.BOLD, 10));
+        accountBadge.setForeground(copperColor);
+        accountBadge.setOpaque(true);
+        accountBadge.setBackground(new Color(250, 240, 229));
+        accountBadge.setBorder(
+                BorderFactory.createEmptyBorder(7, 10, 7, 10)
+        );
+
+        informationHeader.add(
+                informationTitlePanel,
+                BorderLayout.WEST
+        );
+
+        informationHeader.add(
+                accountBadge,
+                BorderLayout.EAST
+        );
+
+        // INFORMATION ROWS
+
+        JPanel rowsPanel = new JPanel(new GridLayout(4, 1, 0, 0));
+        rowsPanel.setBackground(Color.WHITE);
+
+        rowsPanel.add(
+                createProfileInfoRow(
+                        "FULL NAME",
+                        profileName,
+                        "Your registered name"
+                )
+        );
+
+        rowsPanel.add(
+                createProfileInfoRow(
+                        "ADDRESS",
+                        profileAddress,
+                        "Your residential address"
+                )
+        );
+
+        rowsPanel.add(
+                createProfileInfoRow(
+                        "PHONE NUMBER",
+                        profilePhone,
+                        "Your contact number"
+                )
+        );
+
+        rowsPanel.add(
+                createProfileInfoRow(
+                        "EMAIL ADDRESS",
+                        profileEmail,
+                        "Your registered email"
+                )
+        );
+
+        // EDIT BUTTON SECTION
+
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setOpaque(false);
+
+        JLabel editDescription = new JLabel(
+                "Want to change your account details?"
+        );
+
+        editDescription.setFont(mainFont);
+        editDescription.setForeground(labelColor);
+
+        JButton editProfileButton = new JButton("Edit Profile");
+        styleButton(editProfileButton, copperColor, Color.WHITE);
+
+        editProfileButton.setPreferredSize(new Dimension(145, 42));
+        editProfileButton.addActionListener(e -> editProfile());
+
+        buttonPanel.add(editDescription, BorderLayout.WEST);
+        buttonPanel.add(editProfileButton, BorderLayout.EAST);
+
+        informationPanel.add(
+                informationHeader,
+                BorderLayout.NORTH
+        );
+
+        informationPanel.add(
+                rowsPanel,
+                BorderLayout.CENTER
+        );
+
+        informationPanel.add(
+                buttonPanel,
+                BorderLayout.SOUTH
+        );
+
+        mainPanel.add(profileBanner, BorderLayout.NORTH);
+        mainPanel.add(informationPanel, BorderLayout.CENTER);
+
+        return mainPanel;
     }
 
     // =================================
-    // BUTTON DESIGN
+    // PROFILE INFORMATION ROW
     // =================================
+
+    private JPanel createProfileInfoRow(
+            String labelText,
+            String valueText,
+            String descriptionText
+    ) {
+
+        JPanel row = new JPanel(new BorderLayout(15, 0));
+        row.setBackground(Color.WHITE);
+
+        row.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(
+                                0, 0, 1, 0, borderColor
+                        ),
+                        BorderFactory.createEmptyBorder(12, 0, 12, 0)
+                )
+        );
+
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(
+                textPanel, BoxLayout.Y_AXIS
+        ));
+
+        textPanel.setOpaque(false);
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(new Font("Arial", Font.BOLD, 10));
+        label.setForeground(labelColor);
+
+        JLabel description = new JLabel(descriptionText);
+        description.setFont(new Font("Arial", Font.PLAIN, 11));
+        description.setForeground(labelColor);
+
+        JLabel value = new JLabel(
+                valueText != null && !valueText.trim().isEmpty()
+                        ? valueText : "Not set"
+        );
+
+        value.setFont(new Font("Arial", Font.BOLD, 14));
+        value.setForeground(mainTextColor);
+
+        textPanel.add(label);
+        textPanel.add(Box.createVerticalStrut(4));
+        textPanel.add(value);
+
+        JPanel descriptionPanel = new JPanel(new BorderLayout());
+        descriptionPanel.setOpaque(false);
+        descriptionPanel.add(description, BorderLayout.CENTER);
+
+        row.add(textPanel, BorderLayout.WEST);
+        row.add(descriptionPanel, BorderLayout.EAST);
+
+        return row;
+    }
+
+    // =================================
+    // EDIT PROFILE
+    // =================================
+
+    private void editProfile() {
+
+        Accounts account = Main.currentAccount;
+
+        JDialog dialog = new JDialog(this, "Edit Profile", true);
+
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(500, 500);
+        dialog.setMinimumSize(new Dimension(500, 500));
+        dialog.setResizable(false);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 20));
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(25, 30, 20, 30)
+        );
+
+        // HEADER
+
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel("Edit Profile");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 23));
+        titleLabel.setForeground(mainTextColor);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel descriptionLabel = new JLabel(
+                "Update your personal and contact information."
+        );
+
+        descriptionLabel.setFont(mainFont);
+        descriptionLabel.setForeground(labelColor);
+        descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        headerPanel.add(titleLabel);
+        headerPanel.add(Box.createVerticalStrut(6));
+        headerPanel.add(descriptionLabel);
+
+        // FORM FIELDS
+
+        JTextField editNameField = createFormField();
+        JTextField editAddressField = createFormField();
+        JTextField editPhoneField = createFormField();
+        JTextField editEmailField = createFormField();
+
+        editNameField.setText(
+                profileName != null && !"Not set".equals(profileName)
+                        ? profileName : ""
+        );
+
+        editAddressField.setText(
+                profileAddress != null && !"Not set".equals(profileAddress)
+                        ? profileAddress : ""
+        );
+
+        editPhoneField.setText(
+                profilePhone != null && !"Not set".equals(profilePhone)
+                        ? profilePhone : ""
+        );
+
+        editEmailField.setText(
+                profileEmail != null && !"Not set".equals(profileEmail)
+                        ? profileEmail : ""
+        );
+
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 0, 5, 0);
+
+        JLabel nameLabel = createFormLabel("Full Name");
+        JLabel addressLabel = createFormLabel("Address");
+        JLabel phoneLabel = createFormLabel("Phone Number");
+        JLabel emailLabel = createFormLabel("Email Address");
+
+        editNameField.setPreferredSize(new Dimension(420, 38));
+        editAddressField.setPreferredSize(new Dimension(420, 38));
+        editPhoneField.setPreferredSize(new Dimension(420, 38));
+        editEmailField.setPreferredSize(new Dimension(420, 38));
+
+        gbc.gridy = 0;
+        formPanel.add(nameLabel, gbc);
+
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 12, 0);
+        formPanel.add(editNameField, gbc);
+
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        formPanel.add(addressLabel, gbc);
+
+        gbc.gridy = 3;
+        gbc.insets = new Insets(0, 0, 12, 0);
+        formPanel.add(editAddressField, gbc);
+
+        gbc.gridy = 4;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        formPanel.add(phoneLabel, gbc);
+
+        gbc.gridy = 5;
+        gbc.insets = new Insets(0, 0, 12, 0);
+        formPanel.add(editPhoneField, gbc);
+
+        gbc.gridy = 6;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        formPanel.add(emailLabel, gbc);
+
+        gbc.gridy = 7;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        formPanel.add(editEmailField, gbc);
+
+        // FOOTER BUTTONS
+
+        JPanel buttonPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 10, 0)
+        );
+
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton cancelButton = new JButton("Cancel");
+        JButton saveButton = new JButton("Save Changes");
+
+        styleButton(cancelButton, new Color(235, 233, 229), mainTextColor);
+        styleButton(saveButton, copperColor, Color.WHITE);
+
+        cancelButton.setPreferredSize(new Dimension(105, 40));
+        saveButton.setPreferredSize(new Dimension(135, 40));
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setContentPane(mainPanel);
+
+        cancelButton.addActionListener(e -> dialog.dispose());
+
+        saveButton.addActionListener(e -> {
+
+            String name = editNameField.getText().trim();
+            String address = editAddressField.getText().trim();
+            String phone = editPhoneField.getText().trim();
+            String email = editEmailField.getText().trim();
+
+            if (name.isEmpty()) {
+                showWarning("Please enter your full name.");
+                editNameField.requestFocus();
+                return;
+            }
+
+            if (address.isEmpty()) {
+                showWarning("Please enter your address.");
+                editAddressField.requestFocus();
+                return;
+            }
+
+            int phoneDigits = phone.replaceAll("[^0-9]", "").length();
+
+            if (!phone.matches("[0-9+\\-() ]+")
+                    || phoneDigits < 7
+                    || phoneDigits > 15) {
+
+                showWarning("Please enter a valid phone number.");
+                editPhoneField.requestFocus();
+                return;
+            }
+
+            if (!email.matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$")) {
+                showWarning("Please enter a valid email address.");
+                editEmailField.requestFocus();
+                return;
+            }
+
+            profileName = name;
+            profileAddress = address;
+            profilePhone = phone;
+            profileEmail = email;
+
+            if (account != null) {
+                account.setName(name);
+                account.setContactNumber(phone);
+                account.setEmailAddress(email);
+            }
+
+            refreshProfile();
+
+            JOptionPane.showMessageDialog(
+                    dialog,
+                    "Profile updated successfully.",
+                    "StoneCraft",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            dialog.dispose();
+        });
+
+        dialog.getRootPane().setDefaultButton(saveButton);
+
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
+    private JPanel createProfileRow(String labelText, String valueText) {
+
+        JPanel row = new JPanel(new BorderLayout(15, 0));
+        row.setBackground(Color.WHITE);
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
+
+        row.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(
+                                1, 0, 0, 0, borderColor
+                        ),
+                        BorderFactory.createEmptyBorder(13, 0, 13, 0)
+                )
+        );
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(mainFont);
+        label.setForeground(labelColor);
+        label.setPreferredSize(new Dimension(160, 20));
+
+        JLabel value = new JLabel(
+                valueText != null && !valueText.trim().isEmpty()
+                        ? valueText : "Not set"
+        );
+
+        value.setFont(boldFont);
+        value.setForeground(mainTextColor);
+
+        row.add(label, BorderLayout.WEST);
+        row.add(value, BorderLayout.CENTER);
+
+        return row;
+    }
+
+    private JLabel createFormLabel(String text) {
+
+        JLabel label = new JLabel(text);
+        label.setFont(boldFont);
+        label.setForeground(mainTextColor);
+
+        return label;
+    }
+
+    // =================================
+    // PROFILE NAVIGATION
+    // =================================
+
+    public void showProfile() {
+        showPage("Profile");
+    }
+
+    // =================================
+    // LOG OUT
+    // =================================
+
+    private void logout() {
+
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to log out?",
+                "Log Out",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+
+            Main.currentAccount = null;
+
+            dispose();
+
+            Main.loginProcess();
+        }
+    }
+
+    // =================================
+    // DESIGN HELPERS
+    // =================================
+
+    private JPanel createWhiteCard() {
+
+        JPanel panel = new JPanel();
+        panel.setBackground(Color.WHITE);
+
+        panel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(18, 18, 18, 18)
+                )
+        );
+
+        return panel;
+    }
 
     private void styleButton(
             JButton button,
@@ -1302,37 +2580,42 @@ public class CustomerMain extends MainDesign {
             Color foreground
     ) {
 
-        button.setFont(new Font("Arial", Font.BOLD, 12));
+        button.setFont(boldFont);
         button.setBackground(background);
         button.setForeground(foreground);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
-
-        button.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
-        );
+        button.setOpaque(true);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         button.setBorder(
                 BorderFactory.createEmptyBorder(9, 15, 9, 15)
         );
-
-        button.setOpaque(true);
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
 
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
 
-                if (background == copperColor) {
+                if (background.equals(copperColor)) {
                     button.setBackground(hoverColor);
                 }
             }
 
             @Override
             public void mouseExited(java.awt.event.MouseEvent e) {
-
                 button.setBackground(background);
             }
         });
+    }
+
+    private void showWarning(String message) {
+
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Invalid Input",
+                JOptionPane.WARNING_MESSAGE
+        );
     }
 }

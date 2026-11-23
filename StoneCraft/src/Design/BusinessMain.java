@@ -1,3 +1,4 @@
+
 package Design;
 
 import DataBaseManagementConnection.DataAccessObject;
@@ -29,6 +30,7 @@ public class BusinessMain extends MainDesign {
     private final Color borderColor = new Color(222, 218, 211);
     private final Color backgroundColor = new Color(247, 245, 241);
     private final Color selectionColor = new Color(246, 228, 210);
+    private final Color deleteColor = new Color(174, 65, 59);
 
     private final Font mainFont = new Font("Arial", Font.PLAIN, 13);
     private final Font boldFont = new Font("Arial", Font.BOLD, 13);
@@ -61,9 +63,7 @@ public class BusinessMain extends MainDesign {
 
     public JTextField searchField;
     public JButton profileButton;
-
-    public DefaultListModel<String> customerListModel;
-    public JList<String> customerList;
+    public JButton logoutButton;
 
     public JButton addButton;
 
@@ -73,16 +73,6 @@ public class BusinessMain extends MainDesign {
     public JMenuItem accountItem, logoutItem;
 
     public int choice;
-
-    public JPanel chatPanel;
-    public JScrollPane chatScrollPane;
-
-    public JTextField messageField;
-    public JLabel chatTitle;
-
-    public String selectedCustomer = null;
-
-    public Map<String, ArrayList<ChatMessage>> conversations = new LinkedHashMap<>();
 
     public ArrayList<Product> products;
     public ArrayList<CustomRequest> customRequests;
@@ -94,11 +84,7 @@ public class BusinessMain extends MainDesign {
     private JPanel overviewPage;
     private JPanel productsPage;
     private JPanel requestsPage;
-    private JPanel messagesPage;
-
-    // =========================================
-    // SIDEBAR
-    // =========================================
+    private JPanel profilePage;
 
     private final Map<String, JButton> menuButtons = new LinkedHashMap<>();
 
@@ -126,6 +112,17 @@ public class BusinessMain extends MainDesign {
 
     private JPanel requestsListPanel;
     private JComboBox<String> statusFilterBox;
+
+    // =========================================
+    // PROFILE
+    // =========================================
+
+    private JPanel profileCardsPanel;
+    private JPanel profileDetailsPanel;
+
+    private String profileName = "Not set";
+    private String profilePhone = "Not set";
+    private String profileEmail = "Not set";
 
     // =========================================
     // CONSTRUCTOR
@@ -178,7 +175,7 @@ public class BusinessMain extends MainDesign {
         products.addAll(DataAccessObject.getAllProduct());
     }
 
-    void loadCustomRequest(){
+    void loadCustomRequest() {
         customRequests.clear();
         customRequests.addAll(DataAccessObject.getAllCustomProduct());
     }
@@ -189,7 +186,7 @@ public class BusinessMain extends MainDesign {
 
     private void createHeader() {
 
-        headerPanel = new JPanel(new BorderLayout(20, 0));
+        headerPanel = new JPanel(new BorderLayout());
         headerPanel.setPreferredSize(new Dimension(0, 75));
         headerPanel.setBackground(darkColor);
 
@@ -224,22 +221,7 @@ public class BusinessMain extends MainDesign {
         logoPanel.add(logoIcon);
         logoPanel.add(logoTextPanel);
 
-        JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
-        searchPanel.setOpaque(false);
-        searchPanel.setPreferredSize(new Dimension(330, 36));
-
-        JPanel accountPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 5));
-        accountPanel.setOpaque(false);
-
-        profileButton = new JButton("Profile");
-        styleButton(profileButton, Color.WHITE, darkColor);
-        profileButton.setBorder(BorderFactory.createLineBorder(Color.WHITE));
-
-
-        accountPanel.add(profileButton);
-
         headerPanel.add(logoPanel, BorderLayout.WEST);
-        headerPanel.add(accountPanel, BorderLayout.EAST);
     }
 
     // =========================================
@@ -260,9 +242,23 @@ public class BusinessMain extends MainDesign {
         addSidebarTitle("MANAGEMENT");
         addMenuButton("My Products", "Products");
         addMenuButton("Custom Requests", "Requests");
-        addMenuButton("Messages", "Messages");
 
         sidebarPanel.add(Box.createVerticalGlue());
+
+        addSidebarTitle("ACCOUNT");
+
+        profileButton = new JButton("Profile");
+        styleSidebarButton(profileButton);
+        profileButton.addActionListener(e -> showProfileAccount());
+
+        sidebarPanel.add(profileButton);
+
+        logoutButton = new JButton("Log Out");
+        styleSidebarLogoutButton(logoutButton);
+        logoutButton.addActionListener(e -> logout());
+
+        sidebarPanel.add(Box.createVerticalStrut(8));
+        sidebarPanel.add(logoutButton);
     }
 
     private void addSidebarTitle(String title) {
@@ -291,30 +287,57 @@ public class BusinessMain extends MainDesign {
         menuButton.setOpaque(true);
         menuButton.setBorderPainted(false);
         menuButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        menuButton.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        menuButton.addActionListener(e -> {
-            selectMenuButton(menuButton);
-            showPage(pageName);
-        });
+        menuButton.addActionListener(e -> showPage(pageName));
 
         menuButtons.put(pageName, menuButton);
         sidebarPanel.add(menuButton);
-
-        if (pageName.equals("Overview")) {
-            selectMenuButton(menuButton);
-        }
     }
 
-    private void selectMenuButton(JButton button) {
+    private void styleSidebarButton(JButton button) {
 
-        if (selectedMenuButton != null) {
-            selectedMenuButton.setBackground(darkColor);
-            selectedMenuButton.setForeground(Color.WHITE);
-        }
+        button.setFont(mainFont);
+        button.setForeground(Color.WHITE);
+        button.setBackground(darkColor);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        button.setPreferredSize(new Dimension(190, 42));
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 5));
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+    }
 
-        selectedMenuButton = button;
-        selectedMenuButton.setBackground(copperColor);
-        selectedMenuButton.setForeground(Color.WHITE);
+    private void styleSidebarLogoutButton(JButton button) {
+
+        button.setFont(boldFont);
+        button.setForeground(Color.WHITE);
+        button.setBackground(deleteColor);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+        button.setPreferredSize(new Dimension(190, 42));
+        button.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 5));
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                button.setBackground(new Color(145, 49, 44));
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                button.setBackground(deleteColor);
+            }
+        });
     }
 
     private void updateSidebarSelection() {
@@ -343,12 +366,12 @@ public class BusinessMain extends MainDesign {
         createOverviewPage();
         createProductsPage();
         createRequestsPage();
-        createMessagesPage();
+        createProfilePage();
 
         pagesPanel.add(overviewPage, "Overview");
         pagesPanel.add(productsPage, "Products");
         pagesPanel.add(requestsPage, "Requests");
-        pagesPanel.add(messagesPage, "Messages");
+        pagesPanel.add(profilePage, "Profile");
     }
 
     public void showPage(String pageName) {
@@ -370,6 +393,9 @@ public class BusinessMain extends MainDesign {
                 refreshRequests();
                 break;
 
+            case "Profile":
+                refreshProfile();
+                break;
 
             default:
                 return;
@@ -383,7 +409,7 @@ public class BusinessMain extends MainDesign {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(Color.WHITE);
+        panel.setOpaque(false);
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(titleFont);
@@ -424,9 +450,10 @@ public class BusinessMain extends MainDesign {
                 createPageTitle("Business Dashboard", "A quick look at your StoneCraft shop."),
                 BorderLayout.NORTH
         );
+
         topPanel.add(statsPanel, BorderLayout.CENTER);
 
-        recentPanel = new JPanel(new GridLayout(1, 2, 15, 0));
+        recentPanel = new JPanel(new GridLayout(1, 1, 15, 0));
         recentPanel.setBackground(backgroundColor);
 
         overviewPage.add(topPanel, BorderLayout.NORTH);
@@ -464,9 +491,7 @@ public class BusinessMain extends MainDesign {
         statsPanel.add(createStatCard("In Progress", String.valueOf(inProgress)));
 
         recentPanel.removeAll();
-
         recentPanel.add(createRecentRequestsPanel());
-        recentPanel.add(createRecentMessagesPanel());
 
         statsPanel.revalidate();
         recentPanel.revalidate();
@@ -550,60 +575,6 @@ public class BusinessMain extends MainDesign {
         return panel;
     }
 
-    private JPanel createRecentMessagesPanel() {
-
-        JPanel panel = createWhiteCard();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-
-        JLabel titleLabel = new JLabel("Recent Messages");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        titleLabel.setForeground(mainTextColor);
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        panel.add(titleLabel);
-        panel.add(Box.createVerticalStrut(15));
-
-        int count = 0;
-
-        for (String customer : conversations.keySet()) {
-
-            ArrayList<ChatMessage> messages = conversations.get(customer);
-
-            String preview = "No messages yet.";
-
-            if (!messages.isEmpty()) {
-                preview = messages.get(messages.size() - 1).getMessage();
-            }
-
-            JLabel customerLabel = new JLabel(customer);
-            customerLabel.setFont(boldFont);
-            customerLabel.setForeground(mainTextColor);
-            customerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-            JLabel previewLabel = new JLabel(shortenText(preview, 35));
-            previewLabel.setFont(mainFont);
-            previewLabel.setForeground(labelColor);
-            previewLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-            panel.add(customerLabel);
-            panel.add(Box.createVerticalStrut(4));
-            panel.add(previewLabel);
-            panel.add(Box.createVerticalStrut(12));
-
-            count++;
-
-            if (count >= 4) {
-                break;
-            }
-        }
-
-        if (count == 0) {
-            panel.add(new JLabel("No messages yet."));
-        }
-
-        return panel;
-    }
-
     // =========================================
     // MY PRODUCTS PAGE
     // =========================================
@@ -644,10 +615,8 @@ public class BusinessMain extends MainDesign {
 
         topPanel.add(searchHolder, BorderLayout.CENTER);
 
-
         addButton = new JButton("Add Product");
         styleButton(addButton, copperColor, Color.WHITE);
-
 
         JPanel addButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 10));
         addButtonPanel.setBackground(backgroundColor);
@@ -697,8 +666,7 @@ public class BusinessMain extends MainDesign {
         JButton deleteButton = new JButton("Delete Selected");
 
         styleButton(editButton, darkColor, Color.WHITE);
-        styleButton(deleteButton, fieldColor, mainTextColor);
-        deleteButton.setBorder(BorderFactory.createLineBorder(borderColor));
+        styleButton(deleteButton, deleteColor, Color.WHITE);
 
         editButton.addActionListener(e -> editProduct());
         deleteButton.addActionListener(e -> deleteProduct());
@@ -827,7 +795,7 @@ public class BusinessMain extends MainDesign {
 
             if (updated <= 0) {
                 showDatabaseError("Failed to update the product in the database.");
-                loadProducts();   // restore the list from the database
+                loadProducts();
             }
 
             refreshProducts();
@@ -876,8 +844,6 @@ public class BusinessMain extends MainDesign {
         categoryBox = new JComboBox<>(CATEGORIES);
         styleComboBox(categoryBox);
 
-
-
         if (existingProduct != null) {
             nameField.setText(existingProduct.getProductName());
             categoryBox.setSelectedItem(existingProduct.getProductCategory());
@@ -895,8 +861,6 @@ public class BusinessMain extends MainDesign {
         addFormRow(formPanel, "Price (\u20B1)", priceField);
         addFormRow(formPanel, "Stock", stockField);
 
-
-        //sa adding button wag na sa main kasi di complited
         while (true) {
 
             int result = JOptionPane.showConfirmDialog(
@@ -1100,7 +1064,7 @@ public class BusinessMain extends MainDesign {
 
             request.setStatus((String) requestStatusBox.getSelectedItem());
 
-            // TODO: save to database, e.g. DataAccessObject.updateRequestStatus(request);
+            // TODO: connect to the database update method.
 
             refreshRequests();
             refreshOverview();
@@ -1142,148 +1106,424 @@ public class BusinessMain extends MainDesign {
     }
 
     // =========================================
-    // MESSAGES PAGE
+    // PROFILE PAGE
     // =========================================
 
-    private void createMessagesPage() {
+    public void setProfileInfo(String name, String phone, String email) {
 
-        messagesPage = new JPanel(new BorderLayout(15, 15));
-        messagesPage.setBackground(backgroundColor);
-        messagesPage.setBorder(BorderFactory.createEmptyBorder(25, 25, 20, 25));
+        profileName = name;
+        profilePhone = phone;
+        profileEmail = email;
+    }
 
-        messagesPage.add(
-                createPageTitle("Messages", "Chat with your customers and manage conversations."),
+    private void createProfilePage() {
+
+        profilePage = new JPanel(new BorderLayout(20, 20));
+        profilePage.setBackground(backgroundColor);
+        profilePage.setBorder(BorderFactory.createEmptyBorder(30, 35, 25, 35));
+
+        JPanel topPanel = new JPanel(new BorderLayout(0, 20));
+        topPanel.setOpaque(false);
+
+        topPanel.add(
+                createPageTitle(
+                        "My Profile",
+                        "Manage your personal and StoneCraft business information."
+                ),
                 BorderLayout.NORTH
         );
 
-        customerListModel = new DefaultListModel<>();
-        customerList = new JList<>(customerListModel);
+        profileCardsPanel = new JPanel(new GridLayout(1, 3, 15, 15));
+        profileCardsPanel.setOpaque(false);
+        profileCardsPanel.setPreferredSize(new Dimension(0, 105));
 
-        customerList.setFont(mainFont);
-        customerList.setForeground(mainTextColor);
-        customerList.setSelectionBackground(selectionColor);
-        customerList.setSelectionForeground(mainTextColor);
-        customerList.setFixedCellHeight(55);
-        customerList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        customerList.setCellRenderer(new CustomerListRenderer());
+        topPanel.add(profileCardsPanel, BorderLayout.CENTER);
 
-        customerList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                selectedCustomer = customerList.getSelectedValue();
+        profileDetailsPanel = new JPanel(new GridLayout(1, 1));
+        profileDetailsPanel.setOpaque(false);
+
+        profilePage.add(topPanel, BorderLayout.NORTH);
+        profilePage.add(profileDetailsPanel, BorderLayout.CENTER);
+    }
+
+    private void refreshProfile() {
+
+        profileCardsPanel.removeAll();
+
+        profileCardsPanel.add(createProfileCard("FULL NAME", profileName));
+        profileCardsPanel.add(createProfileCard("PHONE NUMBER", profilePhone));
+        profileCardsPanel.add(createProfileCard("EMAIL ADDRESS", profileEmail));
+
+        profileDetailsPanel.removeAll();
+        profileDetailsPanel.add(createProfileDetailsPanel());
+
+        profileCardsPanel.revalidate();
+        profileDetailsPanel.revalidate();
+
+        profileCardsPanel.repaint();
+        profileDetailsPanel.repaint();
+    }
+
+    private JPanel createProfileCard(String title, String value) {
+
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(Color.WHITE);
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(18, 20, 18, 20)
+                )
+        );
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 11));
+        titleLabel.setForeground(labelColor);
+
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setFont(new Font("Arial", Font.BOLD, 17));
+        valueLabel.setForeground(mainTextColor);
+
+        card.add(titleLabel);
+        card.add(Box.createVerticalStrut(12));
+        card.add(valueLabel);
+
+        return card;
+    }
+
+    private JPanel createProfileDetailsPanel() {
+
+        JPanel mainPanel = new JPanel(new BorderLayout(20, 0));
+        mainPanel.setOpaque(false);
+
+        // LEFT SIDE - ACCOUNT OVERVIEW
+
+        JPanel accountPanel = createWhiteCard();
+        accountPanel.setLayout(new BoxLayout(accountPanel, BoxLayout.Y_AXIS));
+        accountPanel.setPreferredSize(new Dimension(280, 0));
+
+        JLabel accountHeading = new JLabel("ACCOUNT OVERVIEW");
+        accountHeading.setFont(new Font("Arial", Font.BOLD, 11));
+        accountHeading.setForeground(labelColor);
+        accountHeading.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel accountName = new JLabel(profileName);
+        accountName.setFont(new Font("Arial", Font.BOLD, 21));
+        accountName.setForeground(mainTextColor);
+        accountName.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel accountType = new JLabel("Business Account");
+        accountType.setFont(mainFont);
+        accountType.setForeground(copperColor);
+        accountType.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JPanel shopBox = new JPanel();
+        shopBox.setLayout(new BoxLayout(shopBox, BoxLayout.Y_AXIS));
+        shopBox.setBackground(fieldColor);
+        shopBox.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        shopBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+        shopBox.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
+
+        JLabel shopLabel = new JLabel("SHOP NAME");
+        shopLabel.setFont(new Font("Arial", Font.BOLD, 10));
+        shopLabel.setForeground(labelColor);
+
+        JLabel shopName = new JLabel("StoneCraft");
+        shopName.setFont(new Font("Arial", Font.BOLD, 17));
+        shopName.setForeground(mainTextColor);
+
+        shopBox.add(shopLabel);
+        shopBox.add(Box.createVerticalStrut(8));
+        shopBox.add(shopName);
+
+        JLabel productCount = new JLabel("Products Listed");
+        productCount.setFont(mainFont);
+        productCount.setForeground(labelColor);
+        productCount.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel productValue = new JLabel(String.valueOf(products.size()));
+        productValue.setFont(new Font("Arial", Font.BOLD, 25));
+        productValue.setForeground(copperColor);
+        productValue.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel requestCount = new JLabel("Custom Requests");
+        requestCount.setFont(mainFont);
+        requestCount.setForeground(labelColor);
+        requestCount.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel requestValue = new JLabel(String.valueOf(customRequests.size()));
+        requestValue.setFont(new Font("Arial", Font.BOLD, 25));
+        requestValue.setForeground(copperColor);
+        requestValue.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        accountPanel.add(accountHeading);
+        accountPanel.add(Box.createVerticalStrut(22));
+        accountPanel.add(accountName);
+        accountPanel.add(Box.createVerticalStrut(6));
+        accountPanel.add(accountType);
+        accountPanel.add(Box.createVerticalStrut(25));
+        accountPanel.add(shopBox);
+        accountPanel.add(Box.createVerticalStrut(25));
+        accountPanel.add(productCount);
+        accountPanel.add(Box.createVerticalStrut(4));
+        accountPanel.add(productValue);
+        accountPanel.add(Box.createVerticalStrut(15));
+        accountPanel.add(requestCount);
+        accountPanel.add(Box.createVerticalStrut(4));
+        accountPanel.add(requestValue);
+        accountPanel.add(Box.createVerticalGlue());
+
+        // RIGHT SIDE - PERSONAL INFORMATION
+
+        JPanel informationPanel = createWhiteCard();
+        informationPanel.setLayout(new BoxLayout(informationPanel, BoxLayout.Y_AXIS));
+
+        JLabel informationTitle = new JLabel("Personal Information");
+        informationTitle.setFont(new Font("Arial", Font.BOLD, 18));
+        informationTitle.setForeground(mainTextColor);
+        informationTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel informationDescription = new JLabel(
+                "Your registered contact and account details."
+        );
+        informationDescription.setFont(mainFont);
+        informationDescription.setForeground(labelColor);
+        informationDescription.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        informationPanel.add(informationTitle);
+        informationPanel.add(Box.createVerticalStrut(5));
+        informationPanel.add(informationDescription);
+        informationPanel.add(Box.createVerticalStrut(20));
+
+        informationPanel.add(createProfileRow("Full Name", profileName));
+        informationPanel.add(createProfileRow("Phone Number", profilePhone));
+        informationPanel.add(createProfileRow("Email Address", profileEmail));
+        informationPanel.add(createProfileRow("Account Type", "Business Account"));
+
+        informationPanel.add(Box.createVerticalStrut(25));
+
+        JButton editProfileButton = new JButton("Edit Profile");
+        styleButton(editProfileButton, copperColor, Color.WHITE);
+
+        editProfileButton.setPreferredSize(new Dimension(130, 40));
+        editProfileButton.setMaximumSize(new Dimension(150, 40));
+        editProfileButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        editProfileButton.addActionListener(e -> editProfile());
+
+        informationPanel.add(editProfileButton);
+        informationPanel.add(Box.createVerticalGlue());
+
+        mainPanel.add(accountPanel, BorderLayout.WEST);
+        mainPanel.add(informationPanel, BorderLayout.CENTER);
+
+        return mainPanel;
+    }
+
+    // =========================================
+    // EDIT PROFILE - FIXED DIALOG
+    // =========================================
+
+    private void editProfile() {
+
+        JDialog dialog = new JDialog(this, "Edit Profile", true);
+
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.setSize(500, 440);
+        dialog.setMinimumSize(new Dimension(500, 440));
+        dialog.setResizable(false);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 20));
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(25, 30, 20, 30));
+
+        // HEADER
+
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setBackground(Color.WHITE);
+
+        JLabel titleLabel = new JLabel("Edit Profile");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 23));
+        titleLabel.setForeground(mainTextColor);
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel descriptionLabel = new JLabel(
+                "Update your personal and contact information."
+        );
+        descriptionLabel.setFont(mainFont);
+        descriptionLabel.setForeground(labelColor);
+        descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        headerPanel.add(titleLabel);
+        headerPanel.add(Box.createVerticalStrut(6));
+        headerPanel.add(descriptionLabel);
+
+        // FORM FIELDS
+
+        JTextField editNameField = createFormField();
+        JTextField editPhoneField = createFormField();
+        JTextField editEmailField = createFormField();
+
+        editNameField.setText("Not set".equals(profileName) ? "" : profileName);
+        editPhoneField.setText("Not set".equals(profilePhone) ? "" : profilePhone);
+        editEmailField.setText("Not set".equals(profileEmail) ? "" : profileEmail);
+
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setBackground(Color.WHITE);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 0, 5, 0);
+
+        JLabel nameLabel = createFormLabel("Full Name");
+        JLabel phoneLabel = createFormLabel("Phone Number");
+        JLabel emailLabel = createFormLabel("Email Address");
+
+        editNameField.setPreferredSize(new Dimension(420, 40));
+        editPhoneField.setPreferredSize(new Dimension(420, 40));
+        editEmailField.setPreferredSize(new Dimension(420, 40));
+
+        gbc.gridy = 0;
+        formPanel.add(nameLabel, gbc);
+
+        gbc.gridy = 1;
+        gbc.insets = new Insets(0, 0, 15, 0);
+        formPanel.add(editNameField, gbc);
+
+        gbc.gridy = 2;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        formPanel.add(phoneLabel, gbc);
+
+        gbc.gridy = 3;
+        gbc.insets = new Insets(0, 0, 15, 0);
+        formPanel.add(editPhoneField, gbc);
+
+        gbc.gridy = 4;
+        gbc.insets = new Insets(0, 0, 5, 0);
+        formPanel.add(emailLabel, gbc);
+
+        gbc.gridy = 5;
+        gbc.insets = new Insets(0, 0, 0, 0);
+        formPanel.add(editEmailField, gbc);
+
+        // FOOTER BUTTONS
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton cancelButton = new JButton("Cancel");
+        JButton saveButton = new JButton("Save Changes");
+
+        styleButton(cancelButton, new Color(235, 233, 229), mainTextColor);
+        styleButton(saveButton, copperColor, Color.WHITE);
+
+        cancelButton.setPreferredSize(new Dimension(105, 40));
+        saveButton.setPreferredSize(new Dimension(135, 40));
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(saveButton);
+
+        // ADD COMPONENTS
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.setContentPane(mainPanel);
+
+        // CANCEL BUTTON
+
+        cancelButton.addActionListener(e -> dialog.dispose());
+
+        // SAVE BUTTON
+
+        saveButton.addActionListener(e -> {
+
+            String name = editNameField.getText().trim();
+            String phone = editPhoneField.getText().trim();
+            String email = editEmailField.getText().trim();
+
+            if (name.isEmpty()) {
+                showWarning("Please enter your full name.");
+                editNameField.requestFocus();
+                return;
             }
+
+            int phoneDigits = phone.replaceAll("[^0-9]", "").length();
+
+            if (!phone.matches("[0-9+\\-() ]+") || phoneDigits < 7 || phoneDigits > 15) {
+                showWarning("Please enter a valid phone number.");
+                editPhoneField.requestFocus();
+                return;
+            }
+
+            if (!email.matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$")) {
+                showWarning("Please enter a valid email address.");
+                editEmailField.requestFocus();
+                return;
+            }
+
+            setProfileInfo(name, phone, email);
+
+            refreshProfile();
+
+            dialog.dispose();
         });
 
-        JScrollPane listScrollPane = new JScrollPane(customerList);
-        listScrollPane.setBorder(BorderFactory.createLineBorder(borderColor));
-        listScrollPane.setPreferredSize(new Dimension(230, 0));
+        dialog.getRootPane().setDefaultButton(saveButton);
 
-        JPanel chatSide = new JPanel(new BorderLayout());
-        chatSide.setBackground(Color.WHITE);
-        chatSide.setBorder(BorderFactory.createLineBorder(borderColor));
-
-        JPanel chatHeader = new JPanel(new BorderLayout());
-        chatHeader.setBackground(darkColor);
-        chatHeader.setBorder(BorderFactory.createEmptyBorder(14, 18, 14, 18));
-
-        chatTitle = new JLabel("Select a customer");
-        chatTitle.setFont(new Font("Arial", Font.BOLD, 16));
-        chatTitle.setForeground(Color.WHITE);
-
-        chatHeader.add(chatTitle, BorderLayout.WEST);
-
-        chatPanel = new JPanel();
-        chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.Y_AXIS));
-        chatPanel.setBackground(backgroundColor);
-        chatPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-
-        chatScrollPane = new JScrollPane(chatPanel);
-        chatScrollPane.setBorder(null);
-        chatScrollPane.getVerticalScrollBar().setUnitIncrement(15);
-
-        JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
-        inputPanel.setBackground(Color.WHITE);
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(12, 15, 12, 15));
-
-        messageField = createFormField();
-
-        JButton sendButton = new JButton("Send");
-        styleButton(sendButton, copperColor, Color.WHITE);
-
-        inputPanel.add(messageField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
-
-        chatSide.add(chatHeader, BorderLayout.NORTH);
-        chatSide.add(chatScrollPane, BorderLayout.CENTER);
-        chatSide.add(inputPanel, BorderLayout.SOUTH);
-
-        JPanel bodyPanel = new JPanel(new BorderLayout(15, 0));
-        bodyPanel.setBackground(backgroundColor);
-
-        bodyPanel.add(listScrollPane, BorderLayout.WEST);
-        bodyPanel.add(chatSide, BorderLayout.CENTER);
-
-        messagesPage.add(bodyPanel, BorderLayout.CENTER);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 
-    // =========================================
-    // CUSTOMER LIST RENDERER
-    // =========================================
+    private JPanel createProfileRow(String labelText, String valueText) {
 
-    private class CustomerListRenderer implements ListCellRenderer<String> {
+        JPanel row = new JPanel(new BorderLayout(15, 0));
+        row.setBackground(Color.WHITE);
+        row.setAlignmentX(Component.LEFT_ALIGNMENT);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
 
-        @Override
-        public Component getListCellRendererComponent(
-                JList<? extends String> list,
-                String customer,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus
-        ) {
+        row.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(1, 0, 0, 0, borderColor),
+                        BorderFactory.createEmptyBorder(13, 0, 13, 0)
+                )
+        );
 
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
-            panel.setBackground(isSelected ? selectionColor : Color.WHITE);
+        JLabel label = new JLabel(labelText);
+        label.setFont(mainFont);
+        label.setForeground(labelColor);
+        label.setPreferredSize(new Dimension(160, 20));
 
-            JLabel nameLabel = new JLabel(customer);
-            nameLabel.setFont(mainFont);
-            nameLabel.setForeground(mainTextColor);
+        JLabel value = new JLabel(valueText);
+        value.setFont(boldFont);
+        value.setForeground(mainTextColor);
 
-            panel.add(nameLabel, BorderLayout.CENTER);
+        row.add(label, BorderLayout.WEST);
+        row.add(value, BorderLayout.CENTER);
 
-            return panel;
-        }
+        return row;
     }
-
 
     // =========================================
     // PROFILE MENU
     // =========================================
 
     public void showProfile() {
-
-        JPopupMenu profileMenu = new JPopupMenu();
-
-        accountItem = new JMenuItem("Business Account");
-        logoutItem = new JMenuItem("Log Out");
-
-        accountItem.addActionListener(e ->{
-            showProfileAccount();
-        });
-
-        logoutItem.addActionListener(e -> {
-            logout();
-        });
-
-        profileMenu.add(accountItem);
-        profileMenu.addSeparator();
-        profileMenu.add(logoutItem);
-
-        profileMenu.show(profileButton, 0, profileButton.getHeight());
+        showPage("Profile");
     }
 
-    public void showProfileAccount(){
-
+    public void showProfileAccount() {
+        showPage("Profile");
     }
+
+    // =========================================
+    // LOG OUT
+    // =========================================
 
     public void logout() {
 
@@ -1294,16 +1534,13 @@ public class BusinessMain extends MainDesign {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
+
         if (choice == JOptionPane.YES_OPTION) {
-            Main.loginProcess();
             Main.currentAccount = null;
             dispose();
+            Main.loginProcess();
         }
-
-
     }
-
-
 
     // =========================================
     // DESIGN HELPERS
@@ -1440,18 +1677,5 @@ public class BusinessMain extends MainDesign {
                 "Invalid Input",
                 JOptionPane.WARNING_MESSAGE
         );
-    }
-
-    private String shortenText(String text, int maxLength) {
-
-        if (text == null) {
-            return "";
-        }
-
-        if (text.length() <= maxLength) {
-            return text;
-        }
-
-        return text.substring(0, maxLength) + "...";
     }
 }
