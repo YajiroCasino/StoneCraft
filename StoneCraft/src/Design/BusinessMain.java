@@ -111,7 +111,8 @@ public class BusinessMain extends MainDesign {
     // =========================================
 
     private JPanel requestsListPanel;
-    private JComboBox<String> statusFilterBox;
+    public JComboBox<String> statusFilterBox;
+    public String statusValue;
 
     // =========================================
     // PROFILE
@@ -467,7 +468,7 @@ public class BusinessMain extends MainDesign {
         overviewPage.add(recentPanel, BorderLayout.CENTER);
     }
 
-    private void refreshOverview() {
+    public void refreshOverview() {
 
         int lowStock = 0;
         int pending = 0;
@@ -964,7 +965,7 @@ public class BusinessMain extends MainDesign {
         requestsPage.add(requestScrollPane, BorderLayout.CENTER);
     }
 
-    private void refreshRequests() {
+    public void refreshRequests() {
 
         if (requestsListPanel == null) {
             return;
@@ -1060,6 +1061,7 @@ public class BusinessMain extends MainDesign {
         requestStatusBox.setMaximumSize(new Dimension(150, 34));
 
         JButton updateButton = new JButton("Update Status");
+
         styleButton(updateButton, copperColor, Color.WHITE);
         updateButton.setMaximumSize(new Dimension(150, 36));
 
@@ -1068,10 +1070,10 @@ public class BusinessMain extends MainDesign {
         viewButton.setMaximumSize(new Dimension(150, 36));
 
         updateButton.addActionListener(e -> {
+            String newStatus = (String) requestStatusBox.getSelectedItem();
 
-            request.setStatus((String) requestStatusBox.getSelectedItem());
-
-            // TODO: connect to the database update method.
+            request.setStatus(newStatus);
+            DataAccessObject.updateRequestStatus(request, newStatus);
 
             refreshRequests();
             refreshOverview();
@@ -1101,7 +1103,6 @@ public class BusinessMain extends MainDesign {
                         + "\n\nDescription: " + request.getProductDescription()
                         + "\n\nPreferred Size: " + request.getProductSize()
                         + "\n\nDesign: " + request.getProductPreferredDesign()
-                        + "\n\nBudget: \u20B1" + String.format("%.2f", request.getProductPrice())
                         + "\n\nStatus: " + request.getStatus();
 
         JOptionPane.showMessageDialog(

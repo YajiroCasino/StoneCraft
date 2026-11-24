@@ -31,21 +31,6 @@ public class DataAccessObject {
         return -1;
     }
 
-    public static boolean updateCustomerAccountType(int accountId, String newType) {
-        String sqlSyntax = "update customer_account set customer_account_type = ? where account_id = ?";
-        try (Connection con = DataBaseConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sqlSyntax)) {
-
-            ps.setString(1, newType);
-            ps.setInt(2, accountId);
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     public static boolean updateAccount(Accounts account){
         String sqlSyntax = "update accounts set account_name = ?, account_email_address = ?, account_contact_number = ? where account_id = ?";
@@ -362,6 +347,23 @@ public class DataAccessObject {
         return list;
     }
 
+    public static void updateRequestStatus(CustomRequest request, String status) {
+
+        String sql = "UPDATE custom_products SET custom_product_status = ? WHERE custom_product_id = ?";
+
+        try {Connection con = DataBaseConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1, status);
+            ps.setInt(2, request.getProductId());
+
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static int insertCartItem(Cart cartItem) {
         String sql = "insert into cart(product_id, product_cart_quantity) values(?, ?)";
         try (Connection c = DataBaseConnection.getConnection();
@@ -441,16 +443,7 @@ public class DataAccessObject {
         return list;
     }
 
-    public int insertOrder(Product product){
-        String sqlSyntax = "insert into orders (product_name, product_category, product_price, product_quantity) values (?, ?, ?, ?)";
 
-        try(PreparedStatement ps = con.prepareStatement(sqlSyntax, Statement.RETURN_GENERATED_KEYS)) {
-
-        }catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
 
 
 

@@ -11,6 +11,7 @@ public class Main {
 
     public static DataAccessObject productDao = new DataAccessObject();
     public static Accounts currentAccount;
+    public static CustomRequest request;
 
     public static void main(String[] args){
 
@@ -60,7 +61,7 @@ public class Main {
             if (contactNumber.isEmpty()) {
                 su.contactWarning.setText("Please enter your contact number.");
                 valid = false;
-            } else if (!contactNumber.matches("\\d{11}")) {
+            } else if (!contactNumber.matches("09\\d{9}")) {
                 su.contactWarning.setText("Contact number must be exactly 11 digits with no spaces.");
                 valid = false;
             }
@@ -236,12 +237,7 @@ public class Main {
                 return;
             }
 
-            int phoneDigits = phone.replaceAll("[^0-9]", "").length();
-
-            if (!phone.matches("[0-9+\\-() ]+")
-                    || phoneDigits < 7
-                    || phoneDigits > 15) {
-
+            if (!phone.matches("09\\d{9}")) {
                 cm.showWarning("Please enter a valid phone number.");
                 cm.editPhoneField.requestFocus();
                 return;
@@ -311,7 +307,7 @@ public class Main {
 
             int phoneDigits = phone.replaceAll("[^0-9]", "").length();
 
-            if (!phone.matches("[0-9+\\-() ]+") || phoneDigits < 7 || phoneDigits > 15) {
+            if (!phone.matches("09\\d{9}")){
                 bm.showWarning("Please enter a valid phone number.");
                 bm.editPhoneField.requestFocus();
                 return;
@@ -346,7 +342,6 @@ public class Main {
 
             bm.dialog.dispose();
         });
-
 
     }
 

@@ -7,7 +7,7 @@ public class CustomRequest extends Product {
     private String size;
     private String preferredDesign;
     private Accounts customer;
-    private String status = "Pending";
+    private String status;
 
     public CustomRequest(Accounts customer, String productName, String productCategory, double productPrice, int productQuantity, String description, String size, String preferredDesign) {
         super(productName, productCategory,productPrice, productQuantity);
