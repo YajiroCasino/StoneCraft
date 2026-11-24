@@ -181,7 +181,7 @@ public class Main {
             currentAccount = accounts;
             lg.dispose();
 
-            if (gmail.equals("bossbusinessowner@gmail.com") || gmail.equals("employeebusinessowner@gmail.com")) {
+            if (accounts instanceof BusinessAccount) {
                 businessProcess();
             }
             else {
@@ -250,6 +250,10 @@ public class Main {
             if (!email.matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$")) {
                 cm.showWarning("Please enter a valid email address.");
                 cm.editEmailField.requestFocus();
+                return;
+            }
+            if(email.equals("bossbusinesssowner@gmail.com") || email.equals("employeebusinessowner@gmail.com")){
+                cm.showWarning("Invalid email address.");
                 return;
             }
 
