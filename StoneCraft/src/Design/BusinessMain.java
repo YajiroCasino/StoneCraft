@@ -1,4 +1,3 @@
-
 package Design;
 
 import DataBaseManagementConnection.DataAccessObject;
@@ -128,7 +127,6 @@ public class BusinessMain extends MainDesign {
     public JDialog dialog;
     public JTextField editNameField;
     public JTextField editPhoneField;
-    public JTextField editEmailField;
 
     public JButton saveButton = new JButton("Save Changes");
 
@@ -1323,7 +1321,7 @@ public class BusinessMain extends MainDesign {
     }
 
     // =========================================
-    // EDIT PROFILE - FIXED DIALOG
+    // EDIT PROFILE - WITHOUT EMAIL FIELD
     // =========================================
 
     private void editProfile() {
@@ -1331,8 +1329,8 @@ public class BusinessMain extends MainDesign {
         dialog = new JDialog(this, "Edit Profile", true);
 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setSize(500, 440);
-        dialog.setMinimumSize(new Dimension(500, 440));
+        dialog.setSize(500, 370);
+        dialog.setMinimumSize(new Dimension(500, 370));
         dialog.setResizable(false);
 
         JPanel mainPanel = new JPanel(new BorderLayout(0, 20));
@@ -1365,11 +1363,9 @@ public class BusinessMain extends MainDesign {
 
         editNameField = createFormField();
         editPhoneField = createFormField();
-        editEmailField = createFormField();
 
         editNameField.setText("Not set".equals(profileName) ? "" : profileName);
         editPhoneField.setText("Not set".equals(profilePhone) ? "" : profilePhone);
-        editEmailField.setText("Not set".equals(profileEmail) ? "" : profileEmail);
 
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setBackground(Color.WHITE);
@@ -1382,11 +1378,9 @@ public class BusinessMain extends MainDesign {
 
         JLabel nameLabel = createFormLabel("Full Name");
         JLabel phoneLabel = createFormLabel("Phone Number");
-        JLabel emailLabel = createFormLabel("Email Address");
 
         editNameField.setPreferredSize(new Dimension(420, 40));
         editPhoneField.setPreferredSize(new Dimension(420, 40));
-        editEmailField.setPreferredSize(new Dimension(420, 40));
 
         gbc.gridy = 0;
         formPanel.add(nameLabel, gbc);
@@ -1400,16 +1394,8 @@ public class BusinessMain extends MainDesign {
         formPanel.add(phoneLabel, gbc);
 
         gbc.gridy = 3;
-        gbc.insets = new Insets(0, 0, 15, 0);
-        formPanel.add(editPhoneField, gbc);
-
-        gbc.gridy = 4;
-        gbc.insets = new Insets(0, 0, 5, 0);
-        formPanel.add(emailLabel, gbc);
-
-        gbc.gridy = 5;
         gbc.insets = new Insets(0, 0, 0, 0);
-        formPanel.add(editEmailField, gbc);
+        formPanel.add(editPhoneField, gbc);
 
         // FOOTER BUTTONS
 
@@ -1438,7 +1424,6 @@ public class BusinessMain extends MainDesign {
         // CANCEL BUTTON
 
         cancelButton.addActionListener(e -> dialog.dispose());
-
 
         dialog.getRootPane().setDefaultButton(saveButton);
 

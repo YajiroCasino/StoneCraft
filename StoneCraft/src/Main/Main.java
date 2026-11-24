@@ -1,11 +1,13 @@
+
 package Main;
+
 import Design.*;
 import DataBaseManagementConnection.*;
+
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.*;
-
 
 public class Main {
 
@@ -13,10 +15,10 @@ public class Main {
     public static Accounts currentAccount;
     public static CustomRequest request;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
         DataBaseConnection.createDatabase();
-        signUpProcess();
+        customerProcess();
     }
 
     public static void signUpProcess() {
@@ -184,8 +186,7 @@ public class Main {
 
             if (accounts instanceof BusinessAccount) {
                 businessProcess();
-            }
-            else {
+            } else {
                 customerProcess();
             }
         });
@@ -196,24 +197,31 @@ public class Main {
                 lg.dispose();
             }
         });
-
     }
-    public static void customerProcess(){
+
+    public static void customerProcess() {
+
         CustomerMain cm = new CustomerMain();
+
         cm.profileName = currentAccount.getName();
         cm.profilePhone = currentAccount.getContactNumber();
         cm.profileEmail = currentAccount.getEmailAddress();
 
-        cm.submitButton.addActionListener(e ->{
+        cm.submitButton.addActionListener(e -> {
+
             String name = cm.sculptureNameField.getText().trim();
             String description = cm.descriptionArea.getText().trim();
             String category = (String) cm.categoryComboBox.getSelectedItem();
             String size = (String) cm.sizeComboBox.getSelectedItem();
-            int quantity =  ((Number) cm.quantitySpinner.getValue()).intValue();
+            int quantity = ((Number) cm.quantitySpinner.getValue()).intValue();
             String preferredDesign = cm.designField.getText().trim();
             int price = 0;
 
-            CustomRequest cr = new CustomRequest(currentAccount, name, category, price, quantity, description, size, preferredDesign);
+            CustomRequest cr = new CustomRequest(
+                    currentAccount, name, category, price, quantity,
+                    description, size, preferredDesign
+            );
+
             int newId = DataAccessObject.insertCustomProduct(cr);
             cm.requestFrame.dispose();
         });
@@ -248,7 +256,8 @@ public class Main {
                 cm.editEmailField.requestFocus();
                 return;
             }
-            if(email.equals("bossbusinesssowner@gmail.com") || email.equals("employeebusinessowner@gmail.com")){
+
+            if (email.equals("bossbusinesssowner@gmail.com") || email.equals("employeebusinessowner@gmail.com")) {
                 cm.showWarning("Invalid email address.");
                 return;
             }
@@ -265,6 +274,7 @@ public class Main {
 
                 DataAccessObject.updateAccount(currentAccount);
             }
+
             cm.refreshProfile();
 
             JOptionPane.showMessageDialog(
@@ -276,15 +286,16 @@ public class Main {
 
             cm.dialog.dispose();
         });
-
     }
 
-    public static void businessProcess(){
+    public static void businessProcess() {
 
         BusinessMain bm = new BusinessMain();
+
         bm.profileName = currentAccount.getName();
         bm.profilePhone = currentAccount.getContactNumber();
         bm.profileEmail = currentAccount.getEmailAddress();
+
         bm.profileButton.addActionListener(e -> {
             bm.showProfile();
         });
@@ -297,7 +308,6 @@ public class Main {
 
             String name = bm.editNameField.getText().trim();
             String phone = bm.editPhoneField.getText().trim();
-            String email = bm.editEmailField.getText().trim();
 
             if (name.isEmpty()) {
                 bm.showWarning("Please enter your full name.");
@@ -307,30 +317,22 @@ public class Main {
 
             int phoneDigits = phone.replaceAll("[^0-9]", "").length();
 
-            if (!phone.matches("09\\d{9}")){
+            if (!phone.matches("09\\d{9}")) {
                 bm.showWarning("Please enter a valid phone number.");
                 bm.editPhoneField.requestFocus();
                 return;
             }
 
-            if (!email.matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$")) {
-                bm.showWarning("Please enter a valid email address.");
-                bm.editEmailField.requestFocus();
-                return;
-            }
-
             bm.profileName = name;
-            bm.profileEmail = email;
             bm.profilePhone = phone;
 
-
-            if(currentAccount !=null){
+            if (currentAccount != null) {
                 currentAccount.setName(name);
                 currentAccount.setContactNumber(phone);
-                currentAccount.setEmailAddress(email);
 
                 DataAccessObject.updateAccount(currentAccount);
             }
+
             bm.refreshProfile();
 
             JOptionPane.showMessageDialog(
@@ -342,12 +344,8 @@ public class Main {
 
             bm.dialog.dispose();
         });
-
     }
 
-
-    //custom request need ko mamaya
-    //improve design
-
-
+    // custom request need ko mamaya
+    // improve design
 }

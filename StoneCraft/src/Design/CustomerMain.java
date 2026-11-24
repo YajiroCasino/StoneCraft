@@ -9,8 +9,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CustomerMain extends MainDesign {
@@ -60,6 +60,12 @@ public class CustomerMain extends MainDesign {
     private JComboBox<String> sortComboBox;
     private JButton cartButton;
 
+    // Separate search field for each category
+    private final Map<String, JTextField> categorySearchFields =
+            new LinkedHashMap<>();
+
+    private JPanel searchHolder;
+
     // =================================
     // SIDEBAR COMPONENTS
     // =================================
@@ -79,7 +85,6 @@ public class CustomerMain extends MainDesign {
 
     private ArrayList<Product> products;
     private ArrayList<Cart> cartItems;
-
     private ArrayList<CustomRequest> customRequests;
 
     private String selectedCategory = "All Products";
@@ -122,7 +127,7 @@ public class CustomerMain extends MainDesign {
     public String profileEmail;
 
     public JButton editProfileButton;
-    public JButton saveButton = new JButton("Save Changes");;
+    public JButton saveButton = new JButton("Save Changes");
 
     public JTextField editNameField;
     public JTextField editAddressField;
@@ -258,41 +263,6 @@ public class CustomerMain extends MainDesign {
         logoPanel.add(logoIcon);
         logoPanel.add(logoTextPanel);
 
-        // SEARCH BAR
-
-        JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
-        searchPanel.setOpaque(false);
-        searchPanel.setPreferredSize(new Dimension(320, 36));
-
-        searchField = new JTextField();
-        searchField.setFont(mainFont);
-        searchField.setBackground(fieldColor);
-
-        searchField.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(borderColor),
-                        BorderFactory.createEmptyBorder(5, 10, 5, 10)
-                )
-        );
-
-        searchField.setToolTipText("Search products");
-
-        JButton searchButton = new JButton("Search");
-        styleButton(searchButton, copperColor, Color.WHITE);
-
-        searchButton.addActionListener(e -> searchProducts());
-        searchField.addActionListener(e -> searchProducts());
-
-        searchPanel.add(searchField, BorderLayout.CENTER);
-        searchPanel.add(searchButton, BorderLayout.EAST);
-
-        JPanel searchHolder = new JPanel(
-                new FlowLayout(FlowLayout.CENTER, 0, 7)
-        );
-
-        searchHolder.setOpaque(false);
-        searchHolder.add(searchPanel);
-
         // CART
 
         JPanel accountPanel = new JPanel(
@@ -308,7 +278,6 @@ public class CustomerMain extends MainDesign {
         accountPanel.add(cartButton);
 
         headerPanel.add(logoPanel, BorderLayout.WEST);
-        headerPanel.add(searchHolder, BorderLayout.CENTER);
         headerPanel.add(accountPanel, BorderLayout.EAST);
     }
 
@@ -332,8 +301,8 @@ public class CustomerMain extends MainDesign {
 
         addSidebarTitle("MENU");
 
+        // Dashboard already displays all products.
         addMenuButton("Dashboard", "All Products");
-        addMenuButton("All Products", "All Products");
 
         addSidebarTitle("CATEGORIES");
 
@@ -413,6 +382,7 @@ public class CustomerMain extends MainDesign {
             selectedCategory = category;
             currentMenu = buttonText;
 
+            updateProductSearchBar();
             showPage("Products");
 
             displayProducts(
@@ -455,7 +425,6 @@ public class CustomerMain extends MainDesign {
 
         menuButton.addActionListener(action);
 
-        // STORE CUSTOM REQUEST BUTTONS
         actionMenuButtons.put(buttonText, menuButton);
 
         sidebarPanel.add(menuButton);
@@ -518,8 +487,6 @@ public class CustomerMain extends MainDesign {
 
     private void updateSidebarSelection() {
 
-        // DASHBOARD AND CATEGORY BUTTONS
-
         for (Map.Entry<String, JButton> entry : menuButtons.entrySet()) {
 
             boolean selected =
@@ -534,8 +501,6 @@ public class CustomerMain extends MainDesign {
 
             menuButton.setForeground(Color.WHITE);
         }
-
-        // CUSTOM REQUEST BUTTONS
 
         for (Map.Entry<String, JButton> entry : actionMenuButtons.entrySet()) {
 
@@ -560,8 +525,6 @@ public class CustomerMain extends MainDesign {
 
             menuButton.setForeground(Color.WHITE);
         }
-
-        // PROFILE BUTTON
 
         if (profileButton != null) {
 
@@ -665,6 +628,54 @@ public class CustomerMain extends MainDesign {
         titlePanel.add(Box.createVerticalStrut(5));
         titlePanel.add(pageDescription);
 
+        // SEARCH FIELDS FOR EACH CATEGORY
+
+        String[] categories = {
+                "All Products",
+                "Home Decor",
+                "Garden",
+                "Kitchen",
+                "Sculptures"
+        };
+
+        for (String category : categories) {
+
+            JTextField categoryField = new JTextField();
+            categoryField.setFont(mainFont);
+            categoryField.setBackground(Color.WHITE);
+
+            categoryField.setBorder(
+                    BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(borderColor),
+                            BorderFactory.createEmptyBorder(7, 10, 7, 10)
+                    )
+            );
+
+            categoryField.setToolTipText(
+                    "Search " + category
+            );
+
+            categoryField.addActionListener(e -> {
+
+                if (selectedCategory.equals(category)) {
+                    displayProducts(category, categoryField.getText());
+                }
+            });
+
+            categorySearchFields.put(category, categoryField);
+        }
+
+        searchHolder = new JPanel(new BorderLayout(8, 0));
+        searchHolder.setBackground(backgroundColor);
+        searchHolder.setPreferredSize(new Dimension(0, 40));
+
+        JButton searchButton = new JButton("Search");
+        styleButton(searchButton, copperColor, Color.WHITE);
+
+        searchButton.addActionListener(e -> searchProducts());
+
+        searchHolder.add(searchButton, BorderLayout.EAST);
+
         // FILTER SECTION
 
         JPanel filterPanel = new JPanel(new BorderLayout());
@@ -706,16 +717,68 @@ public class CustomerMain extends MainDesign {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         scrollPane.getViewport().setBackground(backgroundColor);
 
-        JPanel topContent = new JPanel(new BorderLayout(10, 15));
+        JPanel topContent = new JPanel(new BorderLayout(10, 12));
         topContent.setBackground(backgroundColor);
 
-        topContent.add(titlePanel, BorderLayout.NORTH);
+        JPanel topSection = new JPanel(new BorderLayout(0, 12));
+        topSection.setBackground(backgroundColor);
+
+        topSection.add(titlePanel, BorderLayout.NORTH);
+        topSection.add(searchHolder, BorderLayout.CENTER);
+
+        topContent.add(topSection, BorderLayout.NORTH);
         topContent.add(filterPanel, BorderLayout.SOUTH);
 
         productsPage.add(topContent, BorderLayout.NORTH);
         productsPage.add(scrollPane, BorderLayout.CENTER);
 
+        updateProductSearchBar();
+
         displayProducts("All Products", "");
+    }
+
+    // =================================
+    // CHANGE SEARCH FIELD PER CATEGORY
+    // =================================
+
+    private void updateProductSearchBar() {
+
+        if (searchHolder == null) {
+            return;
+        }
+
+        JTextField selectedField =
+                categorySearchFields.get(selectedCategory);
+
+        if (selectedField == null) {
+            return;
+        }
+
+        searchField = selectedField;
+
+        searchHolder.removeAll();
+
+        JButton searchButton = new JButton("Search");
+        styleButton(searchButton, copperColor, Color.WHITE);
+
+        searchButton.addActionListener(e -> searchProducts());
+
+        JPanel searchPanel = new JPanel(new BorderLayout(8, 0));
+        searchPanel.setBackground(backgroundColor);
+        searchPanel.setPreferredSize(new Dimension(450, 40));
+
+        searchField.setPreferredSize(new Dimension(350, 40));
+
+        searchPanel.add(searchField, BorderLayout.CENTER);
+        searchPanel.add(searchButton, BorderLayout.EAST);
+
+        JPanel centerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        centerPanel.setBackground(backgroundColor);
+        centerPanel.add(searchPanel);
+
+        searchHolder.add(centerPanel, BorderLayout.CENTER);
+        searchHolder.revalidate();
+        searchHolder.repaint();
     }
 
     // =================================
@@ -743,8 +806,6 @@ public class CustomerMain extends MainDesign {
                 filteredProducts.add(product);
             }
         }
-
-        // PRICE SORTING
 
         if (sortComboBox != null) {
 
@@ -805,8 +866,6 @@ public class CustomerMain extends MainDesign {
                 )
         );
 
-        // PRODUCT IMAGE PLACEHOLDER
-
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setPreferredSize(new Dimension(200, 150));
         imagePanel.setBackground(fieldColor);
@@ -817,8 +876,6 @@ public class CustomerMain extends MainDesign {
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         imagePanel.add(imageLabel, BorderLayout.CENTER);
-
-        // PRODUCT DETAILS
 
         JPanel informationPanel = new JPanel();
         informationPanel.setLayout(new BoxLayout(
@@ -847,8 +904,6 @@ public class CustomerMain extends MainDesign {
         informationPanel.add(productCategory);
         informationPanel.add(Box.createVerticalStrut(7));
         informationPanel.add(productPrice);
-
-        // ADD TO CART
 
         JButton addButton = new JButton("Add to Cart");
         styleButton(addButton, copperColor, Color.WHITE);
@@ -1240,8 +1295,6 @@ public class CustomerMain extends MainDesign {
                 BorderFactory.createEmptyBorder(30, 40, 25, 40)
         );
 
-        // PAGE HEADER
-
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
 
@@ -1262,8 +1315,6 @@ public class CustomerMain extends MainDesign {
         );
 
         headerPanel.add(requestBadge, BorderLayout.EAST);
-
-        // MAIN CONTENT
 
         JPanel contentPanel = new JPanel(new BorderLayout(20, 0));
         contentPanel.setOpaque(false);
@@ -1404,8 +1455,6 @@ public class CustomerMain extends MainDesign {
 
         designField = createFormField();
 
-        // ROW 1 - SCULPTURE NAME
-
         addRequestFormField(
                 requestFormPanel, gbc,
                 0, 0, 2,
@@ -1413,16 +1462,12 @@ public class CustomerMain extends MainDesign {
                 sculptureNameField
         );
 
-        // ROW 2 - DESCRIPTION
-
         addRequestFormField(
                 requestFormPanel, gbc,
                 1, 0, 2,
                 "Description / Details",
                 descriptionScroll
         );
-
-        // ROW 3 - CATEGORY AND SIZE
 
         addRequestFormField(
                 requestFormPanel, gbc,
@@ -1437,8 +1482,6 @@ public class CustomerMain extends MainDesign {
                 "Preferred Size",
                 sizeComboBox
         );
-
-        // ROW 4 - QUANTITY AND DESIGN
 
         addRequestFormField(
                 requestFormPanel, gbc,
@@ -1670,8 +1713,6 @@ public class CustomerMain extends MainDesign {
                 BorderFactory.createEmptyBorder(30, 40, 25, 40)
         );
 
-        // PAGE HEADER
-
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
 
@@ -1693,8 +1734,6 @@ public class CustomerMain extends MainDesign {
 
         headerPanel.add(requestBadge, BorderLayout.EAST);
 
-        // CONTENT CARD
-
         JPanel contentCard = createWhiteCard();
         contentCard.setLayout(new BorderLayout(0, 15));
 
@@ -1704,8 +1743,6 @@ public class CustomerMain extends MainDesign {
                         BorderFactory.createEmptyBorder(22, 25, 22, 25)
                 )
         );
-
-        // CONTENT HEADER
 
         JPanel contentHeader = new JPanel(new BorderLayout());
         contentHeader.setOpaque(false);
@@ -1741,8 +1778,6 @@ public class CustomerMain extends MainDesign {
         contentHeader.add(contentTitlePanel, BorderLayout.WEST);
         contentHeader.add(newRequestButton, BorderLayout.EAST);
 
-        // REQUEST LIST
-
         requestListPanel = new JPanel();
         requestListPanel.setLayout(new BoxLayout(
                 requestListPanel, BoxLayout.Y_AXIS
@@ -1772,8 +1807,8 @@ public class CustomerMain extends MainDesign {
     }
 
     // =================================
-    // REFRESH CUSTOM REQUESTS
-    // =================================
+// REFRESH CUSTOM REQUESTS
+// =================================
 
     private void refreshCustomRequests() {
 
@@ -1783,10 +1818,28 @@ public class CustomerMain extends MainDesign {
 
         requestListPanel.removeAll();
 
-        List<CustomRequest> requests =
+        List<CustomRequest> allRequests =
                 DataAccessObject.getAllCustomProduct();
 
-        if (requests == null || requests.isEmpty()) {
+        customRequests.clear();
+
+        Accounts currentAccount = Main.currentAccount;
+
+        // Display only requests belonging to the logged-in customer.
+        if (allRequests != null && currentAccount != null) {
+
+            for (CustomRequest request : allRequests) {
+
+                if (request.getCustomer() != null
+                        && request.getCustomer().getAccountId()
+                        == currentAccount.getAccountId()) {
+
+                    customRequests.add(request);
+                }
+            }
+        }
+
+        if (customRequests.isEmpty()) {
 
             JPanel emptyPanel = new JPanel();
             emptyPanel.setLayout(new BoxLayout(
@@ -1811,23 +1864,15 @@ public class CustomerMain extends MainDesign {
             emptyDescription.setForeground(labelColor);
             emptyDescription.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            JButton createButton = new JButton("Create Custom Request");
-            styleButton(createButton, copperColor, Color.WHITE);
-            createButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            createButton.addActionListener(e -> openCustomRequestForm());
-
             emptyPanel.add(emptyTitle);
             emptyPanel.add(Box.createVerticalStrut(8));
             emptyPanel.add(emptyDescription);
-            emptyPanel.add(Box.createVerticalStrut(20));
-            emptyPanel.add(createButton);
 
             requestListPanel.add(emptyPanel);
 
         } else {
 
-            for (CustomRequest customRequest : requests) {
+            for (CustomRequest customRequest : customRequests) {
 
                 requestListPanel.add(
                         createCustomRequestCard(customRequest)
@@ -1900,6 +1945,29 @@ public class CustomerMain extends MainDesign {
         designLabel.setFont(mainFont);
         designLabel.setForeground(labelColor);
 
+        // OWNER-SET PRICE
+
+        JLabel priceLabel = new JLabel(
+                "Price: ₱" + String.format(
+                        "%.2f", customRequest.getProductPrice()
+                )
+        );
+
+        priceLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        priceLabel.setForeground(copperColor);
+
+        // CURRENT REQUEST STATUS
+
+        String status = customRequest.getStatus();
+
+        if (status == null || status.trim().isEmpty()) {
+            status = "Pending";
+        }
+
+        JLabel statusLabel = new JLabel("Status: " + status);
+        statusLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        statusLabel.setForeground(getStatusColor(status));
+
         detailsPanel.add(categoryLabel);
         detailsPanel.add(Box.createVerticalStrut(6));
         detailsPanel.add(nameLabel);
@@ -1909,6 +1977,10 @@ public class CustomerMain extends MainDesign {
         detailsPanel.add(quantityLabel);
         detailsPanel.add(Box.createVerticalStrut(4));
         detailsPanel.add(designLabel);
+        detailsPanel.add(Box.createVerticalStrut(8));
+        detailsPanel.add(priceLabel);
+        detailsPanel.add(Box.createVerticalStrut(5));
+        detailsPanel.add(statusLabel);
 
         JPanel buttonPanel = new JPanel(
                 new GridBagLayout()
@@ -1916,24 +1988,343 @@ public class CustomerMain extends MainDesign {
 
         buttonPanel.setOpaque(false);
 
+        JPanel actionPanel = new JPanel();
+        actionPanel.setLayout(new BoxLayout(
+                actionPanel, BoxLayout.Y_AXIS
+        ));
+
+        actionPanel.setOpaque(false);
+
         JButton viewButton = new JButton("View Details");
         styleButton(viewButton, darkColor, Color.WHITE);
-        viewButton.setPreferredSize(new Dimension(125, 38));
+        viewButton.setPreferredSize(new Dimension(125, 35));
+        viewButton.setMaximumSize(new Dimension(125, 35));
 
         viewButton.addActionListener(
                 e -> showCustomRequestDetails(customRequest)
         );
 
-        buttonPanel.add(viewButton);
+        JButton editButton = new JButton("Edit");
+        styleButton(editButton, copperColor, Color.WHITE);
+        editButton.setPreferredSize(new Dimension(125, 35));
+        editButton.setMaximumSize(new Dimension(125, 35));
+
+        editButton.addActionListener(
+                e -> editCustomRequest(customRequest)
+        );
+
+        JButton cancelRequestButton = new JButton("Cancel Request");
+        styleButton(cancelRequestButton, deleteColor, Color.WHITE);
+        cancelRequestButton.setPreferredSize(new Dimension(125, 35));
+        cancelRequestButton.setMaximumSize(new Dimension(125, 35));
+
+        cancelRequestButton.addActionListener(
+                e -> cancelCustomRequest(customRequest)
+        );
+
+        actionPanel.add(viewButton);
+        actionPanel.add(Box.createVerticalStrut(7));
+        actionPanel.add(editButton);
+        actionPanel.add(Box.createVerticalStrut(7));
+        actionPanel.add(cancelRequestButton);
+
+        buttonPanel.add(actionPanel);
 
         card.add(detailsPanel, BorderLayout.CENTER);
         card.add(buttonPanel, BorderLayout.EAST);
 
         card.setMaximumSize(
-                new Dimension(Integer.MAX_VALUE, 160)
+                new Dimension(Integer.MAX_VALUE, 220)
         );
 
         return card;
+    }
+
+    // =================================
+    // REQUEST STATUS COLOR
+    // =================================
+
+    private Color getStatusColor(String status) {
+
+        if (status == null) {
+            return labelColor;
+        }
+
+        String value = status.toLowerCase();
+
+        if (value.contains("cancel")) {
+            return deleteColor;
+        }
+
+        if (value.contains("complete")
+                || value.contains("approved")) {
+            return new Color(52, 125, 75);
+        }
+
+        if (value.contains("pending")
+                || value.contains("review")) {
+            return new Color(181, 101, 29);
+        }
+
+        return labelColor;
+    }
+
+    // =================================
+    // EDIT CUSTOM REQUEST
+    // =================================
+
+    private void editCustomRequest(CustomRequest request) {
+
+        if ("Cancelled".equalsIgnoreCase(request.getStatus())
+                || "Completed".equalsIgnoreCase(request.getStatus())) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "This request can no longer be edited.",
+                    "Edit Request",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            return;
+        }
+
+        JDialog editDialog = new JDialog(
+                this,
+                "Edit Custom Request",
+                true
+        );
+
+        editDialog.setSize(500, 550);
+        editDialog.setResizable(false);
+        editDialog.setLocationRelativeTo(this);
+
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 15));
+        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(22, 25, 20, 25)
+        );
+
+        JLabel titleLabel = new JLabel("Edit Request Details");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 21));
+        titleLabel.setForeground(mainTextColor);
+
+        JLabel descriptionLabel = new JLabel(
+                "Update the details of your custom sculpture request."
+        );
+
+        descriptionLabel.setFont(mainFont);
+        descriptionLabel.setForeground(labelColor);
+
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(
+                headerPanel, BoxLayout.Y_AXIS
+        ));
+        headerPanel.setOpaque(false);
+
+        headerPanel.add(titleLabel);
+        headerPanel.add(Box.createVerticalStrut(5));
+        headerPanel.add(descriptionLabel);
+
+        JTextField nameField = createFormField();
+        nameField.setText(request.getProductName());
+
+        JTextArea detailsArea = new JTextArea(4, 20);
+        detailsArea.setFont(mainFont);
+        detailsArea.setLineWrap(true);
+        detailsArea.setWrapStyleWord(true);
+        detailsArea.setText(request.getProductDescription());
+        detailsArea.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor),
+                        BorderFactory.createEmptyBorder(8, 10, 8, 10)
+                )
+        );
+
+        JScrollPane detailsScroll = new JScrollPane(detailsArea);
+
+        JComboBox<String> categoryField = new JComboBox<>(
+                new String[]{
+                        "Home Decor", "Garden", "Kitchen", "Sculptures"
+                }
+        );
+
+        categoryField.setSelectedItem(request.getProductCategory());
+        styleComboBox(categoryField);
+
+        JComboBox<String> sizeField = new JComboBox<>(
+                new String[]{
+                        "Small", "Medium", "Large",
+                        "Extra Large", "Custom Size"
+                }
+        );
+
+        sizeField.setSelectedItem(request.getProductSize());
+        styleComboBox(sizeField);
+
+        JSpinner quantityField = new JSpinner(
+                new SpinnerNumberModel(
+                        Math.max(1, request.getProductQuantity()),
+                        1, 100, 1
+                )
+        );
+
+        JTextField designField = createFormField();
+        designField.setText(request.getProductPreferredDesign());
+
+        JPanel formPanel = new JPanel(new GridLayout(0, 1, 0, 5));
+        formPanel.setBackground(Color.WHITE);
+
+        addEditField(formPanel, "Sculpture Name", nameField);
+        addEditField(formPanel, "Description / Details", detailsScroll);
+        addEditField(formPanel, "Category", categoryField);
+        addEditField(formPanel, "Preferred Size", sizeField);
+        addEditField(formPanel, "Quantity", quantityField);
+        addEditField(formPanel, "Preferred Design / Style", designField);
+
+        JScrollPane formScroll = new JScrollPane(formPanel);
+        formScroll.setBorder(null);
+        formScroll.getVerticalScrollBar().setUnitIncrement(15);
+
+        JPanel buttonPanel = new JPanel(
+                new FlowLayout(FlowLayout.RIGHT, 10, 0)
+        );
+
+        buttonPanel.setBackground(Color.WHITE);
+
+        JButton closeButton = new JButton("Cancel");
+        styleButton(closeButton, fieldColor, mainTextColor);
+
+        JButton saveEditButton = new JButton("Save Changes");
+        styleButton(saveEditButton, copperColor, Color.WHITE);
+
+        closeButton.addActionListener(e -> editDialog.dispose());
+
+        saveEditButton.addActionListener(e -> {
+
+            if (nameField.getText().trim().isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        editDialog,
+                        "Please enter a sculpture name.",
+                        "Invalid Input",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            request.setProductName(nameField.getText().trim());
+            request.setProductDescription(detailsArea.getText().trim());
+            request.setProductCategory(
+                    (String) categoryField.getSelectedItem()
+            );
+            request.setProductSize(
+                    (String) sizeField.getSelectedItem()
+            );
+            request.setProductQuantity(
+                    (Integer) quantityField.getValue()
+            );
+            request.setProductPreferredDesign(
+                    designField.getText().trim()
+            );
+
+            // This edit is currently local only.
+            // DAO does not yet have an updateCustomProduct method.
+
+            editDialog.dispose();
+            refreshCustomRequests();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Request details updated in this session.\n"
+                            + "Database saving is not yet available.",
+                    "Request Updated",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
+        buttonPanel.add(closeButton);
+        buttonPanel.add(saveEditButton);
+
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(formScroll, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        editDialog.setContentPane(mainPanel);
+        editDialog.setVisible(true);
+    }
+
+    private void addEditField(
+            JPanel panel,
+            String labelText,
+            JComponent component
+    ) {
+
+        JLabel label = new JLabel(labelText);
+        label.setFont(boldFont);
+        label.setForeground(mainTextColor);
+
+        panel.add(label);
+        panel.add(component);
+    }
+
+    // =================================
+    // CANCEL CUSTOM REQUEST
+    // =================================
+
+    private void cancelCustomRequest(CustomRequest request) {
+
+        if ("Cancelled".equalsIgnoreCase(request.getStatus())) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "This request has already been cancelled.",
+                    "Cancel Request",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            return;
+        }
+
+        if ("Completed".equalsIgnoreCase(request.getStatus())) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Completed requests can no longer be cancelled.",
+                    "Cancel Request",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            return;
+        }
+
+        int choice = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to cancel this custom request?",
+                "Cancel Custom Request",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+
+        if (choice == JOptionPane.YES_OPTION) {
+
+            request.setStatus("Cancelled");
+
+            // Existing DAO method saves the new status.
+            DataAccessObject.updateRequestStatus(
+                    request,
+                    "Cancelled"
+            );
+
+            refreshCustomRequests();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Your custom request has been cancelled.",
+                    "Request Cancelled",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
     }
 
     // =================================
@@ -1944,13 +2335,22 @@ public class CustomerMain extends MainDesign {
             CustomRequest customRequest
     ) {
 
+        String status = customRequest.getStatus();
+
+        if (status == null || status.trim().isEmpty()) {
+            status = "Pending";
+        }
+
         String details =
                 "Sculpture Name: " + customRequest.getProductName()
                         + "\n\nCategory: " + customRequest.getProductCategory()
                         + "\n\nDescription: " + customRequest.getProductDescription()
                         + "\n\nPreferred Size: " + customRequest.getProductSize()
                         + "\n\nQuantity: " + customRequest.getProductQuantity()
-                        + "\n\nDesign: " + customRequest.getProductPreferredDesign();
+                        + "\n\nDesign: " + customRequest.getProductPreferredDesign()
+                        + "\n\nOwner-Set Price: ₱"
+                        + String.format("%.2f", customRequest.getProductPrice())
+                        + "\n\nCurrent Status: " + status;
 
         JOptionPane.showMessageDialog(
                 this,
@@ -2029,8 +2429,6 @@ public class CustomerMain extends MainDesign {
         JPanel mainPanel = new JPanel(new BorderLayout(0, 20));
         mainPanel.setOpaque(false);
 
-        // PROFILE BANNER
-
         JPanel profileBanner = new JPanel(new BorderLayout(20, 0));
         profileBanner.setBackground(darkColor);
 
@@ -2039,8 +2437,6 @@ public class CustomerMain extends MainDesign {
         );
 
         profileBanner.setPreferredSize(new Dimension(0, 155));
-
-        // PROFILE NAME AND DETAILS
 
         JPanel namePanel = new JPanel();
         namePanel.setLayout(new BoxLayout(
@@ -2078,8 +2474,6 @@ public class CustomerMain extends MainDesign {
 
         profileBanner.add(namePanel, BorderLayout.CENTER);
 
-        // ACCOUNT INFORMATION CARD
-
         JPanel informationPanel = createWhiteCard();
 
         informationPanel.setLayout(new BorderLayout(0, 18));
@@ -2090,8 +2484,6 @@ public class CustomerMain extends MainDesign {
                         BorderFactory.createEmptyBorder(22, 25, 22, 25)
                 )
         );
-
-        // INFORMATION HEADER
 
         JPanel informationHeader = new JPanel(new BorderLayout());
         informationHeader.setOpaque(false);
@@ -2137,8 +2529,6 @@ public class CustomerMain extends MainDesign {
                 BorderLayout.EAST
         );
 
-        // INFORMATION ROWS
-
         JPanel rowsPanel = new JPanel(new GridLayout(4, 1, 0, 0));
         rowsPanel.setBackground(Color.WHITE);
 
@@ -2173,8 +2563,6 @@ public class CustomerMain extends MainDesign {
                         "Your registered email"
                 )
         );
-
-        // EDIT BUTTON SECTION
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setOpaque(false);
@@ -2279,7 +2667,6 @@ public class CustomerMain extends MainDesign {
     // EDIT PROFILE
     // =================================
 
-
     private void editProfile() {
 
         dialog = new JDialog(this, "Edit Profile", true);
@@ -2294,8 +2681,6 @@ public class CustomerMain extends MainDesign {
         mainPanel.setBorder(
                 BorderFactory.createEmptyBorder(25, 30, 20, 30)
         );
-
-        // HEADER
 
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
@@ -2317,8 +2702,6 @@ public class CustomerMain extends MainDesign {
         headerPanel.add(titleLabel);
         headerPanel.add(Box.createVerticalStrut(6));
         headerPanel.add(descriptionLabel);
-
-        // FORM FIELDS
 
         editNameField = createFormField();
         editAddressField = createFormField();
@@ -2395,8 +2778,6 @@ public class CustomerMain extends MainDesign {
         gbc.insets = new Insets(0, 0, 0, 0);
         formPanel.add(editEmailField, gbc);
 
-        // FOOTER BUTTONS
-
         JPanel buttonPanel = new JPanel(
                 new FlowLayout(FlowLayout.RIGHT, 10, 0)
         );
@@ -2421,7 +2802,6 @@ public class CustomerMain extends MainDesign {
         dialog.setContentPane(mainPanel);
 
         cancelButton.addActionListener(e -> dialog.dispose());
-
 
         dialog.getRootPane().setDefaultButton(saveButton);
 
