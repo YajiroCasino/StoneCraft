@@ -15,7 +15,7 @@ public class Main {
     public static void main(String[] args){
 
         DataBaseConnection.createDatabase();
-        customerProcess();
+        signUpProcess();
     }
 
     public static void signUpProcess() {
@@ -181,9 +181,10 @@ public class Main {
             currentAccount = accounts;
             lg.dispose();
 
-            if (accounts instanceof BusinessAccount) {
+            if (gmail.equals("bossbusinessowner@gmail.com") || gmail.equals("employeebusinessowner@gmail.com")) {
                 businessProcess();
-            } else {
+            }
+            else {
                 customerProcess();
             }
         });
@@ -194,9 +195,13 @@ public class Main {
                 lg.dispose();
             }
         });
+
     }
     public static void customerProcess(){
         CustomerMain cm = new CustomerMain();
+        cm.profileName = currentAccount.getName();
+        cm.profilePhone = currentAccount.getContactNumber();
+        cm.profileEmail = currentAccount.getEmailAddress();
 
         cm.submitButton.addActionListener(e ->{
             String name = cm.sculptureNameField.getText().trim();
@@ -212,13 +217,74 @@ public class Main {
             cm.requestFrame.dispose();
         });
 
+        cm.saveButton.addActionListener(e -> {
 
+            String name = cm.editNameField.getText().trim();
+            String address = cm.editAddressField.getText().trim();
+            String phone = cm.editPhoneField.getText().trim();
+            String email = cm.editEmailField.getText().trim();
+
+            if (name.isEmpty()) {
+                cm.showWarning("Please enter your full name.");
+                cm.editNameField.requestFocus();
+                return;
+            }
+
+            if (address.isEmpty()) {
+                cm.showWarning("Please enter your address.");
+                cm.editAddressField.requestFocus();
+                return;
+            }
+
+            int phoneDigits = phone.replaceAll("[^0-9]", "").length();
+
+            if (!phone.matches("[0-9+\\-() ]+")
+                    || phoneDigits < 7
+                    || phoneDigits > 15) {
+
+                cm.showWarning("Please enter a valid phone number.");
+                cm.editPhoneField.requestFocus();
+                return;
+            }
+
+            if (!email.matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$")) {
+                cm.showWarning("Please enter a valid email address.");
+                cm.editEmailField.requestFocus();
+                return;
+            }
+
+            cm.profileName = name;
+            cm.profileAddress = address;
+            cm.profilePhone = phone;
+            cm.profileEmail = email;
+
+            if (currentAccount != null) {
+                currentAccount.setName(name);
+                currentAccount.setContactNumber(phone);
+                currentAccount.setEmailAddress(email);
+
+                DataAccessObject.updateAccount(currentAccount);
+            }
+            cm.refreshProfile();
+
+            JOptionPane.showMessageDialog(
+                    cm.dialog,
+                    "Profile updated successfully.",
+                    "StoneCraft",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            cm.dialog.dispose();
+        });
 
     }
 
     public static void businessProcess(){
-        BusinessMain bm = new BusinessMain();
 
+        BusinessMain bm = new BusinessMain();
+        bm.profileName = currentAccount.getName();
+        bm.profilePhone = currentAccount.getContactNumber();
+        bm.profileEmail = currentAccount.getEmailAddress();
         bm.profileButton.addActionListener(e -> {
             bm.showProfile();
         });
@@ -227,16 +293,61 @@ public class Main {
             bm.addProduct();
         });
 
+        bm.saveButton.addActionListener(e -> {
+
+            String name = bm.editNameField.getText().trim();
+            String phone = bm.editPhoneField.getText().trim();
+            String email = bm.editEmailField.getText().trim();
+
+            if (name.isEmpty()) {
+                bm.showWarning("Please enter your full name.");
+                bm.editNameField.requestFocus();
+                return;
+            }
+
+            int phoneDigits = phone.replaceAll("[^0-9]", "").length();
+
+            if (!phone.matches("[0-9+\\-() ]+") || phoneDigits < 7 || phoneDigits > 15) {
+                bm.showWarning("Please enter a valid phone number.");
+                bm.editPhoneField.requestFocus();
+                return;
+            }
+
+            if (!email.matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$")) {
+                bm.showWarning("Please enter a valid email address.");
+                bm.editEmailField.requestFocus();
+                return;
+            }
+
+            bm.profileName = name;
+            bm.profileEmail = email;
+            bm.profilePhone = phone;
+
+
+            if(currentAccount !=null){
+                currentAccount.setName(name);
+                currentAccount.setContactNumber(phone);
+                currentAccount.setEmailAddress(email);
+
+                DataAccessObject.updateAccount(currentAccount);
+            }
+            bm.refreshProfile();
+
+            JOptionPane.showMessageDialog(
+                    bm.dialog,
+                    "Profile updated successfully.",
+                    "StoneCraft",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            bm.dialog.dispose();
+        });
+
 
     }
 
 
     //custom request need ko mamaya
-    //maya kaipuhan ko yung sa design for Business Main yung sa price
-    //yungg sa custom request tapos sa message
-    //sa message pa
-    //yung sa cart
-    //delete message
     //improve design
 
 

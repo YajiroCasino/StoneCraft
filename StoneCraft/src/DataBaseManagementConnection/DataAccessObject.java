@@ -31,6 +31,39 @@ public class DataAccessObject {
         return -1;
     }
 
+    public static boolean updateCustomerAccountType(int accountId, String newType) {
+        String sqlSyntax = "update customer_account set customer_account_type = ? where account_id = ?";
+        try (Connection con = DataBaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sqlSyntax)) {
+
+            ps.setString(1, newType);
+            ps.setInt(2, accountId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean updateAccount(Accounts account){
+        String sqlSyntax = "update accounts set account_name = ?, account_email_address = ?, account_contact_number = ? where account_id = ?";
+        try(Connection con = DataBaseConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement(sqlSyntax)){
+
+            ps.setString(1, account.getName());
+            ps.setString(2,account.getEmailAddress());
+            ps.setString(3, account.getContactNumber());
+            ps.setInt(4, account.getAccountId());
+
+            return ps.executeUpdate() > 0;
+
+        }catch(SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
     public static Accounts getAccountById(int accountId) {
         String sqlSyntax = "select a.*, b.business_account_type, c.customer_account_type " +
                 "from accounts a " +

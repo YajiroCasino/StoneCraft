@@ -116,10 +116,20 @@ public class CustomerMain extends MainDesign {
 
     private JPanel profileDetailsPanel;
 
-    private String profileName = "Not set";
-    private String profileAddress = "Not set";
-    private String profilePhone = "Not set";
-    private String profileEmail = "Not set";
+    public String profileName;
+    public String profileAddress;
+    public String profilePhone;
+    public String profileEmail;
+
+    public JButton editProfileButton;
+    public JButton saveButton = new JButton("Save Changes");;
+
+    public JTextField editNameField;
+    public JTextField editAddressField;
+    public JTextField editPhoneField;
+    public JTextField editEmailField;
+
+    public JDialog dialog;
 
     // =================================
     // CONSTRUCTOR
@@ -1981,7 +1991,7 @@ public class CustomerMain extends MainDesign {
         profilePage.add(profileDetailsPanel, BorderLayout.CENTER);
     }
 
-    private void refreshProfile() {
+    public void refreshProfile() {
 
         Accounts account = Main.currentAccount;
 
@@ -2176,7 +2186,7 @@ public class CustomerMain extends MainDesign {
         editDescription.setFont(mainFont);
         editDescription.setForeground(labelColor);
 
-        JButton editProfileButton = new JButton("Edit Profile");
+        editProfileButton = new JButton("Edit Profile");
         styleButton(editProfileButton, copperColor, Color.WHITE);
 
         editProfileButton.setPreferredSize(new Dimension(145, 42));
@@ -2269,11 +2279,10 @@ public class CustomerMain extends MainDesign {
     // EDIT PROFILE
     // =================================
 
+
     private void editProfile() {
 
-        Accounts account = Main.currentAccount;
-
-        JDialog dialog = new JDialog(this, "Edit Profile", true);
+        dialog = new JDialog(this, "Edit Profile", true);
 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setSize(500, 500);
@@ -2311,10 +2320,10 @@ public class CustomerMain extends MainDesign {
 
         // FORM FIELDS
 
-        JTextField editNameField = createFormField();
-        JTextField editAddressField = createFormField();
-        JTextField editPhoneField = createFormField();
-        JTextField editEmailField = createFormField();
+        editNameField = createFormField();
+        editAddressField = createFormField();
+        editPhoneField = createFormField();
+        editEmailField = createFormField();
 
         editNameField.setText(
                 profileName != null && !"Not set".equals(profileName)
@@ -2395,7 +2404,6 @@ public class CustomerMain extends MainDesign {
         buttonPanel.setBackground(Color.WHITE);
 
         JButton cancelButton = new JButton("Cancel");
-        JButton saveButton = new JButton("Save Changes");
 
         styleButton(cancelButton, new Color(235, 233, 229), mainTextColor);
         styleButton(saveButton, copperColor, Color.WHITE);
@@ -2414,64 +2422,6 @@ public class CustomerMain extends MainDesign {
 
         cancelButton.addActionListener(e -> dialog.dispose());
 
-        saveButton.addActionListener(e -> {
-
-            String name = editNameField.getText().trim();
-            String address = editAddressField.getText().trim();
-            String phone = editPhoneField.getText().trim();
-            String email = editEmailField.getText().trim();
-
-            if (name.isEmpty()) {
-                showWarning("Please enter your full name.");
-                editNameField.requestFocus();
-                return;
-            }
-
-            if (address.isEmpty()) {
-                showWarning("Please enter your address.");
-                editAddressField.requestFocus();
-                return;
-            }
-
-            int phoneDigits = phone.replaceAll("[^0-9]", "").length();
-
-            if (!phone.matches("[0-9+\\-() ]+")
-                    || phoneDigits < 7
-                    || phoneDigits > 15) {
-
-                showWarning("Please enter a valid phone number.");
-                editPhoneField.requestFocus();
-                return;
-            }
-
-            if (!email.matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$")) {
-                showWarning("Please enter a valid email address.");
-                editEmailField.requestFocus();
-                return;
-            }
-
-            profileName = name;
-            profileAddress = address;
-            profilePhone = phone;
-            profileEmail = email;
-
-            if (account != null) {
-                account.setName(name);
-                account.setContactNumber(phone);
-                account.setEmailAddress(email);
-            }
-
-            refreshProfile();
-
-            JOptionPane.showMessageDialog(
-                    dialog,
-                    "Profile updated successfully.",
-                    "StoneCraft",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
-
-            dialog.dispose();
-        });
 
         dialog.getRootPane().setDefaultButton(saveButton);
 
@@ -2609,7 +2559,7 @@ public class CustomerMain extends MainDesign {
         });
     }
 
-    private void showWarning(String message) {
+    public void showWarning(String message) {
 
         JOptionPane.showMessageDialog(
                 this,

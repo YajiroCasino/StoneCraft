@@ -120,9 +120,16 @@ public class BusinessMain extends MainDesign {
     private JPanel profileCardsPanel;
     private JPanel profileDetailsPanel;
 
-    private String profileName = "Not set";
-    private String profilePhone = "Not set";
-    private String profileEmail = "Not set";
+    public String profileName;
+    public String profilePhone;
+    public String profileEmail;
+
+    public JDialog dialog;
+    public JTextField editNameField;
+    public JTextField editPhoneField;
+    public JTextField editEmailField;
+
+    public JButton saveButton = new JButton("Save Changes");
 
     // =========================================
     // CONSTRUCTOR
@@ -1109,13 +1116,6 @@ public class BusinessMain extends MainDesign {
     // PROFILE PAGE
     // =========================================
 
-    public void setProfileInfo(String name, String phone, String email) {
-
-        profileName = name;
-        profilePhone = phone;
-        profileEmail = email;
-    }
-
     private void createProfilePage() {
 
         profilePage = new JPanel(new BorderLayout(20, 20));
@@ -1146,7 +1146,7 @@ public class BusinessMain extends MainDesign {
         profilePage.add(profileDetailsPanel, BorderLayout.CENTER);
     }
 
-    private void refreshProfile() {
+    public void refreshProfile() {
 
         profileCardsPanel.removeAll();
 
@@ -1327,7 +1327,7 @@ public class BusinessMain extends MainDesign {
 
     private void editProfile() {
 
-        JDialog dialog = new JDialog(this, "Edit Profile", true);
+        dialog = new JDialog(this, "Edit Profile", true);
 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setSize(500, 440);
@@ -1362,9 +1362,9 @@ public class BusinessMain extends MainDesign {
 
         // FORM FIELDS
 
-        JTextField editNameField = createFormField();
-        JTextField editPhoneField = createFormField();
-        JTextField editEmailField = createFormField();
+        editNameField = createFormField();
+        editPhoneField = createFormField();
+        editEmailField = createFormField();
 
         editNameField.setText("Not set".equals(profileName) ? "" : profileName);
         editPhoneField.setText("Not set".equals(profilePhone) ? "" : profilePhone);
@@ -1416,7 +1416,6 @@ public class BusinessMain extends MainDesign {
         buttonPanel.setBackground(Color.WHITE);
 
         JButton cancelButton = new JButton("Cancel");
-        JButton saveButton = new JButton("Save Changes");
 
         styleButton(cancelButton, new Color(235, 233, 229), mainTextColor);
         styleButton(saveButton, copperColor, Color.WHITE);
@@ -1439,40 +1438,6 @@ public class BusinessMain extends MainDesign {
 
         cancelButton.addActionListener(e -> dialog.dispose());
 
-        // SAVE BUTTON
-
-        saveButton.addActionListener(e -> {
-
-            String name = editNameField.getText().trim();
-            String phone = editPhoneField.getText().trim();
-            String email = editEmailField.getText().trim();
-
-            if (name.isEmpty()) {
-                showWarning("Please enter your full name.");
-                editNameField.requestFocus();
-                return;
-            }
-
-            int phoneDigits = phone.replaceAll("[^0-9]", "").length();
-
-            if (!phone.matches("[0-9+\\-() ]+") || phoneDigits < 7 || phoneDigits > 15) {
-                showWarning("Please enter a valid phone number.");
-                editPhoneField.requestFocus();
-                return;
-            }
-
-            if (!email.matches("^[\\w.+-]+@[\\w-]+(\\.[\\w-]+)+$")) {
-                showWarning("Please enter a valid email address.");
-                editEmailField.requestFocus();
-                return;
-            }
-
-            setProfileInfo(name, phone, email);
-
-            refreshProfile();
-
-            dialog.dispose();
-        });
 
         dialog.getRootPane().setDefaultButton(saveButton);
 
@@ -1669,7 +1634,7 @@ public class BusinessMain extends MainDesign {
         );
     }
 
-    private void showWarning(String message) {
+    public void showWarning(String message) {
 
         JOptionPane.showMessageDialog(
                 this,
