@@ -1,4 +1,3 @@
-
 package Design;
 
 import DataBaseManagementConnection.DataAccessObject;
@@ -60,7 +59,6 @@ public class CustomerMain extends MainDesign {
     private JComboBox<String> sortComboBox;
     private JButton cartButton;
 
-    // Separate search field for each category
     private final Map<String, JTextField> categorySearchFields =
             new LinkedHashMap<>();
 
@@ -227,8 +225,6 @@ public class CustomerMain extends MainDesign {
                 BorderFactory.createEmptyBorder(10, 25, 10, 25)
         );
 
-        // LOGO
-
         JPanel logoPanel = new JPanel(
                 new FlowLayout(FlowLayout.LEFT, 10, 4)
         );
@@ -262,8 +258,6 @@ public class CustomerMain extends MainDesign {
 
         logoPanel.add(logoIcon);
         logoPanel.add(logoTextPanel);
-
-        // CART
 
         JPanel accountPanel = new JPanel(
                 new FlowLayout(FlowLayout.RIGHT, 8, 5)
@@ -301,7 +295,6 @@ public class CustomerMain extends MainDesign {
 
         addSidebarTitle("MENU");
 
-        // Dashboard already displays all products.
         addMenuButton("Dashboard", "All Products");
 
         addSidebarTitle("CATEGORIES");
@@ -628,8 +621,6 @@ public class CustomerMain extends MainDesign {
         titlePanel.add(Box.createVerticalStrut(5));
         titlePanel.add(pageDescription);
 
-        // SEARCH FIELDS FOR EACH CATEGORY
-
         String[] categories = {
                 "All Products",
                 "Home Decor",
@@ -676,8 +667,6 @@ public class CustomerMain extends MainDesign {
 
         searchHolder.add(searchButton, BorderLayout.EAST);
 
-        // FILTER SECTION
-
         JPanel filterPanel = new JPanel(new BorderLayout());
         filterPanel.setBackground(backgroundColor);
 
@@ -703,8 +692,6 @@ public class CustomerMain extends MainDesign {
 
         filterPanel.add(productCount, BorderLayout.WEST);
         filterPanel.add(sortComboBox, BorderLayout.EAST);
-
-        // PRODUCT GRID
 
         productGrid = new JPanel(
                 new GridLayout(0, 3, 15, 15)
@@ -1529,6 +1516,9 @@ public class CustomerMain extends MainDesign {
         styleButton(submitButton, copperColor, Color.WHITE);
         submitButton.setPreferredSize(new Dimension(155, 40));
 
+        // CONNECT SUBMIT BUTTON TO DATABASE
+        submitButton.addActionListener(e -> submitCustomRequest());
+
         buttonPanel.add(cancelButton);
         buttonPanel.add(submitButton);
 
@@ -1635,6 +1625,110 @@ public class CustomerMain extends MainDesign {
         }
 
         showPage("CustomRequest");
+    }
+
+    // =================================
+    // SUBMIT CUSTOM REQUEST
+    // =================================
+
+    private void submitCustomRequest() {
+
+        String sculptureName = sculptureNameField.getText().trim();
+        String description = descriptionArea.getText().trim();
+        String category = (String) categoryComboBox.getSelectedItem();
+        String size = (String) sizeComboBox.getSelectedItem();
+        int quantity = (Integer) quantitySpinner.getValue();
+        String preferredDesign = designField.getText().trim();
+
+        // Check sculpture name
+        if (sculptureName.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter a sculpture name.",
+                    "Missing Information",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            sculptureNameField.requestFocus();
+            return;
+        }
+
+        // Check description
+        if (description.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter the description of your sculpture.",
+                    "Missing Information",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            descriptionArea.requestFocus();
+            return;
+        }
+
+        // Check logged-in customer
+        Accounts currentAccount = Main.currentAccount;
+
+        if (currentAccount == null) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please log in first before submitting a request.",
+                    "Account Required",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return;
+        }
+
+        // Create CustomRequest object
+        CustomRequest request = new CustomRequest(
+                currentAccount,
+                sculptureName,
+                category,
+                0.00,
+                quantity,
+                description,
+                size,
+                preferredDesign
+        );
+
+        request.setStatus("Pending");
+
+        // Save request to database
+        int requestId = DataAccessObject.insertCustomProduct(request);
+
+        if (requestId != -1) {
+
+            // Clear form fields
+            sculptureNameField.setText("");
+            descriptionArea.setText("");
+            categoryComboBox.setSelectedIndex(0);
+            sizeComboBox.setSelectedIndex(0);
+            quantitySpinner.setValue(1);
+            designField.setText("");
+
+            // Refresh and display submitted requests
+            showPage("MyCustomRequests");
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Your custom sculpture request has been submitted successfully!",
+                    "Request Submitted",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+        } else {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to submit your custom request. Please try again.",
+                    "Submission Failed",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
     // =================================
@@ -1807,8 +1901,8 @@ public class CustomerMain extends MainDesign {
     }
 
     // =================================
-// REFRESH CUSTOM REQUESTS
-// =================================
+    // REFRESH CUSTOM REQUESTS
+    // =================================
 
     private void refreshCustomRequests() {
 
@@ -1825,7 +1919,6 @@ public class CustomerMain extends MainDesign {
 
         Accounts currentAccount = Main.currentAccount;
 
-        // Display only requests belonging to the logged-in customer.
         if (allRequests != null && currentAccount != null) {
 
             for (CustomRequest request : allRequests) {
@@ -1945,8 +2038,6 @@ public class CustomerMain extends MainDesign {
         designLabel.setFont(mainFont);
         designLabel.setForeground(labelColor);
 
-        // OWNER-SET PRICE
-
         JLabel priceLabel = new JLabel(
                 "Price: ₱" + String.format(
                         "%.2f", customRequest.getProductPrice()
@@ -1955,8 +2046,6 @@ public class CustomerMain extends MainDesign {
 
         priceLabel.setFont(new Font("Arial", Font.BOLD, 14));
         priceLabel.setForeground(copperColor);
-
-        // CURRENT REQUEST STATUS
 
         String status = customRequest.getStatus();
 
@@ -2310,7 +2399,6 @@ public class CustomerMain extends MainDesign {
 
             request.setStatus("Cancelled");
 
-            // Existing DAO method saves the new status.
             DataAccessObject.updateRequestStatus(
                     request,
                     "Cancelled"

@@ -624,6 +624,9 @@ public class BusinessMain extends MainDesign {
         addButton = new JButton("Add Product");
         styleButton(addButton, copperColor, Color.WHITE);
 
+        // ADD PRODUCT BUTTON ACTION
+        addButton.addActionListener(e -> addProduct());
+
         JPanel addButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 10));
         addButtonPanel.setBackground(backgroundColor);
         addButtonPanel.add(addButton);
