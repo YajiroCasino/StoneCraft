@@ -18,7 +18,7 @@ public class Main {
     public static void main(String[] args) {
 
         DataBaseConnection.createDatabase();
-        customerProcess();
+        signUpProcess();
     }
 
     public static void signUpProcess() {
@@ -71,8 +71,8 @@ public class Main {
             if (password.isEmpty()) {
                 su.passwordWarning.setText("Please enter a password.");
                 valid = false;
-            } else if (password.length() < 8) {
-                su.passwordWarning.setText("Password must be at least 8 characters.");
+            } else if (password.length() < 8 || password.length() > 15) {
+                su.passwordWarning.setText("Password must be at least 8 characters and must not exceed to 15 characters.");
                 valid = false;
             } else if (!password.equals(password2)) {
                 su.passwordWarning.setText("Passwords do not match.");
