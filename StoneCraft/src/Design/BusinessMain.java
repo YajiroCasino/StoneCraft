@@ -3,6 +3,7 @@ package Design;
 import DataBaseManagementConnection.DataAccessObject;
 import Main.CustomRequest;
 import Main.Product;
+import Main.OverViewStats;
 import Main.Main;
 
 import javax.swing.*;
@@ -10,30 +11,16 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static Main.Main.products;
+
 public class BusinessMain extends MainDesign {
 
-    // =========================================
-    // COLORS AND FONTS
-    // =========================================
-
-    private final Color darkColor = new Color(43, 42, 40);
-    private final Color copperColor = new Color(181, 101, 29);
-    private final Color hoverColor = new Color(151, 83, 15);
-    private final Color mainTextColor = new Color(31, 30, 28);
-    private final Color labelColor = new Color(120, 116, 109);
-    private final Color fieldColor = new Color(250, 249, 247);
-    private final Color borderColor = new Color(222, 218, 211);
-    private final Color backgroundColor = new Color(247, 245, 241);
-    private final Color selectionColor = new Color(246, 228, 210);
-    private final Color deleteColor = new Color(174, 65, 59);
-
-    private final Font mainFont = new Font("Arial", Font.PLAIN, 13);
-    private final Font boldFont = new Font("Arial", Font.BOLD, 13);
-    private final Font titleFont = new Font("Arial", Font.BOLD, 25);
+    public OverViewStats ov;
 
     private static final String[] STATUSES = {
             "Pending", "Accepted", "In Progress", "Completed", "Declined"
@@ -42,23 +29,6 @@ public class BusinessMain extends MainDesign {
     private static final String[] CATEGORIES = {
             "Home Decor", "Garden", "Kitchen", "Sculptures"
     };
-
-    // =========================================
-    // MAIN PANELS
-    // =========================================
-
-    private JPanel dashboardPanel;
-    private JPanel headerPanel;
-    private JPanel sidebarPanel;
-    private JPanel pagesPanel;
-
-    private CardLayout cardLayout;
-
-    // =========================================
-    // PUBLIC COMPONENTS
-    // =========================================
-
-    private JButton selectedMenuButton;
 
     public JTextField searchField;
     public JButton profileButton;
@@ -73,12 +43,7 @@ public class BusinessMain extends MainDesign {
 
     public int choice;
 
-    public ArrayList<Product> products;
     public ArrayList<CustomRequest> customRequests;
-
-    // =========================================
-    // PAGES
-    // =========================================
 
     private JPanel overviewPage;
     private JPanel productsPage;
@@ -89,33 +54,19 @@ public class BusinessMain extends MainDesign {
 
     private String currentPage = "Overview";
 
-    // =========================================
-    // OVERVIEW
-    // =========================================
 
     private JPanel statsPanel;
     private JPanel recentPanel;
 
-    // =========================================
-    // PRODUCTS
-    // =========================================
 
     private DefaultTableModel productTableModel;
     private JTable productTable;
 
     private final ArrayList<Product> visibleProducts = new ArrayList<>();
 
-    // =========================================
-    // REQUESTS
-    // =========================================
 
     private JPanel requestsListPanel;
     public JComboBox<String> statusFilterBox;
-    public String statusValue;
-
-    // =========================================
-    // PROFILE
-    // =========================================
 
     private JPanel profileCardsPanel;
     private JPanel profileDetailsPanel;
@@ -130,25 +81,14 @@ public class BusinessMain extends MainDesign {
 
     public JButton saveButton = new JButton("Save Changes");
 
-    // =========================================
-    // CONSTRUCTOR
-    // =========================================
-
     public BusinessMain() {
 
         setTitle("StoneCraft - Business Management System");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        setSize(1100, 700);
-        setMinimumSize(new Dimension(900, 600));
-        setLocationRelativeTo(null);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         products = new ArrayList<>();
         customRequests = new ArrayList<>();
 
-        loadProducts();
-
+        Main.loadProducts();
         createHeader();
         createSidebar();
         createPages();
@@ -170,20 +110,6 @@ public class BusinessMain extends MainDesign {
         showPage("Overview");
 
         setVisible(true);
-    }
-
-    // =========================================
-    // DATA LOADING
-    // =========================================
-
-    void loadProducts() {
-        products.clear();
-        products.addAll(DataAccessObject.getAllProduct());
-    }
-
-    void loadCustomRequest() {
-        customRequests.clear();
-        customRequests.addAll(DataAccessObject.getAllCustomProduct());
     }
 
     // =========================================
@@ -267,16 +193,6 @@ public class BusinessMain extends MainDesign {
         sidebarPanel.add(logoutButton);
     }
 
-    private void addSidebarTitle(String title) {
-
-        JLabel sectionLabel = new JLabel(title);
-        sectionLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        sectionLabel.setForeground(new Color(170, 164, 155));
-        sectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        sectionLabel.setBorder(BorderFactory.createEmptyBorder(15, 10, 10, 0));
-
-        sidebarPanel.add(sectionLabel);
-    }
 
     private void addMenuButton(String buttonText, String pageName) {
 
@@ -395,7 +311,7 @@ public class BusinessMain extends MainDesign {
                 break;
 
             case "Requests":
-                loadCustomRequest();
+                Main.loadCustomRequest();
                 refreshRequests();
                 break;
 
@@ -468,33 +384,13 @@ public class BusinessMain extends MainDesign {
 
     public void refreshOverview() {
 
-        int lowStock = 0;
-        int pending = 0;
-        int inProgress = 0;
-
-        for (Product product : products) {
-            if (product.getProductQuantity() <= 3) {
-                lowStock++;
-            }
-        }
-
-        for (CustomRequest request : customRequests) {
-
-            if ("Pending".equals(request.getStatus())) {
-                pending++;
-            }
-
-            if ("In Progress".equals(request.getStatus())) {
-                inProgress++;
-            }
-        }
-
+        this.ov = Main.computeStats();
         statsPanel.removeAll();
 
-        statsPanel.add(createStatCard("Total Products", String.valueOf(products.size())));
-        statsPanel.add(createStatCard("Low Stock", String.valueOf(lowStock)));
-        statsPanel.add(createStatCard("Pending Requests", String.valueOf(pending)));
-        statsPanel.add(createStatCard("In Progress", String.valueOf(inProgress)));
+        statsPanel.add(createStatCard("Total Products", String.valueOf(ov.getTotalProduct())));
+        statsPanel.add(createStatCard("Low Stock", String.valueOf(ov.getTotalStock())));
+        statsPanel.add(createStatCard("Pending Requests", String.valueOf(ov.getTotalPending())));
+        statsPanel.add(createStatCard("In Progress", String.valueOf(ov.getTotalInProgress())));
 
         recentPanel.removeAll();
         recentPanel.add(createRecentRequestsPanel());
@@ -607,6 +503,7 @@ public class BusinessMain extends MainDesign {
         searchField.setToolTipText("Search products");
 
         JButton searchButton = new JButton("Search");
+
         styleButton(searchButton, copperColor, Color.WHITE);
 
         searchButton.addActionListener(e -> searchProducts());
@@ -699,33 +596,27 @@ public class BusinessMain extends MainDesign {
         String keyword = "";
 
         if (searchField != null) {
-            keyword = searchField.getText().trim().toLowerCase();
+            keyword = searchField.getText().trim();
         }
+
+        List<Product> found = Main.searchProduct(keyword);
 
         productTableModel.setRowCount(0);
         visibleProducts.clear();
+        visibleProducts.addAll(found);
 
-        for (Product product : products) {
+        for (Product product : found) {
 
-            boolean matchesSearch =
-                    product.getProductName().toLowerCase().contains(keyword)
-                            || product.getProductCategory().toLowerCase().contains(keyword);
+            String stockStatus =
+                    product.getProductQuantity() <= 3 ? "Low Stock" : "Available";
 
-            if (matchesSearch) {
-
-                visibleProducts.add(product);
-
-                String stockStatus =
-                        product.getProductQuantity() <= 3 ? "Low Stock" : "Available";
-
-                productTableModel.addRow(new Object[]{
-                        product.getProductName(),
-                        product.getProductCategory(),
-                        "\u20B1" + String.format("%.2f", product.getProductPrice()),
-                        product.getProductQuantity(),
-                        stockStatus
-                });
-            }
+            productTableModel.addRow(new Object[]{
+                    product.getProductName(),
+                    product.getProductCategory(),
+                    "\u20B1" + String.format("%.2f", product.getProductPrice()),
+                    product.getProductQuantity(),
+                    stockStatus
+            });
         }
 
         productTable.clearSelection();
@@ -804,7 +695,7 @@ public class BusinessMain extends MainDesign {
 
             if (updated <= 0) {
                 showDatabaseError("Failed to update the product in the database.");
-                loadProducts();
+                Main.loadProducts();
             }
 
             refreshProducts();
@@ -1500,20 +1391,7 @@ public class BusinessMain extends MainDesign {
     // DESIGN HELPERS
     // =========================================
 
-    private JPanel createWhiteCard() {
 
-        JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
-
-        panel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(borderColor),
-                        BorderFactory.createEmptyBorder(18, 18, 18, 18)
-                )
-        );
-
-        return panel;
-    }
 
     private void styleTable(JTable table) {
 
@@ -1579,39 +1457,8 @@ public class BusinessMain extends MainDesign {
         return label;
     }
 
-    private void styleComboBox(JComboBox<String> comboBox) {
 
-        comboBox.setFont(mainFont);
-        comboBox.setBackground(Color.WHITE);
-        comboBox.setForeground(mainTextColor);
-    }
 
-    private void styleButton(JButton button, Color background, Color foreground) {
-
-        button.setFont(boldFont);
-        button.setBackground(background);
-        button.setForeground(foreground);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setBorder(BorderFactory.createEmptyBorder(9, 15, 9, 15));
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                if (background.equals(copperColor)) {
-                    button.setBackground(hoverColor);
-                }
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                button.setBackground(background);
-            }
-        });
-    }
 
     private void showDatabaseError(String message) {
 
@@ -1623,13 +1470,5 @@ public class BusinessMain extends MainDesign {
         );
     }
 
-    public void showWarning(String message) {
 
-        JOptionPane.showMessageDialog(
-                this,
-                message,
-                "Invalid Input",
-                JOptionPane.WARNING_MESSAGE
-        );
-    }
 }

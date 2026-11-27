@@ -14,36 +14,6 @@ import java.util.Map;
 
 public class CustomerMain extends MainDesign {
 
-    // =================================
-    // COLORS AND FONTS
-    // =================================
-
-    private final Color darkColor = new Color(43, 42, 40);
-    private final Color copperColor = new Color(181, 101, 29);
-    private final Color hoverColor = new Color(151, 83, 15);
-    private final Color mainTextColor = new Color(31, 30, 28);
-    private final Color labelColor = new Color(120, 116, 109);
-    private final Color fieldColor = new Color(250, 249, 247);
-    private final Color borderColor = new Color(222, 218, 211);
-    private final Color backgroundColor = new Color(247, 245, 241);
-    private final Color selectionColor = new Color(246, 228, 210);
-    private final Color deleteColor = new Color(174, 65, 59);
-
-    private final Font mainFont = new Font("Arial", Font.PLAIN, 13);
-    private final Font boldFont = new Font("Arial", Font.BOLD, 13);
-    private final Font titleFont = new Font("Arial", Font.BOLD, 25);
-
-    // =================================
-    // MAIN PANELS
-    // =================================
-
-    private JPanel dashboardPanel;
-    private JPanel headerPanel;
-    private JPanel sidebarPanel;
-    private JPanel pagesPanel;
-
-    private CardLayout cardLayout;
-
     private JPanel productsPage;
     private JPanel profilePage;
     private JPanel requestPage;
@@ -99,7 +69,7 @@ public class CustomerMain extends MainDesign {
     // CUSTOM REQUEST COMPONENTS
     // =================================
 
-    public JFrame requestFrame;
+    public JFrame requestFrame = new JFrame("Request");
     public JTextField sculptureNameField;
     public JTextArea descriptionArea;
     public JScrollPane descriptionScroll;
@@ -107,7 +77,7 @@ public class CustomerMain extends MainDesign {
     public JComboBox<String> sizeComboBox;
     public JSpinner quantitySpinner;
     public JTextField designField;
-    public JButton cancelButton;
+    public JButton cancelButton  = new JButton("Cancel");
     public JButton submitButton = new JButton("Submit Request");
 
     private JPanel requestFormPanel;
@@ -141,12 +111,6 @@ public class CustomerMain extends MainDesign {
     public CustomerMain() {
 
         setTitle("StoneCraft - Customer Main");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        setSize(1100, 700);
-        setMinimumSize(new Dimension(900, 600));
-        setLocationRelativeTo(null);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         products = new ArrayList<>();
         cartItems = new ArrayList<>();
@@ -333,19 +297,6 @@ public class CustomerMain extends MainDesign {
         logoutButton.addActionListener(e -> logout());
 
         sidebarPanel.add(logoutButton);
-    }
-
-    private void addSidebarTitle(String title) {
-
-        JLabel sectionLabel = new JLabel(title);
-        sectionLabel.setFont(new Font("Arial", Font.BOLD, 11));
-        sectionLabel.setForeground(new Color(170, 164, 155));
-        sectionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        sectionLabel.setBorder(
-                BorderFactory.createEmptyBorder(15, 10, 10, 0)
-        );
-
-        sidebarPanel.add(sectionLabel);
     }
 
     private void addMenuButton(String buttonText, String category) {
@@ -944,7 +895,7 @@ public class CustomerMain extends MainDesign {
                 }
 
                 cartItem.setQuantity(cartItem.getQuantity() + 1);
-                DataAccessObject.updateCartQuantity(cartItem);
+                DataAccessObject.updateCartQuantity(cartItem,Main.currentAccount.getAccountId());
 
                 alreadyAdded = true;
                 break;
@@ -955,7 +906,7 @@ public class CustomerMain extends MainDesign {
 
             Cart newItem = new Cart(product, 1);
 
-            if (DataAccessObject.insertCartItem(newItem) != -1) {
+            if (DataAccessObject.insertCartItem(newItem, Main.currentAccount.getAccountId()) != -1) {
                 cartItems.add(newItem);
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to save to cart.");
@@ -1189,7 +1140,7 @@ public class CustomerMain extends MainDesign {
 
             if (item.getQuantity() > 1) {
                 item.setQuantity(item.getQuantity() - 1);
-                DataAccessObject.updateCartQuantity(item);
+                DataAccessObject.updateCartQuantity(item, Main.currentAccount.getAccountId());
             }
 
             refreshCart();
@@ -1204,7 +1155,7 @@ public class CustomerMain extends MainDesign {
             }
 
             item.setQuantity(item.getQuantity() + 1);
-            DataAccessObject.updateCartQuantity(item);
+            DataAccessObject.updateCartQuantity(item, Main.currentAccount.getAccountId());
 
             refreshCart();
             updateCartButton();
@@ -1212,7 +1163,7 @@ public class CustomerMain extends MainDesign {
 
         removeButton.addActionListener(e -> {
 
-            DataAccessObject.deleteCartItem(item);
+            DataAccessObject.deleteCartItem(item,Main.currentAccount.getAccountId());
             cartItems.remove(item);
 
             refreshCart();
@@ -1502,7 +1453,6 @@ public class CustomerMain extends MainDesign {
                 )
         );
 
-        cancelButton = new JButton("Cancel");
         styleButton(cancelButton, fieldColor, mainTextColor);
 
         cancelButton.setBorder(
@@ -1787,12 +1737,7 @@ public class CustomerMain extends MainDesign {
         formPanel.add(Box.createVerticalStrut(15));
     }
 
-    private void styleComboBox(JComboBox<String> comboBox) {
 
-        comboBox.setFont(mainFont);
-        comboBox.setBackground(Color.WHITE);
-        comboBox.setForeground(mainTextColor);
-    }
 
     // =================================
     // MY CUSTOM REQUESTS PAGE
@@ -2107,9 +2052,8 @@ public class CustomerMain extends MainDesign {
         cancelRequestButton.setPreferredSize(new Dimension(125, 35));
         cancelRequestButton.setMaximumSize(new Dimension(125, 35));
 
-        cancelRequestButton.addActionListener(
-                e -> cancelCustomRequest(customRequest)
-        );
+        cancelRequestButton.addActionListener( e ->
+                cancelCustomRequest(customRequest));
 
         actionPanel.add(viewButton);
         actionPanel.add(Box.createVerticalStrut(7));
@@ -2164,19 +2108,25 @@ public class CustomerMain extends MainDesign {
 
     private void editCustomRequest(CustomRequest request) {
 
-        if ("Cancelled".equalsIgnoreCase(request.getStatus())
-                || "Completed".equalsIgnoreCase(request.getStatus())) {
+        String status = request.getStatus();
+
+        if (status == null || status.trim().isEmpty()) {
+            status = "Pending";
+        }
+
+        if ("Cancelled".equalsIgnoreCase(status) || "Completed".equalsIgnoreCase(status) || "Accepted".equalsIgnoreCase(status)
+                || "In Progress".equalsIgnoreCase(status) || "Declined".equalsIgnoreCase(status)) {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "This request can no longer be edited.",
+                    "This request is already " + status.toLowerCase()
+                            + " and can no longer be edited.",
                     "Edit Request",
-                    JOptionPane.INFORMATION_MESSAGE
+                    JOptionPane.WARNING_MESSAGE
             );
 
             return;
         }
-
         JDialog editDialog = new JDialog(
                 this,
                 "Edit Custom Request",
@@ -2367,10 +2317,18 @@ public class CustomerMain extends MainDesign {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "This request has already been cancelled.",
+                    "This cancelled request has been removed.",
                     "Cancel Request",
                     JOptionPane.INFORMATION_MESSAGE
             );
+
+            DataAccessObject.deleteCustomProduct(
+                    request.getProductId(),
+                    Main.currentAccount.getAccountId()
+            );
+
+            refreshCustomRequests();
+
 
             return;
         }
@@ -2383,6 +2341,73 @@ public class CustomerMain extends MainDesign {
                     "Cancel Request",
                     JOptionPane.INFORMATION_MESSAGE
             );
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Completed requests can no longer be cancelled.",
+                    "Edit",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+
+
+            return;
+        }
+
+        if ("Accepted".equalsIgnoreCase(request.getStatus())) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "This request has already been accepted and can no longer be cancelled.",
+                    "Cancel Request",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return;
+        }
+        if ("In Progress".equalsIgnoreCase(request.getStatus())) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "This request is already in progress and can no longer be cancelled.",
+                    "Cancel Request",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "This request is already in progress and can no longer be cancelled.",
+                    "Edit",
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            return;
+        }
+
+        if ("Declined".equalsIgnoreCase(request.getStatus())) {
+
+            int declinedChoice = JOptionPane.showConfirmDialog(
+                    this,
+                    "This request was declined. Do you want to cancel it?",
+                    "Edit",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (declinedChoice == JOptionPane.YES_OPTION) {
+
+                request.setStatus("Cancelled");
+
+                DataAccessObject.updateRequestStatus(request, "Cancelled");
+
+                refreshCustomRequests();
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Your custom request has been cancelled.",
+                        "Request Cancelled",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
 
             return;
         }
@@ -2399,10 +2424,7 @@ public class CustomerMain extends MainDesign {
 
             request.setStatus("Cancelled");
 
-            DataAccessObject.updateRequestStatus(
-                    request,
-                    "Cancelled"
-            );
+            DataAccessObject.updateRequestStatus(request, "Cancelled");
 
             refreshCustomRequests();
 
@@ -2897,41 +2919,6 @@ public class CustomerMain extends MainDesign {
         dialog.setVisible(true);
     }
 
-    private JPanel createProfileRow(String labelText, String valueText) {
-
-        JPanel row = new JPanel(new BorderLayout(15, 0));
-        row.setBackground(Color.WHITE);
-        row.setAlignmentX(Component.LEFT_ALIGNMENT);
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 46));
-
-        row.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(
-                                1, 0, 0, 0, borderColor
-                        ),
-                        BorderFactory.createEmptyBorder(13, 0, 13, 0)
-                )
-        );
-
-        JLabel label = new JLabel(labelText);
-        label.setFont(mainFont);
-        label.setForeground(labelColor);
-        label.setPreferredSize(new Dimension(160, 20));
-
-        JLabel value = new JLabel(
-                valueText != null && !valueText.trim().isEmpty()
-                        ? valueText : "Not set"
-        );
-
-        value.setFont(boldFont);
-        value.setForeground(mainTextColor);
-
-        row.add(label, BorderLayout.WEST);
-        row.add(value, BorderLayout.CENTER);
-
-        return row;
-    }
-
     private JLabel createFormLabel(String text) {
 
         JLabel label = new JLabel(text);
@@ -2949,9 +2936,6 @@ public class CustomerMain extends MainDesign {
         showPage("Profile");
     }
 
-    // =================================
-    // LOG OUT
-    // =================================
 
     private void logout() {
 
@@ -2964,76 +2948,9 @@ public class CustomerMain extends MainDesign {
         );
 
         if (choice == JOptionPane.YES_OPTION) {
-
             Main.currentAccount = null;
-
             dispose();
-
             Main.loginProcess();
         }
-    }
-
-    // =================================
-    // DESIGN HELPERS
-    // =================================
-
-    private JPanel createWhiteCard() {
-
-        JPanel panel = new JPanel();
-        panel.setBackground(Color.WHITE);
-
-        panel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(borderColor),
-                        BorderFactory.createEmptyBorder(18, 18, 18, 18)
-                )
-        );
-
-        return panel;
-    }
-
-    private void styleButton(
-            JButton button,
-            Color background,
-            Color foreground
-    ) {
-
-        button.setFont(boldFont);
-        button.setBackground(background);
-        button.setForeground(foreground);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        button.setBorder(
-                BorderFactory.createEmptyBorder(9, 15, 9, 15)
-        );
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-
-                if (background.equals(copperColor)) {
-                    button.setBackground(hoverColor);
-                }
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                button.setBackground(background);
-            }
-        });
-    }
-
-    public void showWarning(String message) {
-
-        JOptionPane.showMessageDialog(
-                this,
-                message,
-                "Invalid Input",
-                JOptionPane.WARNING_MESSAGE
-        );
     }
 }

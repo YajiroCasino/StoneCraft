@@ -10,7 +10,6 @@ public class CustomerAccount extends Accounts{
         this.customerType = customerType;
     }
 
-
     public int getCustomerAccountId(){
         return customerAccountId;
     }

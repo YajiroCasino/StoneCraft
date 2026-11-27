@@ -56,25 +56,19 @@ public class DataBaseConnection {
                     "custom_product_status varchar(30) not null default 'Pending', " +
                     "foreign key (account_id) references accounts(account_id) on delete set null)";
 
-            String createOrderTable = "create table if not exists orders(" +
-                    "order_id int auto_increment primary key, " +
-                    "order_product_name varchar(100) not null, " +
-                    "order_product_category varchar(100) not null, " +
-                    "order_product_price decimal(10,2) not null, " +
-                    "order_product_quantity int not null)";
-
             String createCartTable = "create table if not exists cart(" +
                     "cart_id int auto_increment primary key," +
                     "product_id int not null," +
                     "product_cart_quantity int not null," +
-                    "foreign key (product_id) references product(product_id) on delete cascade)";
+                    "account_id int not null," +
+                    "foreign key (product_id) references product(product_id) on delete cascade," +
+                    "foreign key (account_id) references accounts(account_id) on delete cascade)";
 
             st.executeUpdate(createProductTable);
             st.executeUpdate(createAccountTable);
             st.executeUpdate(createCustomerAccountTable);
             st.executeUpdate(createBusinessAccountTable);
             st.executeUpdate(createCustomProductTable);
-            st.executeUpdate(createOrderTable);
             st.executeUpdate(createCartTable);
 
         } catch (SQLException e) {

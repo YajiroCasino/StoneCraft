@@ -1,30 +1,31 @@
 
 package Main;
-
 import Design.*;
 import DataBaseManagementConnection.*;
-
 import javax.swing.*;
+import javax.xml.crypto.Data;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Main {
 
-    public static DataAccessObject productDao = new DataAccessObject();
     public static Accounts currentAccount;
-    public static CustomRequest request;
+    public static SignUp su;
+    public static CustomerMain cm;
+    public static BusinessMain bm;
+    public static ArrayList<Product> products = new ArrayList<>();
+    public static ArrayList<CustomRequest> customRequests = new ArrayList<>();
 
     public static void main(String[] args) {
-
         DataBaseConnection.createDatabase();
         signUpProcess();
     }
 
     public static void signUpProcess() {
-
-        SignUp su = new SignUp();
-
+        su = new SignUp();
         su.createAccount.addActionListener(e -> {
 
             su.nameWarning.setText("");
@@ -201,7 +202,7 @@ public class Main {
 
     public static void customerProcess() {
 
-        CustomerMain cm = new CustomerMain();
+        cm = new CustomerMain();
 
         cm.profileName = currentAccount.getName();
         cm.profilePhone = currentAccount.getContactNumber();
@@ -289,8 +290,7 @@ public class Main {
     }
 
     public static void businessProcess() {
-
-        BusinessMain bm = new BusinessMain();
+        bm = new BusinessMain();
 
         bm.profileName = currentAccount.getName();
         bm.profilePhone = currentAccount.getContactNumber();
@@ -346,6 +346,45 @@ public class Main {
         });
     }
 
-    // custom request need ko mamaya
+    public static List<Product> searchProduct(String keyword){
+        return DataAccessObject.searchProduct(keyword);
+    }
+
+    public static OverViewStats computeStats(){
+        int stock = 0;
+        int pending = 0;
+        int inProgress = 0;
+
+        for(Product product: products){
+            if(product.getProductQuantity() <= 3){
+                stock++;
+            }
+        }
+
+        for(CustomRequest customRequest: customRequests){
+            if(customRequest.getStatus().equals("Pending")){
+                pending++;;
+            }
+            if(customRequest.getStatus().equals("In Progress")){
+                inProgress++;
+            }
+        }
+        return new OverViewStats(products.size(), stock, pending, inProgress);
+    }
+
+    public static void loadProducts(){
+        products.clear();
+        products.addAll(DataAccessObject.getAllProduct());
+    }
+
+    public static void loadCustomRequest(){
+        customRequests.clear();
+        customRequests.addAll(DataAccessObject.getAllCustomProduct());
+    }
+
     // improve design
+
+    // ayusin ang join na  shoshow yung  account and product
+    //yung sa custome nam lang di sya like
+    //ayusin yung code at design if posible ipasa sa main ang lahat ng function
 }

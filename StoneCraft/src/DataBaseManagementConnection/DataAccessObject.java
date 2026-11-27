@@ -197,34 +197,6 @@ public class DataAccessObject {
         return -1;
     }
 
-    public Product getProductById(int id) {
-        String sql = "SELECT product_id, product_name, product_category, "
-                + "product_price, product_quantity FROM product WHERE product_id = ?";
-
-        try (Connection conn = DataBaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Product p = new Product(
-                            rs.getString("product_name"),
-                            rs.getString("product_category"),
-                            rs.getDouble("product_price"),
-                            rs.getInt("product_quantity")
-                    );
-                    p.setProductId(rs.getInt("product_id"));
-                    return p;
-                }
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public static List<Product> getAllProduct() {
         List<Product> products = new ArrayList<>();
         String sql = "select product_id, product_name, product_category, product_price, product_quantity from product";
@@ -278,6 +250,33 @@ public class DataAccessObject {
         return -1;
     }
 
+    public static List<Product> searchProduct(String keyword) {
+        List<Product> result = new ArrayList<>();
+
+        String sql = "select * from product "
+                + "where product_name like ? or product_category like ?";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            String pattern = "%" + keyword.trim() + "%";
+            ps.setString(1, pattern);
+            ps.setString(2, pattern);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    result.add(new Product(
+                            rs.getString("product_name"),
+                            rs.getString("product_category"),
+                            rs.getDouble("product_price"),
+                            rs.getInt("product_quantity")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public static int insertCustomProduct(CustomRequest cr) {
         String sql = "insert into custom_products(" +
                 "custom_product_name, custom_product_category, custom_product_price, " +
@@ -289,6 +288,8 @@ public class DataAccessObject {
         try (Connection con = DataBaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
+            String status = (cr.getStatus() == null) ? "Pending" : cr.getStatus();
+
             ps.setString(1, cr.getProductName());
             ps.setString(2, cr.getProductCategory());
             ps.setDouble(3, cr.getProductPrice());
@@ -297,7 +298,7 @@ public class DataAccessObject {
             ps.setString(6, cr.getProductSize());
             ps.setString(7, cr.getProductPreferredDesign());
             ps.setInt(8, cr.getCustomer().getAccountId());
-            ps.setString(9, cr.getStatus());
+            ps.setString(9, status);
             ps.executeUpdate();
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -347,9 +348,22 @@ public class DataAccessObject {
         return list;
     }
 
+    public static int deleteCustomProduct(int customProductId, int accountId){
+        String sqlSyntax = "delete from custom_products where custom_product_id = ? and account_id = ?";
+
+        try(PreparedStatement ps = con.prepareStatement(sqlSyntax)){
+            ps.setInt(1, customProductId);
+            ps.setInt(2, accountId);
+            return ps.executeUpdate();
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void updateRequestStatus(CustomRequest request, String status) {
 
-        String sql = "UPDATE custom_products SET custom_product_status = ? WHERE custom_product_id = ?";
+        String sql = "update custom_products set custom_product_status = ? where custom_product_id = ?";
 
         try {Connection con = DataBaseConnection.getConnection();
             PreparedStatement ps = con.prepareStatement(sql);
@@ -364,13 +378,14 @@ public class DataAccessObject {
         }
     }
 
-    public static int insertCartItem(Cart cartItem) {
-        String sql = "insert into cart(product_id, product_cart_quantity) values(?, ?)";
+    public static int insertCartItem(Cart cartItem, int accountId) {
+        String sql = "insert into cart(product_id, product_cart_quantity, account_id) values(?, ?, ?)";
         try (Connection c = DataBaseConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setInt(1, cartItem.getProduct().getProductId());   // product id, hindi cart id
+            ps.setInt(1, cartItem.getProduct().getProductId());
             ps.setInt(2, cartItem.getQuantity());
+            ps.setInt(3, accountId);
             ps.executeUpdate();
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -386,13 +401,14 @@ public class DataAccessObject {
         return -1;
     }
 
-    public static boolean updateCartQuantity(Cart cart) {
-        String sql = "update cart set product_cart_quantity = ? where cart_id = ?";
+    public static boolean updateCartQuantity(Cart cart, int accountId) {
+        String sql = "update cart set product_cart_quantity = ? where cart_id = ? and account_id = ?";
         try (Connection c = DataBaseConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setInt(1, cart.getQuantity());
             ps.setInt(2, cart.getCartId());
+            ps.setInt(3, accountId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -400,12 +416,13 @@ public class DataAccessObject {
         return false;
     }
 
-    public static boolean deleteCartItem(Cart cart) {
-        String sql = "delete from cart where cart_id = ?";
+    public static boolean deleteCartItem(Cart cart, int accountId) {
+        String sql = "delete from cart where cart_id = ? and account_id = ?";
         try (Connection c = DataBaseConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setInt(1, cart.getCartId());
+            ps.setInt(2, accountId);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
